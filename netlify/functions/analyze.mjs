@@ -3,7 +3,8 @@
 import { checkText, identify, isBanned, addStrike, underLimit, countUse, json } from "./_lib/guard.mjs";
 import { analyzeAudio, analyzeText, setBudget, Blocked, SCENES, PALETTES, SOUNDS, MOODS } from "./_lib/ai.mjs";
 
-const MAX_AUDIO_B64 = 4_200_000; // about 60-70 s of 16 kHz mono WAV
+const MAX_AUDIO_B64 = 5_400_000; // about 2 min of 16 kHz mono WAV (Netlify body limit is 6 MB)
+const REGIONS = ["prefrontal", "motor", "parietal", "temporal", "occipital", "limbic"];
 
 async function violation(id, category) {
   if (category === "selfharm") return json(200, { status: "support" });
@@ -20,6 +21,8 @@ function shape(r) {
   }));
   return {
     core: str(r.core, 220),
+    summary: str(r.summary, 420),
+    brain: { region: pick(r.brain?.region, REGIONS, ""), why: str(r.brain?.why, 200) },
     mood: pick(r.mood, MOODS, "calm"),
     palette: pick(r.palette, PALETTES, "mist"),
     tiles,
@@ -77,7 +80,7 @@ export default async (req, context) => {
 
   // 4. Rules on what the AI produced. Never show it if it breaks a rule (no strike: not the person's fault).
   const board = shape(r);
-  const produced = [board.core, board.breathe, board.photo_query, ...board.tiles.flatMap(t => [t.subject, t.photo, t.caption]), ...board.steps.flatMap(s => [s.when, s.what]), ...board.tangents, board.strength.name, board.strength.how].join(" \n ");
+  const produced = [board.core, board.breathe, board.photo_query, ...board.tiles.flatMap(t => [t.subject, t.photo, t.caption]), ...board.steps.flatMap(s => [s.when, s.what]), ...board.tangents, board.strength.name, board.strength.how, board.summary, board.brain.why].join(" \n ");
   if (checkText(produced) || !board.core || board.tiles.length < 3) return json(200, { status: "ai_error" });
 
   await countUse(id, "rec");

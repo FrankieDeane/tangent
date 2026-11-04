@@ -124,6 +124,7 @@ const RULES = `Safety rules (strict): this is a calm tool for adults with ADHD. 
 
 function boardPrompt(source) {
   return `You help a person with ADHD. They recorded a rambling voice note about an idea, a plan or what is in their head. Find its core and turn it into a calm visual mood board. Be warm, brief, never clinical, never preachy.
+Precision matters more than poetry: everything you write must come from what the person actually said. Never invent topics, places, people or objects they did not mention.
 
 ${RULES}
 
@@ -134,9 +135,10 @@ Reply with ONLY a JSON object:
  "language": "es|en|other",
  "safety": {"ok": true or false, "topic": "none|sexual|minors|violence|war|hate|politics|abortion|death|selfharm|drugs|profanity|other"},
  "core": "the core idea in one or two short sentences, max 22 words, second person, calm, in the person's language",
+ "summary": "a faithful synthesis of everything they said, 2 or 3 short sentences, max 55 words, second person, in the person's language, keeping their own key words",
  "mood": "one of ${MOODS.join("|")}",
  "palette": "one of ${PALETTES.join("|")} matching the mood",
- "tiles": [5 objects {"subject": "a concrete, friendly thing or scene to draw from what they actually said, 4-10 words in English", "photo": "2 to 4 plain English words to search a real, calm, wholesome stock photo of that subject, e.g. coffee cup morning", "scene": "closest of ${SCENES.join("|")}", "caption": "max 7 words, image-like, in the person's language"}],
+ "tiles": [5 visual memory anchors, in the order the ideas came up. Each one stands for ONE concrete part of what they said, so that remembering the picture brings back that part of the idea. Object {"subject": "the literal thing, place or action they mentioned for this part, 4-10 words in English, no metaphors", "photo": "2 or 3 literal English nouns that a stock photo site would match exactly for that same thing, e.g. 'guest list notebook', 'workshop tools table'; never abstract words like idea, success, focus, mind, future", "scene": "closest of ${SCENES.join("|")}", "caption": "max 7 words in the person's language: the part of the idea this picture helps remember"}],
  "mix": {"focus": 0-100, "energy": 0-100, "calm": 0-100, "urgency": 0-100, "clarity": 0-100, "ideas": 0-100} estimated from how they spoke (ideas = how many separate ideas came up),
  "clip": "index 0-4 of the tile that best captures the whole idea",
  "breathe": "one calming line, max 14 words, only if they sound stressed or overwhelmed, else empty string",
@@ -147,6 +149,7 @@ Reply with ONLY a JSON object:
  "sounds": [1 to 3 of ${SOUNDS.join("|")} that fit the scenes they imagined or would calm them],
  "photo_query": "2 or 3 English words for a calm, safe stock photo that fits the core",
  "strength": {"name": "the ADHD strength this note shows, 1 to 3 words in the person's language, e.g. Conectar ideas / Connecting ideas, Hiperfoco / Hyperfocus, Creatividad / Creativity, Energía / Energy, Curiosidad / Curiosity, Visión amplia / Big-picture thinking, Intuición / Intuition", "how": "max 20 words, second person, warm: how this strength helps make this exact idea clear and doable"},
+ "brain": {"region": "the brain area most involved in this kind of thinking, one of prefrontal (planning, deciding, ordering), motor (doing, acting, building), parietal (connecting pieces, space, numbers), temporal (words, memory, stories, people), occipital (images, imagining, visual ideas), limbic (emotion, motivation, what matters to them)", "why": "max 24 words, second person, warm, in the person's language: what that area is doing in this idea and why that is a strength, even with ADHD. Illustrative, never medical or diagnostic"},
  "same_thread": true if a previous idea is given below and this note clearly continues it, else false}
 If safety.ok is false or language is "other", still return the JSON but leave core, tiles, steps and the rest empty.`;
 }
