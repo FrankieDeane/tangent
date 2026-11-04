@@ -12,7 +12,11 @@
   const T = {
     es: {
       experimental: "Experimental", lead1: "Decilo como sale.", lead2: "Miralo claro.",
-      sub: "Tocá el botón y hablá hasta un minuto, en español o inglés. Tangent lo convierte en una imagen tranquila de lo que querés decir.",
+      tagline: "Una idea de Tangent", heroL: "Para mentes no lineales · ES / EN",
+      r1: "Hablá", r1s: "Como sale, sin ordenar nada", r2: "Mirá", r2s: "Una imagen clara del centro", r3: "Respirá", r3s: "Tres pasos y nada más",
+      st1: "para decirlo todo", st2: "solo botón", st3: "cuentas y contraseñas",
+      sub: "Tocá el botón y hablá hasta un minuto, como te salga.",
+      sub2: "Tangent lo convierte en una imagen clara, una frase y tres pasos.",
       record: "Grabar tu idea", type: "Prefiero escribir", example: "Ver un ejemplo", showme: "Mostrame",
       garden: "Tu jardín de ideas", listening: "Te escucho. Sin apuro, se corta solo al minuto.", done: "Listo", cancel: "Cancelar",
       footwarn: "Experimental. Las imágenes son interpretaciones y pueden no coincidir con lo que imaginaste. No compartas datos privados.",
@@ -20,7 +24,8 @@
       think: ["Escuchando lo que dijiste…", "Dejando el ruido de lado…", "Buscando el centro…", "Armando tu imagen…"],
       heard: "Lo que dijiste, en una línea", simplify: "Simplificar", full: "Ver todo", postcard: "Postal", again: "Grabar otra idea", home: "Inicio",
       breathe: "Respirá", breatheSub: "Inhalá cuando crece, soltá cuando baja.", steps: "Lo que podés hacer", letgo: "Podés soltar esto",
-      tangents: "Tangentes", sounds: "Sonido de fondo", clip: "CLIP", drawing: "dibujando…", photo: "Foto",
+      tangents: "Tangentes", sounds: "Sonido de fondo",
+      mix: ["Enfoque", "Energía", "Calma", "Urgencia", "Claridad", "Ideas"], mixT: "Tu mezcla", voice: "Tu voz", words: "Palabras", noiseL: "Ruido", noise: "ruido", core: "el centro", clip: "CLIP", drawing: "dibujando…", photo: "Foto",
       consentT: "Antes de empezar",
       consent: ["Tangent es un experimento. Puede equivocarse y las imágenes pueden no coincidir con lo que imaginaste.",
         "Solo español e inglés. No compartas datos personales ni privados.",
@@ -43,7 +48,11 @@
     },
     en: {
       experimental: "Experimental", lead1: "Say it messy.", lead2: "See it clear.",
-      sub: "Tap the button and talk for up to a minute, in English or Spanish. Tangent turns it into a calm picture of what you mean.",
+      tagline: "An idea by Tangent", heroL: "For non-linear minds · EN / ES",
+      r1: "Talk", r1s: "However it comes out", r2: "See", r2s: "A clear picture of the core", r3: "Breathe", r3s: "Three steps, nothing more",
+      st1: "to say it all", st2: "single button", st3: "accounts or passwords",
+      sub: "Tap the button and talk for up to a minute, however it comes out.",
+      sub2: "Tangent turns it into one clear picture, one sentence and three steps.",
       record: "Record your idea", type: "I'd rather type", example: "See an example", showme: "Show me",
       garden: "Your idea garden", listening: "I'm listening. No rush, it stops by itself at one minute.", done: "Done", cancel: "Cancel",
       footwarn: "Experimental. Images are interpretations and may not match what you imagined. Don't share private information.",
@@ -51,7 +60,8 @@
       think: ["Listening to what you said…", "Setting the noise aside…", "Finding the center…", "Building your picture…"],
       heard: "What you said, in one line", simplify: "Simplify", full: "Show all", postcard: "Postcard", again: "Record another idea", home: "Home",
       breathe: "Breathe", breatheSub: "Breathe in as it grows, out as it shrinks.", steps: "What you can do", letgo: "You can let go of",
-      tangents: "Tangents", sounds: "Background sound", clip: "CLIP", drawing: "drawing…", photo: "Photo",
+      tangents: "Tangents", sounds: "Background sound",
+      mix: ["Focus", "Energy", "Calm", "Urgency", "Clarity", "Ideas"], mixT: "Your mix", voice: "Your voice", words: "Words", noiseL: "Noise", noise: "noise", core: "the core", clip: "CLIP", drawing: "drawing…", photo: "Photo",
       consentT: "Before you start",
       consent: ["Tangent is an experiment. It can be wrong, and images may not match what you imagined.",
         "English and Spanish only. Don't share personal or private information.",
@@ -78,11 +88,16 @@
   function applyLang() {
     document.documentElement.lang = lang;
     document.querySelectorAll("[data-t]").forEach(el => { el.textContent = t(el.dataset.t); });
-    $("#langBtn").textContent = lang === "es" ? "EN" : "ES";
+    document.querySelectorAll("#langSw [data-lang]").forEach(b => { b.setAttribute("aria-pressed", String(b.dataset.lang === lang)); });
+    document.querySelectorAll('a[href^="/terms.html"],a[href^="/privacy.html"]').forEach(a => { a.href = a.getAttribute("href").split("#")[0] + "#" + lang; });
+    splitLead();
     $("#typed").placeholder = lang === "es" ? "Escribí como pensás, sin ordenar nada…" : "Write the way you think, no need to tidy it…";
-    if (current) renderBoard(current, true);
+    if (current) { if (current.example) current = { ...exampleBoard(), wave: current.wave }; renderBoard(current, true); }
   }
-  $("#langBtn").onclick = () => { lang = lang === "es" ? "en" : "es"; store.set("tangent.lang", lang); applyLang(); };
+  document.querySelectorAll("#langSw [data-lang]").forEach(b => b.onclick = () => {
+    if (b.dataset.lang === lang) return;
+    lang = b.dataset.lang; store.set("tangent.lang", lang); applyLang();
+  });
   $("#year").textContent = new Date().getFullYear();
 
   // ---------- identity ----------
@@ -176,7 +191,7 @@
     thinking([]);
     let wav;
     try { wav = await toWavBase64(blob); } catch { show("home"); return modal(t("errT"), `<p>${esc(t("err"))}</p>`); }
-    analyze({ audio: wav }, wave);
+    analyze({ audio: wav }, wave, secs);
   }
   function cancelRecording() { if (!rec) return; const r = rec; rec = null; try { r.mr.stop(); } catch {} endStream(r); show("home"); }
   function downsample(a, n) { if (!a.length) return []; const out = []; for (let i = 0; i < n; i++) { const s = Math.floor(i * a.length / n), e = Math.max(s + 1, Math.floor((i + 1) * a.length / n)); out.push(Math.max(...a.slice(s, e))); } return out; }
@@ -244,7 +259,7 @@
   const stopThinking = () => { clearInterval(thinkTimer); document.querySelectorAll(".bar").forEach(b => b.remove()); };
 
   // ---------- server ----------
-  async function analyze(payload, wave) {
+  async function analyze(payload, wave, secs = 0) {
     let res, data;
     try {
       res = await fetch("/api/analyze", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, lang, ...payload }) });
@@ -257,7 +272,7 @@
       case "ok": {
         const keys = (data.board.keep || []).concat(data.board.core.split(/\s+/));
         if (data.transcript) { placeWords(data.transcript.split(/\s+/)); await wait(400); placeWords(data.transcript.split(/\s+/), keys); await wait(2200); }
-        return openBoard({ ...data.board, transcript: data.transcript, lang: data.language, at: Date.now() }, wave, true);
+        return openBoard({ ...data.board, transcript: data.transcript, lang: data.language, secs: Math.round(secs), at: Date.now() }, wave, true);
       }
       case "warning": show("home"); return modal(t("warnT"), `<p>${esc(t("warn"))}</p>`);
       case "banned": store.set("tangent.banned", true); show("home"); return showBanned();
@@ -291,9 +306,12 @@
   }
   async function drawTiles(board) {
     try {
-      const res = await fetch("/api/draw", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, subjects: board.tiles.map(x => x.subject), palette: board.palette }) });
-      const data = await res.json();
-      return (data.svgs || []).map(s => (s ? cleanSvg(s) : null));
+      const need = board.tiles.map((x, i) => (board.photos?.[i] ? -1 : i)).filter(i => i >= 0);
+      if (!need.length) return [];
+      const res = await fetch("/api/draw", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, subjects: need.map(i => board.tiles[i].subject), palette: board.palette }) });
+      const data = await res.json(), out = [];
+      need.forEach((ti, k) => { const sv = data.svgs?.[k]; out[ti] = sv ? cleanSvg(sv) : null; });
+      return out;
     } catch { return []; }
   }
 
@@ -303,11 +321,11 @@
     current = board; currentWave = wave || board.wave || null; current.wave = currentWave;
     renderBoard(board);
     if (fresh) {
-      const pics = [...document.querySelectorAll(".tile[data-i] .pic")];
+      const pics = [...document.querySelectorAll(".tile[data-i] .pic:not(.photo)")];
       pics.forEach(p => { p.classList.add("drawing"); p.dataset.drawing = t("drawing"); });
       const svgs = await drawTiles(board);
       board.svgs = svgs.slice(0, board.tiles.length);
-      pics.forEach((p, i) => { const s = board.svgs[i]; if (s) { p.innerHTML = s; if (+p.closest(".tile").dataset.i === board.clip) p.firstElementChild?.classList.add("kb"); } p.classList.remove("drawing"); });
+      pics.forEach(p => { const i = +p.closest(".tile").dataset.i, s = board.svgs[i]; if (s) { p.innerHTML = s; if (+p.closest(".tile").dataset.i === board.clip) p.firstElementChild?.classList.add("kb"); } p.classList.remove("drawing"); });
       saveToGarden(board);
     }
   }
@@ -316,18 +334,60 @@
     const n = w.length, pts = w.map((a, i) => `${(i / (n - 1)) * 1000},${100 - a * 90}`).join(" "), low = w.map((a, i) => `${((n - 1 - i) / (n - 1)) * 1000},${100 + w[n - 1 - i] * 90}`).join(" ");
     return `<svg class="wave" viewBox="0 0 1000 200" preserveAspectRatio="none" aria-hidden="true"><polygon points="${pts} ${low}" fill="var(--glow)" opacity=".55"/><polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2" opacity=".5"/></svg>`;
   }
+  const MIX_KEYS = ["focus", "energy", "calm", "urgency", "clarity", "ideas"];
+  const MIX_DOT = ["#FFD36E", "#FF8A5B", "#7FE0C2", "#FF6FA8", "#7CC4FF", "#C8A8FF"];
+  function radarSvg(mix) {
+    if (!mix || !MIX_KEYS.some(k => mix[k] > 0)) return "";
+    const W = 340, H = 300, cx = W / 2, cy = H / 2 + 6, R = 96;
+    const pt = (i, r) => { const a = -Math.PI / 2 + i * Math.PI / 3; return [cx + Math.cos(a) * r, cy + Math.sin(a) * r]; };
+    const ring = f => MIX_KEYS.map((_, i) => pt(i, R * f).join(",")).join(" ");
+    const shape = MIX_KEYS.map((k, i) => pt(i, R * Math.max(0.08, mix[k] / 100)).join(",")).join(" ");
+    const labels = MIX_KEYS.map((k, i) => {
+      const [x, y] = pt(i, R + 34), txt = t("mix")[i], w = txt.length * 6.6 + 34;
+      return `<g transform="translate(${(x - w / 2).toFixed(1)},${(y - 13).toFixed(1)})"><rect width="${w.toFixed(1)}" height="26" rx="13" fill="rgba(25,22,70,.38)"/><circle cx="13" cy="13" r="4.5" fill="${MIX_DOT[i]}"/><text x="23" y="17" font-size="11.5" font-weight="600" fill="#fff">${esc(txt)}</text></g>`;
+    }).join("");
+    return `<svg class="radar" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t("mixT"))}">
+      <g fill="none" stroke="rgba(255,255,255,.45)" stroke-width="1">${[1, .66, .33].map(f => `<polygon points="${ring(f)}"/>`).join("")}${MIX_KEYS.map((_, i) => `<line x1="${cx}" y1="${cy}" x2="${pt(i, R)[0]}" y2="${pt(i, R)[1]}"/>`).join("")}</g>
+      <polygon class="rshape" points="${shape}" fill="rgba(255,255,255,.32)" stroke="#fff" stroke-width="2" stroke-linejoin="round"/>
+      ${labels}</svg>`;
+  }
+  function voiceCard(b) {
+    const words = (b.transcript || "").split(/\s+/).filter(Boolean).length || b.words || 0;
+    const kept = (b.core || "").split(/\s+/).filter(Boolean).length;
+    const noise = words ? Math.max(0, Math.round(100 * (1 - Math.min(1, kept / words)))) : 0;
+    const secs = b.secs || 0, big = secs ? `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}` : String(words);
+    // dotted columns from the voice wave (or word rhythm when typed)
+    let w = b.wave?.length ? b.wave : (b.transcript || b.core || "").split(/\s+/).map(x => Math.min(1, x.length / 9));
+    const N = 46, cols = Array.from({ length: N }, (_, i) => { const s = Math.floor(i * w.length / N), e = Math.max(s + 1, Math.floor((i + 1) * w.length / N)); return Math.max(0, ...w.slice(s, e)); });
+    const peak = cols.indexOf(Math.max(...cols)), ROWS = 12, gap = 10, dw = 600 / N;
+    const hot = ["#FFE07A", "#FFC24D", "#FF9E3D", "#FF6B3D", "#F2443A"];
+    let dots = "";
+    cols.forEach((v, i) => {
+      const n = Math.max(1, Math.round(v * ROWS)), near = Math.abs(i - peak) <= 4;
+      for (let r = 0; r < n; r++) dots += `<circle style="--d:${i * 22 + r * 18}ms" cx="${(i * dw + dw / 2).toFixed(1)}" cy="${130 - r * gap}" r="${near ? 2.6 : 1.9}" fill="${near ? hot[Math.min(4, Math.floor((r / ROWS) * 5))] : "#BDBDBD"}"/>`;
+    });
+    return `<div class="tile panel voice">
+      <div class="vhead"><h3>${t("voice")}</h3><div class="seg"><span>${t("words")} ${words}</span><span class="on">${t("noiseL")}</span></div></div>
+      <div class="vnum"><b>${big}</b>${noise ? `<em>−${noise}% ${t("noise")}</em>` : ""}</div>
+      <svg class="dots" viewBox="0 0 600 140" preserveAspectRatio="none" aria-hidden="true">${dots}</svg>
+      <div class="vaxis"><span>0:00</span><span>${t("core")}</span><span>${big}</span></div>
+    </div>`;
+  }
   function renderBoard(b, keepScroll) {
     show("board"); if (keepScroll) window.scrollTo(0, 0);
     document.body.dataset.mood = b.mood || "calm";
     const pal = b.palette || "mist", tiles = b.tiles || [], photos = b.photos || [];
     const tileHtml = (x, i) => {
-      const moving = i === b.clip, svg = b.svgs?.[i] || S.pic(x.scene, pal, moving);
-      return `<figure class="tile${i === 0 ? " big" : ""}" data-i="${i}"><div class="pic">${svg}${moving ? `<span class="play">${t("clip")}</span>` : ""}</div>${x.caption ? `<figcaption class="cap">${esc(x.caption)}</figcaption>` : ""}</figure>`;
+      const moving = i === b.clip, ph = photos[i];
+      const inner = ph
+        ? `<img class="${moving ? "kb" : ""}" src="${esc(ph.src)}" alt="${esc(ph.alt || x.caption || "")}" loading="${i < 2 ? "eager" : "lazy"}" referrerpolicy="no-referrer" data-fallback="${i}" style="background:${esc(ph.color || "#ddd")}"><span class="credit"><a href="${esc(ph.profile)}" target="_blank" rel="noopener">${esc(ph.credit)}</a> / <a href="${esc(ph.sourceUrl || ph.url)}" target="_blank" rel="noopener">${esc(ph.source || "Unsplash")}</a></span>`
+        : (b.svgs?.[i] || S.pic(x.scene, pal, moving));
+      return `<figure class="tile${i === 0 ? " big" : ""}" data-i="${i}"><div class="pic${ph ? " photo" : ""}">${inner}${moving ? `<span class="play">${t("clip")}</span>` : ""}</div>${x.caption ? `<figcaption class="cap">${esc(x.caption)}</figcaption>` : ""}</figure>`;
     };
-    const photoHtml = p => `<figure class="tile"><div class="pic"><img src="${esc(p.src)}" alt="${esc(p.alt || "")}" loading="lazy" referrerpolicy="no-referrer"><a class="credit" href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.credit)} · Pexels</a></div></figure>`;
     const parts = [];
-    tiles.forEach((x, i) => { parts.push(tileHtml(x, i)); if (i === 1 && photos[0]) parts.push(photoHtml(photos[0])); if (i === 3 && photos[1]) parts.push(photoHtml(photos[1])); });
+    tiles.forEach((x, i) => parts.push(tileHtml(x, i)));
     if (b.breathe) parts.splice(2, 0, `<div class="tile breathe"><div class="bcirc">${t("breathe")}</div><p>${esc(b.breathe)}<small>${t("breatheSub")}</small></p></div>`);
+    parts.splice(b.breathe ? 3 : 2, 0, voiceCard(b));
     const steps = b.steps || [];
     if (steps.length) parts.push(`<div class="tile panel steps"><h3>${t("steps")}</h3><div class="srow">${steps.map(s => `<div class="s"><b>${esc(s.when)}</b><span>${esc(s.what)}</span></div>`).join("")}</div></div>`);
     if (b.letgo?.length) parts.push(`<div class="tile panel letgo"><h3>${t("letgo")}</h3><div>${b.letgo.map(x => `<s>${esc(x)}</s>`).join("")}</div></div>`);
@@ -335,17 +395,25 @@
     const sugg = b.sounds || [], all = [...sugg, ...SND.NAMES.filter(n => !sugg.includes(n))];
     parts.push(`<div class="tile panel"><h3>${t("sounds")}</h3><div class="mixer">${all.map(n => `<button class="chip" data-sound="${n}" aria-pressed="${SND.isPlaying(n)}">${soundLabel(n)}</button>`).join("")}</div></div>`);
 
+    delete $("#board").dataset.fx;
     $("#board").innerHTML = `
       <div class="head">${waveSvg(b.wave)}
-        <div class="heard">${t("heard")}</div>
-        <h2 class="core">${esc(b.core)}</h2>
-        <div class="tools">
-          <button class="chip" id="simpBtn" aria-pressed="${document.body.classList.contains("simple")}">${document.body.classList.contains("simple") ? t("full") : t("simplify")}</button>
-          <button class="chip" id="cardBtn">${t("postcard")}</button>
+        <div class="head-l">
+          <div class="heard">${t("heard")}</div>
+          <h2 class="core">${esc(b.core)}</h2>
+          <div class="tools">
+            <button class="chip" id="simpBtn" aria-pressed="${document.body.classList.contains("simple")}">${document.body.classList.contains("simple") ? t("full") : t("simplify")}</button>
+            <button class="chip" id="cardBtn">${t("postcard")}</button>
+          </div>
         </div>
+        ${radarSvg(b.mix)}
       </div>
       <div class="mosaic">${parts.join("")}</div>
       <div class="again"><button class="btn" id="againBtn">${t("again")}</button><button class="btn ghost" id="homeBtn">${t("home")}</button></div>`;
+    document.querySelectorAll("img[data-fallback]").forEach(img => img.addEventListener("error", () => {
+      const i = +img.dataset.fallback, pic = img.closest(".pic"); if (!pic) return;
+      pic.classList.remove("photo"); pic.innerHTML = b.svgs?.[i] || S.pic(b.tiles[i]?.scene, pal, i === b.clip);
+    }, { once: true }));
     $("#simpBtn").onclick = toggleSimple;
     $("#cardBtn").onclick = () => postcard(b);
     $("#againBtn").onclick = () => { SND.stopAll(); startRecording(); };
@@ -402,15 +470,23 @@
     const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H;
     const g = c.getContext("2d"), pal = S.PAL[b.palette] || S.PAL.mist;
     g.fillStyle = pal[0]; g.fillRect(0, 0, W, H);
-    try { const img = await svgToImage(b.svgs?.[0] || S.pic(b.tiles?.[0]?.scene || "calmwater", b.palette, false), 1000, 733); g.save(); g.beginPath(); g.roundRect ? g.roundRect(40, 40, 1000, 733, 40) : g.rect(40, 40, 1000, 733); g.clip(); g.drawImage(img, 40, 40, 1000, 733); g.restore(); } catch {}
+    try {
+      let img, ph = b.photos?.[0];
+      if (ph) { img = new Image(); img.crossOrigin = "anonymous"; img.src = ph.src; await img.decode(); }
+      else img = await svgToImage(b.svgs?.[0] || S.pic(b.tiles?.[0]?.scene || "calmwater", b.palette, false), 1000, 733);
+      const sc = Math.max(1000 / img.width, 733 / img.height), sw = 1000 / sc, sh = 733 / sc;
+      g.save(); g.beginPath(); g.roundRect ? g.roundRect(40, 40, 1000, 733, 40) : g.rect(40, 40, 1000, 733); g.clip();
+      g.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 40, 40, 1000, 733); g.restore();
+      if (ph) { g.font = '22px "Inter Tight", sans-serif'; g.fillStyle = "rgba(255,255,255,.9)"; g.fillText(`${ph.credit} / ${ph.source || "Unsplash"}`, 64, 750); }
+    } catch {}
     if (b.wave?.length) { g.strokeStyle = pal[2]; g.globalAlpha = 0.6; g.lineWidth = 4; g.beginPath(); b.wave.forEach((a, i) => { const x = 60 + i * (960 / (b.wave.length - 1)), y = 840 - a * 40; i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke(); g.globalAlpha = 1; }
     await document.fonts?.ready;
-    g.fillStyle = pal[3]; g.font = '64px "Instrument Serif", Georgia, serif';
+    g.fillStyle = pal[3]; g.font = '700 60px "Inter Tight", sans-serif';
     wrapText(g, b.core || "", 960).slice(0, 4).forEach((l, i) => g.fillText(l, 60, 940 + i * 74));
     g.font = '30px "Figtree", sans-serif'; g.globalAlpha = 0.85;
     const s0 = b.steps?.[0]; if (s0) g.fillText(`${s0.when} · ${s0.what}`.slice(0, 60), 60, 1250);
     g.globalAlpha = 0.6; g.font = '26px "Figtree", sans-serif'; g.fillText("Tangent · " + (lang === "es" ? "una idea de Tangent" : "an idea by Tangent"), 60, 1305); g.globalAlpha = 1;
-    try { const logo = new Image(); logo.src = "/assets/logo.png"; await logo.decode(); g.drawImage(logo, W - 170, H - 175, 120, 102); } catch {}
+    try { const logo = new Image(); logo.src = "/assets/mark.png"; await logo.decode(); g.drawImage(logo, W - 190, H - 150, 140, 101); } catch {}
     const blob = await new Promise(r => c.toBlob(r, "image/png"));
     const file = new File([blob], "tangent.png", { type: "image/png" });
     if (navigator.canShare?.({ files: [file] })) { try { await navigator.share({ files: [file], title: t("shareTitle") }); return; } catch (e) { if (e.name === "AbortError") return; } }
@@ -452,7 +528,8 @@
         : [{ when: "Now", what: "Set an alarm for 6:40" }, { when: "7:00", what: "Coffee and open email" }, { when: "7:30", what: "Pick just one task" }],
       letgo: es ? ["lo de la semana pasada", "contestar todo hoy"] : ["last week's stuff", "answering everything today"],
       tangents: es ? ["¿y si salgo a caminar?", "llamar a mamá", "ordenar el escritorio"] : ["a walk later?", "call mom", "tidy the desk"],
-      sounds: ["birds", "cafe"], keep: [], photos: [], example: true,
+      sounds: ["birds", "cafe"], keep: [], photos: [], example: true, secs: 42, words: 84,
+      mix: { focus: 38, energy: 62, calm: 30, urgency: 74, clarity: 45, ideas: 81 },
     };
   }
 
@@ -466,5 +543,41 @@
   $("#exampleLink").onclick = () => openBoard(exampleBoard(), null, false);
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#modal").hidden) $("#mBtns button")?.click(); });
   if (banned()) $("#recBtn").disabled = true;
-  applyLang(); renderGarden(); show("home");
+  // ---------- effects ----------
+  const calm = matchMedia("(prefers-reduced-motion: reduce)").matches, fine = matchMedia("(pointer: fine)").matches;
+  function splitLead() {
+    document.querySelectorAll(".hero .lead [data-t]").forEach((el, line) => {
+      el.innerHTML = el.textContent.split(" ").map((w, i) => `<span class="wd" style="--i:${line * 3 + i}">${esc(w)}</span>`).join(" ");
+    });
+  }
+  const io = "IntersectionObserver" in window ? new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return; e.target.classList.add("in"); io.unobserve(e.target);
+    const n = e.target.querySelector("[data-n]"); if (n) countUp(n);
+  }), { threshold: .25 }) : null;
+  function watchReveal(root = document) { root.querySelectorAll(".reveal:not(.in)").forEach(el => (io && !calm ? io.observe(el) : el.classList.add("in"))); }
+  function countUp(el) {
+    const end = +el.dataset.n, suf = el.dataset.suf || "", t0 = performance.now(), dur = 1400;
+    if (calm || end === 0) { el.textContent = end + suf; return; }
+    const step = now => { const k = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - k, 3); el.textContent = Math.round(end * e) + suf; if (k < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }
+  function tilt(root = document) {
+    if (!fine || calm) return;
+    root.querySelectorAll(".tilt, .tile:not(.panel)").forEach(el => {
+      el.addEventListener("pointermove", e => { const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+        el.style.setProperty("--rx", (-y * 6).toFixed(2) + "deg"); el.style.setProperty("--ry", (x * 8).toFixed(2) + "deg"); el.style.setProperty("--gx", (x + .5) * 100 + "%"); el.style.setProperty("--gy", (y + .5) * 100 + "%"); el.classList.add("tilting"); });
+      el.addEventListener("pointerleave", () => { el.style.setProperty("--rx", "0deg"); el.style.setProperty("--ry", "0deg"); el.classList.remove("tilting"); });
+    });
+  }
+  if (fine && !calm) {
+    const g = $(".glow"); let tx = innerWidth / 2, ty = innerHeight / 3, x = tx, y = ty;
+    addEventListener("pointermove", e => { tx = e.clientX; ty = e.clientY; g.style.opacity = "1"; });
+    (function loop() { x += (tx - x) * .08; y += (ty - y) * .08; g.style.transform = `translate(${x - 300}px,${y - 300}px)`; requestAnimationFrame(loop); })();
+    const orb = $("#recBtn");
+    orb.addEventListener("pointermove", e => { const r = orb.getBoundingClientRect(); orb.style.setProperty("--ox", ((e.clientX - r.left) / r.width * 100).toFixed(1) + "%"); orb.style.setProperty("--oy", ((e.clientY - r.top) / r.height * 100).toFixed(1) + "%"); orb.style.transform = `translate(${((e.clientX - r.left) / r.width - .5) * 10}px,${((e.clientY - r.top) / r.height - .5) * 10}px)`; });
+    orb.addEventListener("pointerleave", () => { orb.style.transform = ""; });
+  }
+  new MutationObserver(() => { if (!$("#board").hidden && !$("#board").dataset.fx) { $("#board").dataset.fx = 1; tilt($("#board")); } }).observe($("#board"), { childList: true });
+
+  applyLang(); renderGarden(); show("home"); watchReveal(); tilt();
 })();

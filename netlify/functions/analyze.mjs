@@ -16,7 +16,7 @@ const pick = (v, list, d) => (list.includes(v) ? v : d);
 
 function shape(r) {
   const tiles = (Array.isArray(r.tiles) ? r.tiles : []).slice(0, 5).map(t => ({
-    subject: str(t?.subject, 120), scene: pick(t?.scene, SCENES, "calmwater"), caption: str(t?.caption, 80),
+    subject: str(t?.subject, 120), photo: str(t?.photo, 40), scene: pick(t?.scene, SCENES, "calmwater"), caption: str(t?.caption, 80),
   }));
   return {
     core: str(r.core, 220),
@@ -25,6 +25,7 @@ function shape(r) {
     tiles,
     clip: Math.min(Math.max(0, Number(r.clip) || 0), Math.max(0, tiles.length - 1)),
     breathe: str(r.breathe, 140),
+    mix: Object.fromEntries(["focus", "energy", "calm", "urgency", "clarity", "ideas"].map(k => [k, Math.max(0, Math.min(100, Math.round(Number(r.mix?.[k]) || 0)))])),
     steps: (Array.isArray(r.steps) ? r.steps : []).slice(0, 3).map(s => ({ when: str(s?.when, 24), what: str(s?.what, 80) })),
     keep: (Array.isArray(r.keep) ? r.keep : []).slice(0, 6).map(k => str(k, 30)),
     letgo: (Array.isArray(r.letgo) ? r.letgo : []).slice(0, 6).map(k => str(k, 60)),
@@ -71,10 +72,10 @@ export default async (req, context) => {
 
   // 4. Rules on what the AI produced. Never show it if it breaks a rule (no strike: not the person's fault).
   const board = shape(r);
-  const produced = [board.core, board.breathe, board.photo_query, ...board.tiles.flatMap(t => [t.subject, t.caption]), ...board.steps.flatMap(s => [s.when, s.what]), ...board.tangents].join(" \n ");
+  const produced = [board.core, board.breathe, board.photo_query, ...board.tiles.flatMap(t => [t.subject, t.photo, t.caption]), ...board.steps.flatMap(s => [s.when, s.what]), ...board.tangents].join(" \n ");
   if (checkText(produced) || !board.core || board.tiles.length < 3) return json(200, { status: "ai_error" });
 
-  board.photos = await findPhotos(board.photo_query);
+  board.photos = await findPhotos(board.tiles.map(t => t.photo || t.subject));
   await countUse(id, "rec");
   return json(200, { status: "ok", transcript, language: r.language || "es", board, provider: r.provider });
 };
