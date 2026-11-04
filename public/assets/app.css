@@ -360,3 +360,27 @@ svg.dots circle{transform-box:fill-box;transform-origin:center;animation:pop .45
   .tile.power{min-height:190px}
   .actions .act span{font-size:13px}
 }
+
+/* ===== v3: summary, anchors, brain, vote ===== */
+.tile.summary{background:#fff;padding:22px 24px}
+.tile.summary p{margin:0;font:600 clamp(19px,2.2vw,24px)/1.35 var(--display);letter-spacing:-.015em;max-width:60ch}
+.tile.anchors{background:none;border:0;padding:8px 8px 0;gap:4px;overflow:visible}
+.tile.anchors p{margin:0;font-size:16px;color:var(--ink);max-width:62ch}
+.tile.anchors p::before{content:"✦ ";color:#6A55E0}
+.tile.brain{grid-column:span 2;display:grid;grid-template-columns:1fr 1.15fr;align-items:center;gap:6px;background:linear-gradient(160deg,#fff 30%,#F1F2FF);padding:20px}
+.tile.brain .bt{display:flex;flex-direction:column;gap:6px}
+.tile.brain b{font:800 clamp(22px,2.4vw,28px)/1.05 var(--display);letter-spacing:-.03em}
+.tile.brain p{margin:0;font-size:15px;line-height:1.4}
+.tile.brain small{font-size:11px;color:var(--muted)}
+.tile.brain svg{width:100%;height:auto}
+.tile.brain .shell{stroke:#B9C2EE;stroke-width:2}
+.tile.brain .zones ellipse{fill:#C9D0F5;opacity:.35}
+.tile.brain .zones ellipse.hot{fill:#6A55E0;opacity:.85;filter:drop-shadow(0 0 10px rgba(106,85,224,.7))}
+.tile.brain .pulse{fill:none;stroke:#6A55E0;stroke-width:2;transform-box:fill-box;transform-origin:center;animation:ring 2.2s ease-out infinite}
+.tile.vote{background:var(--paper);color:#fff;border:0;align-items:flex-start}
+.tile.vote h3{color:#fff;font-size:15px;letter-spacing:0;text-transform:none;font-weight:700}
+.vbtns{display:flex;gap:8px;flex-wrap:wrap}
+.vb{border:0;border-radius:99px;padding:11px 18px;font:600 15px var(--sans);background:rgba(255,255,255,.12);color:#fff;transition:transform .2s,background .2s}
+.vb:hover{background:#fff;color:var(--ink);transform:translateY(-2px)}
+.tile.vote p{margin:0;color:rgba(255,255,255,.85)}
+@media (max-width:760px){.tile.brain{grid-column:1/-1;grid-template-columns:1fr}}

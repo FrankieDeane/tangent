@@ -15,10 +15,10 @@
       tagline: "Una idea de Tangent", heroL: "Para mentes no lineales · ES / EN",
       r1: "Hablá", r1s: "Como sale, sin ordenar nada", r2: "Mirá", r2s: "Una imagen clara del centro", r3: "Respirá", r3s: "Tres pasos y nada más",
       st1: "para decirlo todo", st2: "solo botón", st3: "cuentas obligatorias",
-      sub: "Tocá el botón y hablá hasta un minuto, como te salga.",
+      sub: "Tocá el botón y tenés dos minutos para decir lo que quieras, como te salga.",
       sub2: "Tangent lo convierte en una imagen clara, una frase y tres pasos.",
       record: "Grabar tu idea", type: "Prefiero escribir", example: "Ver un ejemplo", showme: "Mostrame",
-      garden: "Tu jardín de ideas", listening: "Te escucho. Sin apuro, se corta solo al minuto.", done: "Listo", cancel: "Cancelar",
+      garden: "Tu jardín de ideas", listening: "Te escucho. Tenés dos minutos para decir lo que quieras, sin apuro.", done: "Listo", cancel: "Cancelar",
       footwarn: "Experimental. Las imágenes son interpretaciones y pueden no coincidir con lo que imaginaste. No compartas datos privados.",
       terms: "Términos y normas", privacy: "Privacidad y cookies", rights: "Una idea de Tangent. Todos los derechos reservados.",
       think: ["Escuchando lo que dijiste…", "Dejando el ruido de lado…", "Buscando el centro…", "Armando tu imagen…"],
@@ -41,7 +41,7 @@
       limitT: "Por hoy es suficiente", limit: "Llegaste al máximo de ideas por hoy. Mañana podés seguir.",
       errT: "Algo no salió", err: "No pudimos armar tu imagen. Probá de nuevo en un rato.",
       emptyT: "No te escuché", empty: "No llegó nada claro. Probá hablar un poco más cerca del micrófono.",
-      tooLongT: "Muy largo", tooLong: "La grabación es demasiado larga. Probá con menos de un minuto.",
+      tooLongT: "Muy largo", tooLong: "La grabación es demasiado larga. Probá con menos de dos minutos.",
       micT: "Sin micrófono", mic: "No pudimos usar el micrófono. Revisá el permiso del navegador o escribí tu idea.",
       offline: "Sin conexión. Te mostramos un ejemplo.", tooShort: "Muy corto. Hablá al menos un par de segundos.", typeMore: "Escribí un poco más.",
       saved: "Guardado en tu jardín.", shareTitle: "Mi idea en Tangent",
@@ -60,6 +60,10 @@
       shareT: "Compartir tu idea", shareS: "Quien tenga el link ve tu tablero con las fotos, la frase y los pasos. No ve tu audio ni lo que dijiste.",
       copy: "Copiar link", copied: "Link copiado", shareErr: "No pudimos crear el link. Probá de nuevo.", shareRefused: "Este tablero no se puede compartir.",
       remindT: "¿Cuándo te lo recuerdo?", remindS: "Se agrega a tu calendario con aviso. Tangent no te manda nada ni guarda la fecha.",
+      summaryT: "Lo que dijiste", anchorsT: "Tus anclas visuales", anchorsS: "Acordate de estas imágenes y vas a recordar tu idea. Cada una guarda una parte de lo que dijiste.",
+      brainT: "Tu cerebro en esta idea", brainNote: "Ilustrativo, no es un diagnóstico.",
+      regions: { prefrontal: "Corteza prefrontal", motor: "Corteza motora", parietal: "Lóbulo parietal", temporal: "Lóbulo temporal", occipital: "Lóbulo occipital", limbic: "Sistema límbico" },
+      voteQ: "¿Esta síntesis refleja lo que tenías en la cabeza?", voteYes: "Sí, exacto", voteMid: "Más o menos", voteNo: "No", voteThanks: "Gracias. Con tu voto Tangent aprende a entenderte mejor.",
       tonight: "Hoy, 20:00", tomorrow: "Mañana, 9:00", daily: "Ancla diaria: 9:00 durante 7 días", gcal: "Google Calendar", ics: "Apple / Outlook",
     },
     en: {
@@ -67,10 +71,10 @@
       tagline: "An idea by Tangent", heroL: "For non-linear minds · EN / ES",
       r1: "Talk", r1s: "However it comes out", r2: "See", r2s: "A clear picture of the core", r3: "Breathe", r3s: "Three steps, nothing more",
       st1: "to say it all", st2: "single button", st3: "required accounts",
-      sub: "Tap the button and talk for up to a minute, however it comes out.",
+      sub: "Tap the button and you have two minutes to say whatever you want, however it comes out.",
       sub2: "Tangent turns it into one clear picture, one sentence and three steps.",
       record: "Record your idea", type: "I'd rather type", example: "See an example", showme: "Show me",
-      garden: "Your idea garden", listening: "I'm listening. No rush, it stops by itself at one minute.", done: "Done", cancel: "Cancel",
+      garden: "Your idea garden", listening: "I'm listening. You have two minutes to say whatever you want, no rush.", done: "Done", cancel: "Cancel",
       footwarn: "Experimental. Images are interpretations and may not match what you imagined. Don't share private information.",
       terms: "Terms and rules", privacy: "Privacy and cookies", rights: "An idea by Tangent. All rights reserved.",
       think: ["Listening to what you said…", "Setting the noise aside…", "Finding the center…", "Building your picture…"],
@@ -93,7 +97,7 @@
       limitT: "That's enough for today", limit: "You reached today's maximum. You can continue tomorrow.",
       errT: "Something went wrong", err: "We couldn't build your picture. Please try again in a moment.",
       emptyT: "I didn't hear you", empty: "Nothing clear came through. Try speaking a little closer to the mic.",
-      tooLongT: "Too long", tooLong: "The recording is too long. Try under one minute.",
+      tooLongT: "Too long", tooLong: "The recording is too long. Try under two minutes.",
       micT: "No microphone", mic: "We couldn't use the microphone. Check the browser permission, or type your idea.",
       offline: "You're offline. Here's an example.", tooShort: "Too short. Talk for at least a couple of seconds.", typeMore: "Write a little more.",
       saved: "Saved to your garden.", shareTitle: "My idea on Tangent",
@@ -112,6 +116,10 @@
       shareT: "Share your idea", shareS: "Anyone with the link sees your board with its photos, sentence and steps. They don't see your audio or what you said.",
       copy: "Copy link", copied: "Link copied", shareErr: "We couldn't create the link. Please try again.", shareRefused: "This board can't be shared.",
       remindT: "When should I remind you?", remindS: "It's added to your calendar with an alert. Tangent doesn't send anything or keep the date.",
+      summaryT: "What you said", anchorsT: "Your visual anchors", anchorsS: "Remember these pictures and you'll remember your idea. Each one holds a part of what you said.",
+      brainT: "Your brain on this idea", brainNote: "Illustrative, not a diagnosis.",
+      regions: { prefrontal: "Prefrontal cortex", motor: "Motor cortex", parietal: "Parietal lobe", temporal: "Temporal lobe", occipital: "Occipital lobe", limbic: "Limbic system" },
+      voteQ: "Does this summary match what was in your head?", voteYes: "Yes, exactly", voteMid: "Sort of", voteNo: "No", voteThanks: "Thanks. Your vote helps Tangent understand you better.",
       tonight: "Tonight, 8 pm", tomorrow: "Tomorrow, 9 am", daily: "Daily anchor: 9 am for 7 days", gcal: "Google Calendar", ics: "Apple / Outlook",
     },
   };
@@ -175,7 +183,7 @@
 
   // ---------- recording ----------
   let rec = null, lastAudio = null;
-  const MAX_SEC = 60;
+  const MAX_SEC = 120;
   async function startRecording() {
     if (banned()) return showBanned();
     if (!(await consent())) return;
@@ -434,14 +442,19 @@
     };
     const parts = [];
     tiles.forEach((x, i) => parts.push(tileHtml(x, i)));
-    if (b.strength?.name) parts.splice(1, 0, `<div class="tile power"><span class="plabel">${t("power")}</span><b>${esc(b.strength.name)}</b><p>${esc(b.strength.how)}</p><svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.2"><circle cx="60" cy="60" r="20"/><circle cx="60" cy="60" r="36"/><circle cx="60" cy="60" r="52"/></g><g fill="#fff">${[0, 1, 2, 3, 4, 5].map(i => `<circle cx="${(60 + Math.cos(i * 1.047) * 36).toFixed(1)}" cy="${(60 + Math.sin(i * 1.047) * 36).toFixed(1)}" r="3"/>`).join("")}<circle cx="60" cy="60" r="6"/></g></svg></div>`);
-    if (b.breathe) parts.splice(b.strength?.name ? 3 : 2, 0, `<div class="tile breathe"><div class="bcirc">${t("breathe")}</div><p>${esc(b.breathe)}<small>${t("breatheSub")}</small></p></div>`);
-    parts.splice((b.breathe ? 3 : 2) + (b.strength?.name ? 1 : 0), 0, voiceCard(b));
+    if (b.brain?.region) parts.splice(b.strength?.name ? 1 : 1, 0, brainCard(b.brain));
+    if (b.strength?.name) parts.splice(b.brain?.region ? 2 : 1, 0, `<div class="tile power"><span class="plabel">${t("power")}</span><b>${esc(b.strength.name)}</b><p>${esc(b.strength.how)}</p><svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.2"><circle cx="60" cy="60" r="20"/><circle cx="60" cy="60" r="36"/><circle cx="60" cy="60" r="52"/></g><g fill="#fff">${[0, 1, 2, 3, 4, 5].map(i => `<circle cx="${(60 + Math.cos(i * 1.047) * 36).toFixed(1)}" cy="${(60 + Math.sin(i * 1.047) * 36).toFixed(1)}" r="3"/>`).join("")}<circle cx="60" cy="60" r="6"/></g></svg></div>`);
+    const extra = (b.strength?.name ? 1 : 0) + (b.brain?.region ? 1 : 0);
+    if (b.breathe) parts.splice(2 + extra, 0, `<div class="tile breathe"><div class="bcirc">${t("breathe")}</div><p>${esc(b.breathe)}<small>${t("breatheSub")}</small></p></div>`);
+    parts.splice((b.breathe ? 3 : 2) + extra, 0, voiceCard(b));
+    if (tiles.length) parts.unshift(`<div class="tile panel anchors"><h3>${t("anchorsT")}</h3><p>${esc(t("anchorsS"))}</p></div>`);
+    if (b.summary) parts.unshift(`<div class="tile panel summary"><h3>${t("summaryT")}</h3><p>${esc(b.summary)}</p></div>`);
     const steps = b.steps || [];
     if (steps.length) parts.push(`<div class="tile panel steps"><h3>${t("steps")}</h3><div class="srow">${steps.map(s => `<div class="s"><b>${esc(s.when)}</b><span>${esc(s.what)}</span></div>`).join("")}</div></div>`);
     if (b.letgo?.length) parts.push(`<div class="tile panel letgo"><h3>${t("letgo")}</h3><div>${b.letgo.map(x => `<s>${esc(x)}</s>`).join("")}</div></div>`);
     if (b.tangents?.length) parts.push(`<div class="tile panel bubbles" aria-label="${t("tangents")}"><h3>${t("tangents")}</h3>${b.tangents.map((x, i) => `<button class="bub" data-park="${i}" title="${esc(t("park"))}" style="left:${8 + i * 30}%;top:${44 + (i % 2) * 26}px;width:${104 + (x.length % 3) * 12}px;height:${104 + (x.length % 3) * 12}px;animation-delay:-${i * 2}s">${esc(x)}<small>${esc(t("park"))} ↘</small></button>`).join("")}</div>`);
     const sugg = b.sounds || [], all = [...sugg, ...SND.NAMES.filter(n => !sugg.includes(n))];
+    if (!b.example) parts.push(`<div class="tile panel vote" id="voteBox"><h3>${t("voteQ")}</h3>${b.vote ? `<p>${esc(t("voteThanks"))}</p>` : `<div class="vbtns"><button class="vb" data-vote="yes">👍 ${t("voteYes")}</button><button class="vb" data-vote="mid">🤏 ${t("voteMid")}</button><button class="vb" data-vote="no">👎 ${t("voteNo")}</button></div>`}</div>`);
     parts.push(`<div class="tile panel"><h3>${t("sounds")}</h3><div class="mixer">${all.map(n => `<button class="chip" data-sound="${n}" aria-pressed="${SND.isPlaying(n)}">${soundLabel(n)}</button>`).join("")}</div></div>`);
 
     delete $("#board").dataset.fx;
@@ -472,6 +485,11 @@
     $("#simpBtn").onclick = toggleSimple;
     $("#cardBtn").onclick = () => postcard(b);
     $("#listenBtn").onclick = () => speak(b);
+    document.querySelectorAll("[data-vote]").forEach(el => el.onclick = () => {
+      b.vote = el.dataset.vote; ping("vote_" + b.vote); saveToGarden(b);
+      $("#voteBox").innerHTML = `<h3>${t("voteQ")}</h3><p class="thanks">${esc(t("voteThanks"))}</p>`;
+      if (SB && user && b.id) SB.from("tangent_boards").update({ board: { ...b, svgs: undefined } }).eq("id", b.id).then(() => {}, () => {});
+    });
     if ($("#replayBtn")) $("#replayBtn").onclick = () => replay(b);
     if ($("#shareBtn")) $("#shareBtn").onclick = () => shareBoard(b);
     if ($("#remindBtn")) $("#remindBtn").onclick = () => remind(b);
@@ -480,6 +498,22 @@
     $("#homeBtn").onclick = () => { SND.stopAll(); hush(); current = null; show("home"); renderGarden(); renderHomeThread(); };
     document.querySelectorAll("[data-sound]").forEach(el => el.onclick = async () => { const on = await SND.toggle(el.dataset.sound, 0.6); el.setAttribute("aria-pressed", String(on)); });
     armShake();
+  }
+  // stylised side view of the brain (front on the left); regions are approximate and illustrative
+  const BRAIN = {
+    prefrontal: [[78, 96, 30, 34]], motor: [[148, 58, 18, 40]], parietal: [[196, 66, 36, 28]],
+    temporal: [[150, 132, 46, 20]], occipital: [[246, 112, 22, 28]], limbic: [[160, 104, 18, 12]],
+  };
+  function brainCard(br) {
+    const on = BRAIN[br.region] || [], name = t("regions")[br.region] || "";
+    const zones = Object.entries(BRAIN).map(([k, es]) => es.map(([cx, cy, rx, ry]) => `<ellipse class="${k === br.region ? "hot" : ""}" cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}"/>`).join("")).join("");
+    const hot = on.map(([cx, cy]) => `<circle class="pulse" cx="${cx}" cy="${cy}" r="10"/><circle cx="${cx}" cy="${cy}" r="4" fill="#fff"/>`).join("");
+    return `<div class="tile panel brain"><div class="bt"><h3>${t("brainT")}</h3><b>${esc(name)}</b><p>${esc(br.why)}</p><small>${esc(t("brainNote"))}</small></div>
+      <svg viewBox="0 0 300 200" role="img" aria-label="${esc(name)}"><defs><linearGradient id="bg-br" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EEF0FF"/><stop offset="1" stop-color="#E4E8FB"/></linearGradient></defs>
+        <path class="shell" d="M60 110 C 48 60, 100 22, 160 24 C 220 24, 272 52, 276 104 C 280 140, 256 160, 226 158 C 214 176, 186 182, 170 168 C 150 178, 112 170, 104 152 C 76 152, 62 134, 60 110 Z" fill="url(#bg-br)"/>
+        <path d="M226 158 C 236 176, 250 184, 262 176 C 270 168, 264 156, 252 154" fill="#E4E8FB" stroke="#B9C2EE" stroke-width="1.5"/>
+        <g class="folds" fill="none" stroke="#C3CAF0" stroke-width="1.6" stroke-linecap="round"><path d="M100 60 C 120 80, 110 100, 128 116"/><path d="M146 30 C 140 60, 158 80, 150 108"/><path d="M190 34 C 184 60, 206 70, 200 96"/><path d="M234 60 C 222 84, 246 96, 236 122"/><path d="M110 140 C 140 128, 180 140, 210 132"/></g>
+        <g class="zones">${zones}</g>${hot}</svg></div>`;
   }
   const SOUND_LABELS = {
     es: { rain: "🌧 Lluvia", waves: "🌊 Olas", wind: "🍃 Viento", birds: "🐦 Pájaros", storm: "⛈ Tormenta", thunder: "⚡ Truenos", fire: "🔥 Fuego", forest: "🌲 Bosque", river: "💧 Río", night: "🌙 Noche", cafe: "☕ Café", horse: "🐎 Caballo" },
@@ -621,7 +655,7 @@
     if (speaking) return hush();
     const code = (b.lang || lang) === "en" ? "en" : "es";
     const steps = (b.steps || []).map((s, i) => `${i + 1}. ${s.what}.`).join(" ");
-    const text = [b.core, b.strength?.name ? `${t("power")}: ${b.strength.name}. ${b.strength.how}` : "", steps ? `${t("steps")}. ${steps}` : "", b.breathe || ""].filter(Boolean).join(" … ");
+    const text = [b.summary || b.core, b.brain?.why || "", b.strength?.name ? `${t("power")}: ${b.strength.name}. ${b.strength.how}` : "", steps ? `${t("steps")}. ${steps}` : "", b.breathe || ""].filter(Boolean).join(" … ");
     const u = new SpeechSynthesisUtterance(text), v = pickVoice(code);
     u.lang = v?.lang || (code === "es" ? "es-AR" : "en-US"); if (v) u.voice = v; u.rate = 0.96; u.pitch = 1;
     u.onend = u.onerror = () => hush();

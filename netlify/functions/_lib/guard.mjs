@@ -139,7 +139,7 @@ async function bump(key) {
 }
 
 // Anonymous product events, counted per day (no ids stored).
-export const EVENTS = ["visit", "share", "listen", "reminder", "signup", "login", "resume", "park", "same_thread", "replay"];
+export const EVENTS = ["visit", "share", "listen", "reminder", "signup", "login", "resume", "park", "same_thread", "replay", "vote_yes", "vote_mid", "vote_no"];
 export async function track(kind) { if (EVENTS.includes(kind)) await bump(kind + ":" + today()); }
 
 export async function stats(days = 14) {
