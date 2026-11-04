@@ -14,10 +14,21 @@ export class Blocked extends Error { constructor(reason) { super("blocked"); thi
 
 function withTimeout(ms) { const c = new AbortController(); const t = setTimeout(() => c.abort(), ms); return { signal: c.signal, done: () => clearTimeout(t) }; }
 
-async function gemini(parts, { json = true, temperature = 0.7, timeout = 40000 } = {}) {
-  const key = process.env.GEMINI_API_KEY;
+const GEMINI_MODELS = () => [...new Set([process.env.GEMINI_MODEL, "gemini-flash-latest", "gemini-2.5-flash"].filter(Boolean))];
+async function gemini(parts, opts = {}) {
+  let last;
+  for (const model of GEMINI_MODELS()) {
+    try { return await geminiOnce(model, parts, opts); }
+    catch (e) {
+      last = e;
+      if (e instanceof Blocked || !/gemini_http_(404|400)/.test(e.message)) throw e; // only retry another model when the model name is the problem
+    }
+  }
+  throw last;
+}
+async function geminiOnce(model, parts, { json = true, temperature = 0.7, timeout = 40000 } = {}) {
+  const key = (process.env.GEMINI_API_KEY || "").trim();
   if (!key) throw new Error("gemini_not_configured");
-  const model = process.env.GEMINI_MODEL || "gemini-flash-latest";
   const to = withTimeout(timeout);
   try {
     const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
@@ -29,7 +40,10 @@ async function gemini(parts, { json = true, temperature = 0.7, timeout = 40000 }
         safetySettings: SAFETY,
       }),
     });
-    if (!r.ok) throw new Error("gemini_http_" + r.status);
+    if (!r.ok) {
+      let why = ""; try { why = (await r.json())?.error?.message || ""; } catch {}
+      throw new Error(`gemini_http_${r.status} ${model}: ${why.slice(0, 160)}`);
+    }
     const d = await r.json();
     if (d.promptFeedback?.blockReason) throw new Blocked("provider_" + d.promptFeedback.blockReason);
     const c = d.candidates?.[0];
@@ -40,7 +54,7 @@ async function gemini(parts, { json = true, temperature = 0.7, timeout = 40000 }
 }
 
 async function groqChat(prompt, { temperature = 0.7, timeout = 30000 } = {}) {
-  const key = process.env.GROQ_API_KEY;
+  const key = (process.env.GROQ_API_KEY || "").trim();
   if (!key) throw new Error("groq_not_configured");
   const to = withTimeout(timeout);
   try {
@@ -61,7 +75,7 @@ async function groqChat(prompt, { temperature = 0.7, timeout = 30000 } = {}) {
 }
 
 async function groqTranscribe(wavBase64) {
-  const key = process.env.GROQ_API_KEY;
+  const key = (process.env.GROQ_API_KEY || "").trim();
   if (!key) throw new Error("groq_not_configured");
   const fd = new FormData();
   fd.append("file", new Blob([Buffer.from(wavBase64, "base64")], { type: "audio/wav" }), "note.wav");
@@ -117,7 +131,7 @@ export async function analyzeAudio(wavBase64) {
     return { ...parseJSON(await gemini([{ inline_data: { mime_type: "audio/wav", data: wavBase64 } }, { text: prompt }])), provider: "gemini" };
   } catch (e) {
     if (e instanceof Blocked) throw e;
-    console.warn("gemini audio failed, trying groq:", e.message);
+    console.error("gemini audio failed, trying groq:", e.message);
     const transcript = await groqTranscribe(wavBase64);
     return analyzeTextWithGroq(transcript);
   }
@@ -129,7 +143,7 @@ export async function analyzeText(text) {
     return { ...parseJSON(await gemini([{ text: prompt }])), provider: "gemini" };
   } catch (e) {
     if (e instanceof Blocked) throw e;
-    console.warn("gemini text failed, trying groq:", e.message);
+    console.error("gemini text failed, trying groq:", e.message);
     return analyzeTextWithGroq(text);
   }
 }
@@ -223,4 +237,12 @@ export async function findPhotos(queries) {
   const out = photos.map(p => (p && !seen.has(p.src) && seen.add(p.src) ? p : null));
   await Promise.all(out.filter(p => p?.dl).map(p => fetch(`${p.dl}${p.dl.includes("?") ? "&" : "?"}client_id=${key}`).catch(() => {})));
   return out.map(p => p && (({ dl, ...rest }) => rest)(p));
+}
+
+// Health check without secrets: which keys exist and whether Gemini answers.
+export async function health() {
+  const has = k => Boolean((process.env[k] || "").trim());
+  const out = { gemini_key: has("GEMINI_API_KEY"), groq_key: has("GROQ_API_KEY"), unsplash_key: has("UNSPLASH_ACCESS_KEY"), salt: has("TANGENT_SALT"), stats_token: has("STATS_TOKEN"), gemini: "skipped" };
+  if (out.gemini_key) { try { await gemini([{ text: 'Reply with {"ok":true}' }], { timeout: 15000 }); out.gemini = "ok"; } catch (e) { out.gemini = String(e.message).replace(/key=[^&\s]+/g, "key=…").slice(0, 200); } }
+  return out;
 }

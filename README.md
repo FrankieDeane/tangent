@@ -20,7 +20,8 @@ Say it messy. See it clear. One button: you talk, Tangent shows a calm visual bo
 | `GROQ_WHISPER_MODEL` | optional | Default `whisper-large-v3-turbo` |
 | `TANGENT_DAILY_LIMIT` | optional | Ideas per device/IP per day, default 20 |
 
-4. Deploy. Netlify Blobs (bans, limits, counters) works automatically.
+4. Deploy, then open `/api/health`: it lists which keys exist (never their values) and whether Gemini answers.
+5. Netlify Blobs (bans, limits, counters) works automatically.
 
 ## How it works
 
