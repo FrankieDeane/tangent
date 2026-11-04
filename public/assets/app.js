@@ -380,7 +380,7 @@
     const tileHtml = (x, i) => {
       const moving = i === b.clip, ph = photos[i];
       const inner = ph
-        ? `<img class="${moving ? "kb" : ""}" src="${esc(ph.src)}" alt="${esc(ph.alt || x.caption || "")}" loading="${i < 2 ? "eager" : "lazy"}" style="background:${esc(ph.color || "#ddd")}"><span class="credit"><a href="${esc(ph.profile)}" target="_blank" rel="noopener">${esc(ph.credit)}</a> / <a href="https://unsplash.com/?utm_source=tangent&utm_medium=referral" target="_blank" rel="noopener">Unsplash</a></span>`
+        ? `<img class="${moving ? "kb" : ""}" src="${esc(ph.src)}" alt="${esc(ph.alt || x.caption || "")}" loading="${i < 2 ? "eager" : "lazy"}" referrerpolicy="no-referrer" data-fallback="${i}" style="background:${esc(ph.color || "#ddd")}"><span class="credit"><a href="${esc(ph.profile)}" target="_blank" rel="noopener">${esc(ph.credit)}</a> / <a href="${esc(ph.sourceUrl || ph.url)}" target="_blank" rel="noopener">${esc(ph.source || "Unsplash")}</a></span>`
         : (b.svgs?.[i] || S.pic(x.scene, pal, moving));
       return `<figure class="tile${i === 0 ? " big" : ""}" data-i="${i}"><div class="pic${ph ? " photo" : ""}">${inner}${moving ? `<span class="play">${t("clip")}</span>` : ""}</div>${x.caption ? `<figcaption class="cap">${esc(x.caption)}</figcaption>` : ""}</figure>`;
     };
@@ -410,6 +410,10 @@
       </div>
       <div class="mosaic">${parts.join("")}</div>
       <div class="again"><button class="btn" id="againBtn">${t("again")}</button><button class="btn ghost" id="homeBtn">${t("home")}</button></div>`;
+    document.querySelectorAll("img[data-fallback]").forEach(img => img.addEventListener("error", () => {
+      const i = +img.dataset.fallback, pic = img.closest(".pic"); if (!pic) return;
+      pic.classList.remove("photo"); pic.innerHTML = b.svgs?.[i] || S.pic(b.tiles[i]?.scene, pal, i === b.clip);
+    }, { once: true }));
     $("#simpBtn").onclick = toggleSimple;
     $("#cardBtn").onclick = () => postcard(b);
     $("#againBtn").onclick = () => { SND.stopAll(); startRecording(); };
@@ -473,7 +477,7 @@
       const sc = Math.max(1000 / img.width, 733 / img.height), sw = 1000 / sc, sh = 733 / sc;
       g.save(); g.beginPath(); g.roundRect ? g.roundRect(40, 40, 1000, 733, 40) : g.rect(40, 40, 1000, 733); g.clip();
       g.drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 40, 40, 1000, 733); g.restore();
-      if (ph) { g.font = '22px "Inter Tight", sans-serif'; g.fillStyle = "rgba(255,255,255,.9)"; g.fillText(`${ph.credit} / Unsplash`, 64, 750); }
+      if (ph) { g.font = '22px "Inter Tight", sans-serif'; g.fillStyle = "rgba(255,255,255,.9)"; g.fillText(`${ph.credit} / ${ph.source || "Unsplash"}`, 64, 750); }
     } catch {}
     if (b.wave?.length) { g.strokeStyle = pal[2]; g.globalAlpha = 0.6; g.lineWidth = 4; g.beginPath(); b.wave.forEach((a, i) => { const x = 60 + i * (960 / (b.wave.length - 1)), y = 840 - a * 40; i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke(); g.globalAlpha = 1; }
     await document.fonts?.ready;

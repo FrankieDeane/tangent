@@ -14,7 +14,8 @@ Say it messy. See it clear. One button: you talk, Tangent shows a calm visual bo
 | `GROQ_API_KEY` | recommended | Groq key (free backup if Gemini fails) |
 | `TANGENT_SALT` | yes | Any long random text, used to hash device IDs and IPs |
 | `STATS_TOKEN` | yes | Any secret of 8+ characters to read `/api/stats?token=...` |
-| `UNSPLASH_ACCESS_KEY` | recommended | Unsplash "Access Key" (unsplash.com/developers → New Application). Real photos for each board image; without it, drawings are used. Demo apps get 50 searches/hour; apply for Production in the Unsplash dashboard for 5,000/hour. |
+| `PIXABAY_API_KEY` | optional | Free, instant key at pixabay.com/api/docs (log in, the key is shown on that page). Real photos. |
+| `UNSPLASH_ACCESS_KEY` | optional | Unsplash Access Key. Used first when present. |
 | `GEMINI_MODEL` | optional | Default `gemini-flash-latest` |
 | `GROQ_MODEL` | optional | Default `llama-3.3-70b-versatile` |
 | `GROQ_WHISPER_MODEL` | optional | Default `whisper-large-v3-turbo` |
@@ -30,6 +31,10 @@ Say it messy. See it clear. One button: you talk, Tangent shows a calm visual bo
 - `netlify/functions/draw.mjs` → `/api/draw`: AI drawings for each tile.
 - `netlify/functions/stats.mjs` → `/api/stats?token=STATS_TOKEN`: usage counter for the last 14 days.
 - `netlify/functions/_lib/guard.mjs`: the rules (prohibited topics, swear words, strikes and bans, daily limits).
+
+## Photos
+
+Each board image is a real photo: Unsplash if its key exists, else Pixabay, else Openverse (openly licensed, needs no key). If none is found, a drawing is used.
 
 ## Rules
 

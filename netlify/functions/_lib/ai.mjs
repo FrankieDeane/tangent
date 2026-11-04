@@ -197,52 +197,73 @@ export function sanitizeSvg(s) {
 
 const UTM = "utm_source=tangent&utm_medium=referral";
 const photoCache = () => { try { return getStore({ name: "tangent-photos" }); } catch { return null; } };
+const okText = (...t) => !checkText(t.filter(Boolean).join(" "));
 
-async function unsplashOne(query, key) {
+async function getJSON(url, headers = {}) {
+  const to = withTimeout(6000);
+  try { const r = await fetch(url, { headers, signal: to.signal }); return r.ok ? await r.json() : null; }
+  catch { return null; } finally { to.done(); }
+}
+
+// Unsplash (key UNSPLASH_ACCESS_KEY). Hotlinked, credited, download event reported.
+async function fromUnsplash(q, key) {
+  const d = await getJSON(`https://api.unsplash.com/search/photos?per_page=5&orientation=landscape&content_filter=high&query=${encodeURIComponent(q)}`, { authorization: `Client-ID ${key}`, "accept-version": "v1" });
+  const p = (d?.results || []).find(x => okText(x.alt_description, x.description));
+  if (!p) return null;
+  if (p.links?.download_location) fetch(`${p.links.download_location}${p.links.download_location.includes("?") ? "&" : "?"}client_id=${key}`).catch(() => {});
+  return { src: `${p.urls.raw}&w=1080&h=720&fit=crop&auto=format&q=75`, color: p.color || null, alt: String(p.alt_description || q).slice(0, 140),
+    credit: String(p.user?.name || "Unsplash").slice(0, 60), profile: `${p.user?.links?.html || "https://unsplash.com"}?${UTM}`,
+    source: "Unsplash", sourceUrl: `https://unsplash.com/?${UTM}`, url: `${p.links?.html || "https://unsplash.com"}?${UTM}`, ttl: 7 };
+}
+
+// Pixabay (key PIXABAY_API_KEY, free and instant). Safe search on; image links last 24 h, so cache 1 day.
+async function fromPixabay(q, key) {
+  const d = await getJSON(`https://pixabay.com/api/?key=${encodeURIComponent(key)}&q=${encodeURIComponent(q)}&image_type=photo&orientation=horizontal&safesearch=true&per_page=5&min_width=1000`);
+  const p = (d?.hits || []).find(x => okText(x.tags));
+  if (!p) return null;
+  return { src: p.largeImageURL || p.webformatURL, color: null, alt: String(p.tags || q).slice(0, 140), credit: String(p.user || "Pixabay").slice(0, 60),
+    profile: `https://pixabay.com/users/${encodeURIComponent(p.user || "")}-${p.user_id || ""}/`, source: "Pixabay", sourceUrl: "https://pixabay.com/", url: p.pageURL || "https://pixabay.com/", ttl: 1 };
+}
+
+// Openverse (no key at all). Openly licensed images, mature content excluded; credit + licence shown.
+async function fromOpenverse(q) {
+  const d = await getJSON(`https://api.openverse.org/v1/images/?q=${encodeURIComponent(q)}&page_size=8&mature=false&aspect_ratio=wide&size=large`, { "user-agent": "Tangent/1.0 (experimental)" });
+  const p = (d?.results || []).find(x => x.url && !x.mature && /^https:/.test(x.url) && okText(x.title, ...(x.tags || []).map(t => t.name)));
+  if (!p) return null;
+  const lic = `${String(p.license || "").toUpperCase()} ${p.license_version || ""}`.trim();
+  return { src: p.url, color: null, alt: String(p.title || q).slice(0, 140), credit: String(p.creator || "Openverse").slice(0, 60) + (lic ? ` · ${lic}` : ""),
+    profile: p.creator_url || p.foreign_landing_url || "https://openverse.org/", source: "Openverse", sourceUrl: p.license_url || "https://openverse.org/", url: p.foreign_landing_url || "https://openverse.org/", ttl: 7 };
+}
+
+async function photoFor(query) {
   const q = String(query || "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim().slice(0, 60);
   if (!q) return null;
+  const env = k => (process.env[k] || "").trim();
+  const chain = [
+    env("UNSPLASH_ACCESS_KEY") && (() => fromUnsplash(q, env("UNSPLASH_ACCESS_KEY"))),
+    env("PIXABAY_API_KEY") && (() => fromPixabay(q, env("PIXABAY_API_KEY"))),
+    () => fromOpenverse(q),
+  ].filter(Boolean);
   const cache = photoCache();
-  try { const hit = cache && await cache.get(q, { type: "json" }); if (hit && Date.now() - hit.at < 7 * 864e5) return hit.photo; } catch {}
+  try { const hit = cache && await cache.get(q, { type: "json" }); if (hit && Date.now() - hit.at < (hit.photo?.ttl || 1) * 864e5) return hit.photo; } catch {}
   let photo = null;
-  try {
-    const to = withTimeout(6000);
-    const r = await fetch(`https://api.unsplash.com/search/photos?per_page=5&orientation=landscape&content_filter=high&query=${encodeURIComponent(q)}`, {
-      headers: { authorization: `Client-ID ${key}`, "accept-version": "v1" }, signal: to.signal,
-    });
-    to.done();
-    if (!r.ok) return null;
-    const d = await r.json();
-    // first result whose own description passes the site rules
-    const p = (d.results || []).find(x => !checkText(`${x.alt_description || ""} ${x.description || ""}`));
-    if (p) photo = {
-      src: `${p.urls.raw}&w=1080&h=720&fit=crop&auto=format&q=75`,
-      color: p.color || null,
-      alt: String(p.alt_description || q).slice(0, 140),
-      credit: String(p.user?.name || "Unsplash").slice(0, 60),
-      profile: `${p.user?.links?.html || "https://unsplash.com"}?${UTM}`,
-      url: `${p.links?.html || "https://unsplash.com"}?${UTM}`,
-      dl: p.links?.download_location || null,
-    };
-  } catch { return null; }
-  try { if (cache) await cache.setJSON(q, { at: Date.now(), photo }); } catch {}
+  for (const get of chain) { try { photo = await get(); } catch { photo = null; } if (photo) break; }
+  try { if (cache && photo) await cache.setJSON(q, { at: Date.now(), photo }); } catch {}
   return photo;
 }
 
-// One Unsplash photo per tile (null where none). Hotlinked, credited, and the download event is reported as Unsplash requires.
+// One real photo per tile (null where none): Unsplash, then Pixabay, then Openverse. Drawings fill any gap.
 export async function findPhotos(queries) {
-  const key = process.env.UNSPLASH_ACCESS_KEY;
-  if (!key || !queries?.length) return [];
-  const photos = await Promise.all(queries.map(q => unsplashOne(q, key)));
+  if (!queries?.length) return [];
+  const photos = await Promise.all(queries.map(photoFor));
   const seen = new Set();
-  const out = photos.map(p => (p && !seen.has(p.src) && seen.add(p.src) ? p : null));
-  await Promise.all(out.filter(p => p?.dl).map(p => fetch(`${p.dl}${p.dl.includes("?") ? "&" : "?"}client_id=${key}`).catch(() => {})));
-  return out.map(p => p && (({ dl, ...rest }) => rest)(p));
+  return photos.map(p => (p && !seen.has(p.src) && seen.add(p.src) ? (({ ttl, ...rest }) => rest)(p) : null));
 }
 
 // Health check without secrets: which keys exist and whether Gemini answers.
 export async function health() {
   const has = k => Boolean((process.env[k] || "").trim());
-  const out = { gemini_key: has("GEMINI_API_KEY"), groq_key: has("GROQ_API_KEY"), unsplash_key: has("UNSPLASH_ACCESS_KEY"), salt: has("TANGENT_SALT"), stats_token: has("STATS_TOKEN"), gemini: "skipped" };
+  const out = { gemini_key: has("GEMINI_API_KEY"), groq_key: has("GROQ_API_KEY"), unsplash_key: has("UNSPLASH_ACCESS_KEY"), pixabay_key: has("PIXABAY_API_KEY"), photos: has("UNSPLASH_ACCESS_KEY") ? "unsplash" : has("PIXABAY_API_KEY") ? "pixabay" : "openverse (no key)", salt: has("TANGENT_SALT"), stats_token: has("STATS_TOKEN"), gemini: "skipped" };
   if (out.gemini_key) { try { await gemini([{ text: 'Reply with {"ok":true}' }], { timeout: 15000 }); out.gemini = "ok"; } catch (e) { out.gemini = String(e.message).replace(/key=[^&\s]+/g, "key=…").slice(0, 200); } }
   return out;
 }
