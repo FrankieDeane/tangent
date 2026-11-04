@@ -23,6 +23,7 @@
     <div class="top-r">
       <span class="pill" data-t="experimental"></span>
       <div class="lang" id="langSw" role="group" aria-label="Idioma / Language"><button data-lang="es">ES</button><button data-lang="en">EN</button></div>
+      <button class="acct" id="acctBtn"></button>
     </div>
   </header>
 
@@ -36,6 +37,7 @@
           <p class="sub"><span data-t="sub"></span> <b data-t="sub2"></b></p>
         </div>
       </div>
+      <div class="resume" id="resume" hidden></div>
       <div class="recarea">
       <svg class="wires" viewBox="0 0 1000 340" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="#8f8f8f" stroke-linecap="round"><path d="M-20 120 C 240 60, 520 260, 1020 70" stroke-width="2.2" opacity=".55"/><path d="M-20 150 C 260 100, 560 290, 1020 110" stroke-width="1.4" opacity=".35"/><path d="M-20 300 C 300 250, 700 330, 1020 200" stroke-width="2" opacity=".45"/></g></svg>
       <button class="rec" id="recBtn">
@@ -64,6 +66,7 @@
         <div class="reveal"><b data-n="1">1</b><span data-t="st2"></span></div>
         <div class="reveal"><b data-n="0">0</b><span data-t="st3"></span></div>
       </div>
+      <section class="parkedbox" id="parkedBox" hidden></section>
       <section class="garden" id="garden" hidden>
         <h2 data-t="garden"></h2>
         <div class="seeds" id="seeds"></div>
@@ -105,7 +108,13 @@
   </div>
 </div>
 
+<!-- Account (optional) -->
+<div class="amodal" id="acct" hidden role="dialog" aria-modal="true">
+  <div class="abox"><button class="aclose" aria-label="Close">×</button><div class="aorb" aria-hidden="true"></div><div class="abody"></div></div>
+</div>
+
 <div class="glow" aria-hidden="true"></div>
+<script src="/assets/vendor/supabase.js"></script>
 <script src="/assets/scenes.js"></script>
 <script src="/assets/sounds.js"></script>
 <script src="/assets/app.js"></script>

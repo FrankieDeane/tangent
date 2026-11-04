@@ -14,7 +14,7 @@
       experimental: "Experimental", lead1: "Decilo como sale.", lead2: "Miralo claro.",
       tagline: "Una idea de Tangent", heroL: "Para mentes no lineales · ES / EN",
       r1: "Hablá", r1s: "Como sale, sin ordenar nada", r2: "Mirá", r2s: "Una imagen clara del centro", r3: "Respirá", r3s: "Tres pasos y nada más",
-      st1: "para decirlo todo", st2: "solo botón", st3: "cuentas y contraseñas",
+      st1: "para decirlo todo", st2: "solo botón", st3: "cuentas obligatorias",
       sub: "Tocá el botón y hablá hasta un minuto, como te salga.",
       sub2: "Tangent lo convierte en una imagen clara, una frase y tres pasos.",
       record: "Grabar tu idea", type: "Prefiero escribir", example: "Ver un ejemplo", showme: "Mostrame",
@@ -30,7 +30,7 @@
       consent: ["Tangent es un experimento. Puede equivocarse y las imágenes pueden no coincidir con lo que imaginaste.",
         "Solo español e inglés. No compartas datos personales ni privados.",
         "Está prohibido hablar de sexo, violencia, guerra, política, aborto, muerte, racismo, drogas o usar malas palabras. La primera vez se corta la sesión; la segunda, este dispositivo queda bloqueado.",
-        "Tu audio se procesa con servicios de IA externos y Tangent no lo guarda."],
+        "Tu audio se procesa con servicios de IA externos. Tangent solo lo guarda si iniciás sesión, en tu cuenta, y lo podés borrar."],
       consentAccept: "Acepto los <a href=\"/terms.html\" target=\"_blank\">Términos</a> y la <a href=\"/privacy.html\" target=\"_blank\">Privacidad</a>, y soy mayor de 18 o uso Tangent con un adulto.",
       agree: "Acepto y sigo", close: "Cerrar", ok: "Entendido",
       warnT: "Sesión expirada", warn: "Tangent no acepta ese tipo de contenido. Tu sesión se cerró. Si vuelve a pasar, este dispositivo queda bloqueado.",
@@ -45,12 +45,27 @@
       micT: "Sin micrófono", mic: "No pudimos usar el micrófono. Revisá el permiso del navegador o escribí tu idea.",
       offline: "Sin conexión. Te mostramos un ejemplo.", tooShort: "Muy corto. Hablá al menos un par de segundos.", typeMore: "Escribí un poco más.",
       saved: "Guardado en tu jardín.", shareTitle: "Mi idea en Tangent",
+      account: "Entrar", signin: "Entrar", signup: "Crear cuenta", email: "Email", password: "Contraseña", newPassword: "Nueva contraseña",
+      forgot: "Olvidé mi contraseña", haveAcc: "Ya tengo cuenta", noAcc: "Crear una cuenta", sendCode: "Enviar código", code: "Código del mail",
+      verify: "Verificar", verifyT: "Revisá tu mail", verifyS: "Te mandamos un código a {email}. Escribilo acá para activar tu cuenta. Si te llegó un link, tocalo y listo.",
+      resetT: "Nueva contraseña", resetS: "Te mandamos un código a {email}. Escribilo junto con tu nueva contraseña.", savePw: "Guardar contraseña",
+      logout: "Cerrar sesión", deleteAll: "Borrar todo lo guardado", deleteQ: "¿Borrar todos tus tableros y audios guardados? No se puede deshacer.", deleted: "Listo, borramos todo.",
+      acctT: "Tu cuenta", acctS: "Guardá todo lo que grabás y volvé a escucharlo cuando quieras. Sin cuenta, Tangent funciona igual.",
+      signedAs: "Sesión iniciada como", authErr: "No pudimos completar eso. Revisá los datos y probá de nuevo.", pwShort: "La contraseña necesita al menos 8 caracteres.",
+      welcome: "Listo, ya estás adentro.", pwSaved: "Contraseña actualizada.", storageNote: "Tus tableros y audios quedan en tu cuenta. Podés borrarlos cuando quieras.",
+      listen: "Escuchar", stopListen: "Parar", share: "Compartir", remind: "Recordarme", replay: "Escucharte", power: "Tu superpoder",
+      sameThread: "Sigue tu idea anterior", resumeT: "Estabas en…", resumeGo: "Seguir", step1Done: "Paso 1 hecho", nextStep: "Tu próximo paso",
+      parkedT: "Tangentes estacionadas", park: "Estacionar", parked: "Estacionada. La retomás desde el inicio.", unpark: "Listo",
+      shareT: "Compartir tu idea", shareS: "Quien tenga el link ve tu tablero con las fotos, la frase y los pasos. No ve tu audio ni lo que dijiste.",
+      copy: "Copiar link", copied: "Link copiado", shareErr: "No pudimos crear el link. Probá de nuevo.", shareRefused: "Este tablero no se puede compartir.",
+      remindT: "¿Cuándo te lo recuerdo?", remindS: "Se agrega a tu calendario con aviso. Tangent no te manda nada ni guarda la fecha.",
+      tonight: "Hoy, 20:00", tomorrow: "Mañana, 9:00", daily: "Ancla diaria: 9:00 durante 7 días", gcal: "Google Calendar", ics: "Apple / Outlook",
     },
     en: {
       experimental: "Experimental", lead1: "Say it messy.", lead2: "See it clear.",
       tagline: "An idea by Tangent", heroL: "For non-linear minds · EN / ES",
       r1: "Talk", r1s: "However it comes out", r2: "See", r2s: "A clear picture of the core", r3: "Breathe", r3s: "Three steps, nothing more",
-      st1: "to say it all", st2: "single button", st3: "accounts or passwords",
+      st1: "to say it all", st2: "single button", st3: "required accounts",
       sub: "Tap the button and talk for up to a minute, however it comes out.",
       sub2: "Tangent turns it into one clear picture, one sentence and three steps.",
       record: "Record your idea", type: "I'd rather type", example: "See an example", showme: "Show me",
@@ -66,7 +81,7 @@
       consent: ["Tangent is an experiment. It can be wrong, and images may not match what you imagined.",
         "English and Spanish only. Don't share personal or private information.",
         "Talking about sex, violence, war, politics, abortion, death, racism, drugs, or using swear words is not allowed. The first time ends your session; the second time blocks this device.",
-        "Your audio is processed by external AI services and Tangent does not keep it."],
+        "Your audio is processed by external AI services. Tangent only keeps it if you sign in, in your account, and you can delete it."],
       consentAccept: "I accept the <a href=\"/terms.html\" target=\"_blank\">Terms</a> and <a href=\"/privacy.html\" target=\"_blank\">Privacy</a>, and I'm over 18 or using Tangent with an adult.",
       agree: "I agree", close: "Close", ok: "Got it",
       warnT: "Session expired", warn: "Tangent doesn't accept that kind of content. Your session was closed. If it happens again, this device will be blocked.",
@@ -81,10 +96,26 @@
       micT: "No microphone", mic: "We couldn't use the microphone. Check the browser permission, or type your idea.",
       offline: "You're offline. Here's an example.", tooShort: "Too short. Talk for at least a couple of seconds.", typeMore: "Write a little more.",
       saved: "Saved to your garden.", shareTitle: "My idea on Tangent",
+      account: "Sign in", signin: "Sign in", signup: "Create account", email: "Email", password: "Password", newPassword: "New password",
+      forgot: "I forgot my password", haveAcc: "I have an account", noAcc: "Create an account", sendCode: "Send code", code: "Code from the email",
+      verify: "Verify", verifyT: "Check your email", verifyS: "We sent a code to {email}. Type it here to activate your account. If you got a link, just tap it.",
+      resetT: "New password", resetS: "We sent a code to {email}. Type it with your new password.", savePw: "Save password",
+      logout: "Sign out", deleteAll: "Delete everything saved", deleteQ: "Delete all your saved boards and audio? This can't be undone.", deleted: "Done, everything is deleted.",
+      acctT: "Your account", acctS: "Keep everything you record and listen to it again any time. Without an account, Tangent works the same.",
+      signedAs: "Signed in as", authErr: "We couldn't do that. Check your details and try again.", pwShort: "The password needs at least 8 characters.",
+      welcome: "You're in.", pwSaved: "Password updated.", storageNote: "Your boards and audio stay in your account. You can delete them any time.",
+      listen: "Listen", stopListen: "Stop", share: "Share", remind: "Remind me", replay: "Hear yourself", power: "Your superpower",
+      sameThread: "Continues your last idea", resumeT: "You were on…", resumeGo: "Continue", step1Done: "Step 1 done", nextStep: "Your next step",
+      parkedT: "Parked tangents", park: "Park it", parked: "Parked. Pick it up from the home screen.", unpark: "Done",
+      shareT: "Share your idea", shareS: "Anyone with the link sees your board with its photos, sentence and steps. They don't see your audio or what you said.",
+      copy: "Copy link", copied: "Link copied", shareErr: "We couldn't create the link. Please try again.", shareRefused: "This board can't be shared.",
+      remindT: "When should I remind you?", remindS: "It's added to your calendar with an alert. Tangent doesn't send anything or keep the date.",
+      tonight: "Tonight, 8 pm", tomorrow: "Tomorrow, 9 am", daily: "Daily anchor: 9 am for 7 days", gcal: "Google Calendar", ics: "Apple / Outlook",
     },
   };
   let lang = store.get("tangent.lang", (navigator.language || "es").toLowerCase().startsWith("en") ? "en" : "es");
-  const t = k => T[lang][k] ?? T.es[k] ?? k;
+  const t = (k, v) => { let s = T[lang][k] ?? T.es[k] ?? k; if (v && typeof s === "string") for (const [a, b] of Object.entries(v)) s = s.replace("{" + a + "}", b); return s; };
+  const ping = type => { try { navigator.sendBeacon?.("/api/event", new Blob([JSON.stringify({ type })], { type: "application/json" })) || fetch("/api/event", { method: "POST", body: JSON.stringify({ type }), keepalive: true }); } catch {} };
   function applyLang() {
     document.documentElement.lang = lang;
     document.querySelectorAll("[data-t]").forEach(el => { el.textContent = t(el.dataset.t); });
@@ -93,6 +124,7 @@
     splitLead();
     $("#typed").placeholder = lang === "es" ? "Escribí como pensás, sin ordenar nada…" : "Write the way you think, no need to tidy it…";
     if (current) { if (current.example) current = { ...exampleBoard(), wave: current.wave }; renderBoard(current, true); }
+    renderAcct(); renderHomeThread();
   }
   document.querySelectorAll("#langSw [data-lang]").forEach(b => b.onclick = () => {
     if (b.dataset.lang === lang) return;
@@ -140,7 +172,7 @@
   function helpHtml() { return `<p>${esc(t("support"))}</p>${t("helplines").map(([c, n]) => `<div class="help">${esc(c)}<br><b>${esc(n)}</b></div>`).join("")}`; }
 
   // ---------- recording ----------
-  let rec = null;
+  let rec = null, lastAudio = null;
   const MAX_SEC = 60;
   async function startRecording() {
     if (banned()) return showBanned();
@@ -187,6 +219,7 @@
     const secs = (performance.now() - r.t0) / 1000;
     if (secs < 1.5) { show("home"); return note(t("tooShort")); }
     const blob = new Blob(r.chunks, { type: r.mr.mimeType || "audio/webm" });
+    lastAudio = blob;
     const wave = downsample(r.amps, 120);
     thinking([]);
     let wav;
@@ -222,6 +255,7 @@
     if (text.length < 8) return note(t("typeMore"));
     if (banned()) return showBanned();
     if (!(await consent())) return;
+    lastAudio = null;
     thinking(text.split(/\s+/));
     analyze({ text }, null);
   }
@@ -262,7 +296,8 @@
   async function analyze(payload, wave, secs = 0) {
     let res, data;
     try {
-      res = await fetch("/api/analyze", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, lang, ...payload }) });
+      const last = gardenList()[0], previous = last && Date.now() - (last.at || 0) < 3 * 36e5 ? last.core : "";
+      res = await fetch("/api/analyze", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, lang, previous, ...payload }) });
       data = await res.json().catch(() => ({ status: "ai_error" }));
     } catch {
       stopThinking(); note(t("offline")); return openBoard(exampleBoard(), wave);
@@ -272,7 +307,10 @@
       case "ok": {
         const keys = (data.board.keep || []).concat(data.board.core.split(/\s+/));
         if (data.transcript) { placeWords(data.transcript.split(/\s+/)); await wait(400); placeWords(data.transcript.split(/\s+/), keys); await wait(2200); }
-        return openBoard({ ...data.board, transcript: data.transcript, lang: data.language, secs: Math.round(secs), at: Date.now() }, wave, true);
+        const last = gardenList()[0], same = data.board.same_thread && last && Date.now() - (last.at || 0) < 3 * 36e5;
+        if (same) ping("same_thread");
+        const id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
+        return openBoard({ ...data.board, id, thread: same ? (last.thread || last.id || String(last.at)) : id, sameThread: !!same, transcript: data.transcript, lang: data.language, secs: Math.round(secs), at: Date.now() }, wave, true);
       }
       case "warning": show("home"); return modal(t("warnT"), `<p>${esc(t("warn"))}</p>`);
       case "banned": store.set("tangent.banned", true); show("home"); return showBanned();
@@ -332,6 +370,9 @@
       board.svgs = svgs.slice(0, board.tiles.length);
       pics.forEach(p => { const i = +p.closest(".tile").dataset.i, s = board.svgs[i]; if (s) { p.innerHTML = s; if (+p.closest(".tile").dataset.i === board.clip) p.firstElementChild?.classList.add("kb"); } p.classList.remove("drawing"); });
       saveToGarden(board);
+      const audio = lastAudio; lastAudio = null;
+      if (audio) { board.hasAudio = true; idbPut(board.id, audio); }
+      cloudSave(board, audio);
     }
   }
   function waveSvg(w) {
@@ -391,12 +432,13 @@
     };
     const parts = [];
     tiles.forEach((x, i) => parts.push(tileHtml(x, i)));
-    if (b.breathe) parts.splice(2, 0, `<div class="tile breathe"><div class="bcirc">${t("breathe")}</div><p>${esc(b.breathe)}<small>${t("breatheSub")}</small></p></div>`);
-    parts.splice(b.breathe ? 3 : 2, 0, voiceCard(b));
+    if (b.strength?.name) parts.splice(1, 0, `<div class="tile power"><span class="plabel">${t("power")}</span><b>${esc(b.strength.name)}</b><p>${esc(b.strength.how)}</p><svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.2"><circle cx="60" cy="60" r="20"/><circle cx="60" cy="60" r="36"/><circle cx="60" cy="60" r="52"/></g><g fill="#fff">${[0, 1, 2, 3, 4, 5].map(i => `<circle cx="${(60 + Math.cos(i * 1.047) * 36).toFixed(1)}" cy="${(60 + Math.sin(i * 1.047) * 36).toFixed(1)}" r="3"/>`).join("")}<circle cx="60" cy="60" r="6"/></g></svg></div>`);
+    if (b.breathe) parts.splice(b.strength?.name ? 3 : 2, 0, `<div class="tile breathe"><div class="bcirc">${t("breathe")}</div><p>${esc(b.breathe)}<small>${t("breatheSub")}</small></p></div>`);
+    parts.splice((b.breathe ? 3 : 2) + (b.strength?.name ? 1 : 0), 0, voiceCard(b));
     const steps = b.steps || [];
     if (steps.length) parts.push(`<div class="tile panel steps"><h3>${t("steps")}</h3><div class="srow">${steps.map(s => `<div class="s"><b>${esc(s.when)}</b><span>${esc(s.what)}</span></div>`).join("")}</div></div>`);
     if (b.letgo?.length) parts.push(`<div class="tile panel letgo"><h3>${t("letgo")}</h3><div>${b.letgo.map(x => `<s>${esc(x)}</s>`).join("")}</div></div>`);
-    if (b.tangents?.length) parts.push(`<div class="tile panel bubbles" aria-label="${t("tangents")}"><h3>${t("tangents")}</h3>${b.tangents.map((x, i) => `<span class="bub" style="left:${8 + i * 30}%;top:${44 + (i % 2) * 26}px;width:${104 + (x.length % 3) * 12}px;height:${104 + (x.length % 3) * 12}px;animation-delay:-${i * 2}s">${esc(x)}</span>`).join("")}</div>`);
+    if (b.tangents?.length) parts.push(`<div class="tile panel bubbles" aria-label="${t("tangents")}"><h3>${t("tangents")}</h3>${b.tangents.map((x, i) => `<button class="bub" data-park="${i}" title="${esc(t("park"))}" style="left:${8 + i * 30}%;top:${44 + (i % 2) * 26}px;width:${104 + (x.length % 3) * 12}px;height:${104 + (x.length % 3) * 12}px;animation-delay:-${i * 2}s">${esc(x)}<small>${esc(t("park"))} ↘</small></button>`).join("")}</div>`);
     const sugg = b.sounds || [], all = [...sugg, ...SND.NAMES.filter(n => !sugg.includes(n))];
     parts.push(`<div class="tile panel"><h3>${t("sounds")}</h3><div class="mixer">${all.map(n => `<button class="chip" data-sound="${n}" aria-pressed="${SND.isPlaying(n)}">${soundLabel(n)}</button>`).join("")}</div></div>`);
 
@@ -404,11 +446,17 @@
     $("#board").innerHTML = `
       <div class="head">${waveSvg(b.wave)}
         <div class="head-l">
-          <div class="heard">${t("heard")}</div>
+          <div class="heard">${t("heard")}${b.sameThread ? ` <span class="thread">↺ ${t("sameThread")}</span>` : ""}</div>
           <h2 class="core">${esc(b.core)}</h2>
           <div class="tools">
             <button class="chip" id="simpBtn" aria-pressed="${document.body.classList.contains("simple")}">${document.body.classList.contains("simple") ? t("full") : t("simplify")}</button>
             <button class="chip" id="cardBtn">${t("postcard")}</button>
+          </div>
+          <div class="actions">
+            <button class="act" id="listenBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12" fill="none"/></svg><span>${t("listen")}</span></button>
+            ${b.hasAudio ? `<button class="act" id="replayBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0013 0M12 17.5V21" fill="none"/></svg><span>${t("replay")}</span></button>` : ""}
+            ${b.example ? "" : `<button class="act" id="shareBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5" fill="none"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" fill="none"/></svg><span>${t("share")}</span></button>`}
+            ${b.steps?.length ? `<button class="act" id="remindBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0112 0c0 7 3 8 3 8H3s3-1 3-8" fill="none"/><path d="M10 20a2 2 0 004 0" fill="none"/></svg><span>${t("remind")}</span></button>` : ""}
           </div>
         </div>
         ${radarSvg(b.mix)}
@@ -421,8 +469,13 @@
     }, { once: true }));
     $("#simpBtn").onclick = toggleSimple;
     $("#cardBtn").onclick = () => postcard(b);
-    $("#againBtn").onclick = () => { SND.stopAll(); startRecording(); };
-    $("#homeBtn").onclick = () => { SND.stopAll(); current = null; show("home"); renderGarden(); };
+    $("#listenBtn").onclick = () => speak(b);
+    if ($("#replayBtn")) $("#replayBtn").onclick = () => replay(b);
+    if ($("#shareBtn")) $("#shareBtn").onclick = () => shareBoard(b);
+    if ($("#remindBtn")) $("#remindBtn").onclick = () => remind(b);
+    document.querySelectorAll("[data-park]").forEach(el => el.onclick = () => { park(b.tangents[+el.dataset.park], b); el.classList.add("gone"); });
+    $("#againBtn").onclick = () => { SND.stopAll(); hush(); startRecording(); };
+    $("#homeBtn").onclick = () => { SND.stopAll(); hush(); current = null; show("home"); renderGarden(); renderHomeThread(); };
     document.querySelectorAll("[data-sound]").forEach(el => el.onclick = async () => { const on = await SND.toggle(el.dataset.sound, 0.6); el.setAttribute("aria-pressed", String(on)); });
     armShake();
   }
@@ -472,6 +525,13 @@
     if (line) lines.push(line); return lines;
   }
   async function postcard(b) {
+    const c = await makeCard(b);
+    const blob = await new Promise(r => c.toBlob(r, "image/png"));
+    const file = new File([blob], "tangent.png", { type: "image/png" });
+    if (navigator.canShare?.({ files: [file] })) { try { await navigator.share({ files: [file], title: t("shareTitle") }); return; } catch (e) { if (e.name === "AbortError") return; } }
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "tangent.png"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+  async function makeCard(b) {
     const W = 1080, H = 1350, c = document.createElement("canvas"); c.width = W; c.height = H;
     const g = c.getContext("2d"), pal = S.PAL[b.palette] || S.PAL.mist;
     g.fillStyle = pal[0]; g.fillRect(0, 0, W, H);
@@ -491,16 +551,15 @@
     g.font = '30px "Figtree", sans-serif'; g.globalAlpha = 0.85;
     const s0 = b.steps?.[0]; if (s0) g.fillText(`${s0.when} · ${s0.what}`.slice(0, 60), 60, 1250);
     g.globalAlpha = 0.6; g.font = '26px "Figtree", sans-serif'; g.fillText("Tangent · " + (lang === "es" ? "una idea de Tangent" : "an idea by Tangent"), 60, 1305); g.globalAlpha = 1;
+    if (b.strength?.name) { g.font = '600 26px "Inter Tight", sans-serif'; g.fillStyle = "#6A55E0"; g.fillText(("✦ " + b.strength.name).toUpperCase(), 60, 885); }
     try { const logo = new Image(); logo.src = "/assets/mark@3x.webp"; await logo.decode(); g.drawImage(logo, W - 250, H - 190, 200, 145); } catch {}
-    const blob = await new Promise(r => c.toBlob(r, "image/png"));
-    const file = new File([blob], "tangent.png", { type: "image/png" });
-    if (navigator.canShare?.({ files: [file] })) { try { await navigator.share({ files: [file], title: t("shareTitle") }); return; } catch (e) { if (e.name === "AbortError") return; } }
-    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "tangent.png"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    return c;
   }
 
   // ---------- garden ----------
+  const gardenList = () => store.get("tangent.garden", []);
   function saveToGarden(b) {
-    const list = store.get("tangent.garden", []);
+    const list = store.get("tangent.garden", []).filter(x => !b.id || x.id !== b.id);
     const entry = { ...b, svgs: (b.svgs || []).map(s => (s && s.length < 30000 ? s : null)) };
     list.unshift(entry);
     let trimmed = list.slice(0, 30);
@@ -512,6 +571,232 @@
     $("#garden").hidden = !list.length;
     $("#seeds").innerHTML = list.map((b, i) => { const p = (S.PAL[b.palette] || S.PAL.mist); return `<button class="seed" data-g="${i}" title="${esc(b.core)}"><i style="background:radial-gradient(circle at 35% 35%,${p[1]},${p[2]})"></i><span>${esc((b.core || "").slice(0, 42))}${(b.core || "").length > 42 ? "…" : ""}</span></button>`; }).join("");
     document.querySelectorAll("[data-g]").forEach(el => el.onclick = () => { const b = store.get("tangent.garden", [])[+el.dataset.g]; if (b) openBoard(b, b.wave, false); });
+  }
+
+  // ---------- keep the thread: "you were on…" + parked tangents ----------
+  function renderHomeThread() {
+    const last = gardenList().find(x => !x.example), box = $("#resume");
+    if (!box) return;
+    if (!last || last.step1Done && !last.steps?.[1]) { box.hidden = true; }
+    else {
+      const k = last.step1Done ? 1 : 0, st = last.steps?.[k], ph = last.photos?.find(Boolean);
+      box.hidden = false;
+      box.innerHTML = `<div class="rs-pic">${ph ? `<img src="${esc(ph.src)}" alt="" referrerpolicy="no-referrer">` : S.pic(last.tiles?.[0]?.scene || "calmwater", last.palette, false)}</div>
+        <div class="rs-body"><span class="plabel">${t("resumeT")}</span><b>${esc(last.core)}</b>${st ? `<p><span>${t("nextStep")}</span> ${esc(st.when)} · ${esc(st.what)}</p>` : ""}
+        <div class="rs-btns"><button class="btn" id="rsGo">${t("resumeGo")}</button>${!last.step1Done && st ? `<button class="btn ghost" id="rsDone">✓ ${t("step1Done")}</button>` : ""}</div></div>`;
+      $("#rsGo").onclick = () => { ping("resume"); openBoard(last, last.wave, false); };
+      if ($("#rsDone")) $("#rsDone").onclick = () => { const l = gardenList(); const i = l.findIndex(x => x.at === last.at); if (i >= 0) { l[i].step1Done = true; store.set("tangent.garden", l); } renderHomeThread(); };
+    }
+    const parkedList = store.get("tangent.parked", []).filter(x => !x.done), pb = $("#parkedBox");
+    pb.hidden = !parkedList.length;
+    pb.innerHTML = `<h2>${t("parkedT")}</h2><div class="parked">${parkedList.map(x => `<span class="pk"><button class="pk-go" data-pk="${esc(x.id)}" title="${esc(t("record"))}">${esc(x.text)}</button><button class="pk-x" data-pkx="${esc(x.id)}" aria-label="${esc(t("unpark"))}">✓</button></span>`).join("")}</div>`;
+    pb.querySelectorAll("[data-pkx]").forEach(el => el.onclick = () => { const l = store.get("tangent.parked", []); const it = l.find(x => x.id === el.dataset.pkx); if (it) { it.done = true; store.set("tangent.parked", l); cloudPark(it, true); } renderHomeThread(); });
+    pb.querySelectorAll("[data-pk]").forEach(el => el.onclick = () => { const it = store.get("tangent.parked", []).find(x => x.id === el.dataset.pk); if (!it) return; $("#typeBox").hidden = false; $("#typed").value = it.text + ": "; $("#typed").focus(); });
+  }
+  function park(text, b) {
+    if (!text) return;
+    const l = store.get("tangent.parked", []);
+    if (l.some(x => x.text === text && !x.done)) return;
+    const it = { id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now()), text, from: b?.id || null, at: Date.now(), done: false };
+    l.unshift(it); store.set("tangent.parked", l.slice(0, 40)); ping("park"); toast(t("parked")); cloudPark(it);
+  }
+  function toast(msg) {
+    const el = document.createElement("div"); el.className = "toast"; el.textContent = msg; el.setAttribute("role", "status");
+    document.body.append(el); requestAnimationFrame(() => el.classList.add("on"));
+    setTimeout(() => { el.classList.remove("on"); setTimeout(() => el.remove(), 400); }, 2600);
+  }
+
+  // ---------- listen: read the board aloud ----------
+  let speaking = false;
+  function hush() { try { speechSynthesis.cancel(); } catch {} speaking = false; const l = $("#listenBtn span"); if (l) l.textContent = t("listen"); $("#listenBtn")?.classList.remove("on"); }
+  function pickVoice(code) {
+    const vs = speechSynthesis.getVoices().filter(v => v.lang?.toLowerCase().startsWith(code));
+    const score = v => (/natural|neural|premium|enhanced|google|siri/i.test(v.name) ? 2 : 0) + (code === "es" && /es-(ar|us|mx|419)/i.test(v.lang) ? 1 : 0) + (v.localService ? 0 : 0.5);
+    return vs.sort((a, b) => score(b) - score(a))[0] || null;
+  }
+  function speak(b) {
+    if (!("speechSynthesis" in window)) return;
+    if (speaking) return hush();
+    const code = (b.lang || lang) === "en" ? "en" : "es";
+    const steps = (b.steps || []).map((s, i) => `${i + 1}. ${s.what}.`).join(" ");
+    const text = [b.core, b.strength?.name ? `${t("power")}: ${b.strength.name}. ${b.strength.how}` : "", steps ? `${t("steps")}. ${steps}` : "", b.breathe || ""].filter(Boolean).join(" … ");
+    const u = new SpeechSynthesisUtterance(text), v = pickVoice(code);
+    u.lang = v?.lang || (code === "es" ? "es-AR" : "en-US"); if (v) u.voice = v; u.rate = 0.96; u.pitch = 1;
+    u.onend = u.onerror = () => hush();
+    speechSynthesis.cancel(); speechSynthesis.speak(u); speaking = true; ping("listen");
+    const l = $("#listenBtn span"); if (l) l.textContent = t("stopListen"); $("#listenBtn")?.classList.add("on");
+  }
+  if ("speechSynthesis" in window) speechSynthesis.getVoices();
+
+  // ---------- hear yourself: the original audio ----------
+  let player = null;
+  async function replay(b) {
+    if (player && !player.paused) { player.pause(); return; }
+    let blob = await idbGet(b.id);
+    let src = blob ? URL.createObjectURL(blob) : null;
+    if (!src && b.audioPath && SB && user) { const { data } = await SB.storage.from("tangent-audio").createSignedUrl(b.audioPath, 600); src = data?.signedUrl || null; }
+    if (!src) return;
+    player = new Audio(src); player.play().catch(() => {}); ping("replay");
+  }
+  // tiny IndexedDB store for audio on this device
+  const idb = () => new Promise((res, rej) => { const r = indexedDB.open("tangent", 1); r.onupgradeneeded = () => r.result.createObjectStore("audio"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+  async function idbPut(k, v) { try { const db = await idb(); db.transaction("audio", "readwrite").objectStore("audio").put(v, k); } catch {} }
+  async function idbGet(k) { try { const db = await idb(); return await new Promise(res => { const q = db.transaction("audio").objectStore("audio").get(k); q.onsuccess = () => res(q.result || null); q.onerror = () => res(null); }); } catch { return null; } }
+  async function idbClear() { try { const db = await idb(); db.transaction("audio", "readwrite").objectStore("audio").clear(); } catch {} }
+
+  // ---------- share: public read-only link + custom card ----------
+  async function shareBoard(b) {
+    const btn = $("#shareBtn"); btn?.classList.add("busy");
+    try {
+      let url = b.shareUrl;
+      if (!url) {
+        const c = await makeCard(b), image = c.toDataURL("image/jpeg", 0.86);
+        const res = await fetch("/api/share", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, image, board: { ...b, lang: b.lang || lang } }) });
+        const d = await res.json();
+        if (d.status === "refused") return modal(t("shareT"), `<p>${esc(t("shareRefused"))}</p>`);
+        if (d.status !== "ok") throw new Error(d.status);
+        url = d.url; b.shareUrl = url; saveToGarden(b);
+      }
+      if (navigator.share && matchMedia("(pointer: coarse)").matches) { try { await navigator.share({ url, title: t("shareTitle"), text: b.core }); return; } catch (e) { if (e.name === "AbortError") return; } }
+      const enc = encodeURIComponent;
+      const p = modal(t("shareT"), `<p>${esc(t("shareS"))}</p><div class="sharelink"><input id="shUrl" readonly value="${esc(url)}"><button class="btn" id="shCopy">${t("copy")}</button></div>
+        <div class="sharevia"><a class="chip" target="_blank" rel="noopener" href="https://wa.me/?text=${enc(b.core + " " + url)}">WhatsApp</a><a class="chip" target="_blank" rel="noopener" href="https://twitter.com/intent/tweet?text=${enc(b.core)}&url=${enc(url)}">X</a><a class="chip" target="_blank" rel="noopener" href="https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}">LinkedIn</a><a class="chip" target="_blank" rel="noopener" href="${esc(url)}">↗</a></div>`, [{ label: t("close") }]);
+      $("#shCopy").onclick = async () => { try { await navigator.clipboard.writeText(url); } catch { $("#shUrl").select(); document.execCommand?.("copy"); } $("#shCopy").textContent = t("copied"); };
+      await p;
+    } catch { modal(t("shareT"), `<p>${esc(t("shareErr"))}</p>`); }
+    finally { btn?.classList.remove("busy"); }
+  }
+
+  // ---------- remind: calendar event (.ics or Google) ----------
+  function remind(b) {
+    const s0 = b.steps?.[b.step1Done ? 1 : 0] || b.steps?.[0], title = `Tangent · ${s0?.what || b.core}`.slice(0, 90);
+    const desc = `${b.core}\n\n${(b.steps || []).map((s, i) => `${i + 1}. ${s.when} · ${s.what}`).join("\n")}${b.shareUrl ? "\n\n" + b.shareUrl : ""}`;
+    const at = (days, h) => { const d = new Date(); d.setDate(d.getDate() + days); d.setHours(h, 0, 0, 0); return d; };
+    const opts = [["tonight", at(0, 20), 0], ["tomorrow", at(1, 9), 0], ["daily", at(1, 9), 7]];
+    if (opts[0][1] < new Date()) opts.shift();
+    const z = d => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    const icsFor = (d, n) => {
+      const e = new Date(d.getTime() + 15 * 60e3), x = s => s.replace(/[\\;,]/g, m => "\\" + m).replace(/\n/g, "\\n");
+      return ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Tangent//ES", "BEGIN:VEVENT", `UID:${b.id || Date.now()}-${d.getTime()}@tangent`, `DTSTAMP:${z(new Date())}`, `DTSTART:${z(d)}`, `DTEND:${z(e)}`,
+        `SUMMARY:${x(title)}`, `DESCRIPTION:${x(desc)}`, ...(n ? [`RRULE:FREQ=DAILY;COUNT=${n}`] : []), "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${x(title)}`, "TRIGGER:-PT0M", "END:VALARM", "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+    };
+    const gFor = (d, n) => `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(title)}&dates=${z(d)}/${z(new Date(d.getTime() + 15 * 60e3))}&details=${encodeURIComponent(desc)}${n ? `&recur=${encodeURIComponent("RRULE:FREQ=DAILY;COUNT=" + n)}` : ""}`;
+    const p = modal(t("remindT"), `<p class="small">${esc(t("remindS"))}</p><div class="remind">${opts.map(([k, d, n], i) => `<div class="rm"><b>${t(k)}</b><span><a class="chip" target="_blank" rel="noopener" href="${gFor(d, n)}" data-rm>${t("gcal")}</a><button class="chip" data-ics="${i}">${t("ics")}</button></span></div>`).join("")}</div>`, [{ label: t("close") }]);
+    document.querySelectorAll("[data-rm]").forEach(a => a.addEventListener("click", () => ping("reminder")));
+    document.querySelectorAll("[data-ics]").forEach(el => el.onclick = () => {
+      const [, d, n] = opts[+el.dataset.ics], blob = new Blob([icsFor(d, n)], { type: "text/calendar" }), a = document.createElement("a");
+      a.href = URL.createObjectURL(blob); a.download = "tangent.ics"; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); ping("reminder");
+    });
+    return p;
+  }
+
+  // ---------- account (optional): Supabase auth + cloud save ----------
+  const SB_URL = "https://pfwazngwcvirdeyamvsd.supabase.co", SB_KEY = "sb_publishable_5wLxVtnFy4IMOAMK_rzZ-A_cZ1TSOeV";
+  const SB = window.supabase?.createClient ? window.supabase.createClient(SB_URL, SB_KEY, { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: "tangent.auth" } }) : null;
+  let user = null;
+  function renderAcct() {
+    const b = $("#acctBtn"); if (!b) return;
+    b.innerHTML = user ? `<i>${esc((user.email || "?")[0].toUpperCase())}</i>` : `<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4" fill="none"/><path d="M4 21a8 8 0 0116 0" fill="none"/></svg><span>${t("account")}</span>`;
+    b.classList.toggle("in", !!user); b.setAttribute("aria-label", user ? t("acctT") : t("account"));
+  }
+  async function cloudSave(b, audio) {
+    if (!SB || !user || b.example) return;
+    try {
+      let audioPath = null;
+      if (audio) {
+        const ext = /mp4/.test(audio.type) ? "m4a" : /ogg/.test(audio.type) ? "ogg" : "webm";
+        audioPath = `${user.id}/${b.id}.${ext}`;
+        const up = await SB.storage.from("tangent-audio").upload(audioPath, audio, { contentType: audio.type.split(";")[0] || "audio/webm", upsert: true });
+        if (up.error) audioPath = null;
+      }
+      const { transcript, svgs, ...rest } = b;
+      const board = { ...rest, transcript, audioPath };
+      await SB.from("tangent_boards").insert({ id: b.id, thread_id: /^[0-9a-f-]{36}$/.test(b.thread || "") ? b.thread : null, core: b.core, board, audio_path: audioPath });
+      if (audioPath) { b.audioPath = audioPath; saveToGarden(b); }
+    } catch {}
+  }
+  async function cloudPark(it, done) {
+    if (!SB || !user) return;
+    try { if (done) await SB.from("tangent_parked").update({ done: true }).eq("id", it.id); else await SB.from("tangent_parked").insert({ id: it.id, text: it.text.slice(0, 80), board_id: null }); } catch {}
+  }
+  async function cloudPull() {
+    if (!SB || !user) return;
+    try {
+      const [{ data: boards }, { data: pk }] = await Promise.all([
+        SB.from("tangent_boards").select("id,board,created_at").order("created_at", { ascending: false }).limit(30),
+        SB.from("tangent_parked").select("id,text,done,created_at").order("created_at", { ascending: false }).limit(40),
+      ]);
+      if (boards?.length) {
+        const local = gardenList(), ids = new Set(local.map(x => x.id));
+        const merged = [...local, ...boards.filter(r => !ids.has(r.id)).map(r => ({ ...r.board, id: r.id, hasAudio: !!r.board.audioPath }))].sort((a, b) => (b.at || 0) - (a.at || 0)).slice(0, 30);
+        store.set("tangent.garden", merged);
+      }
+      if (pk?.length) {
+        const local = store.get("tangent.parked", []), ids = new Set(local.map(x => x.id));
+        store.set("tangent.parked", [...local, ...pk.filter(r => !ids.has(r.id)).map(r => ({ id: r.id, text: r.text, done: r.done, at: Date.parse(r.created_at) }))].slice(0, 40));
+      }
+      renderGarden(); renderHomeThread();
+    } catch {}
+  }
+  function field(id, type, label, extra = "") { return `<label class="fld"><span>${esc(label)}</span><input id="${id}" type="${type}" ${extra}></label>`; }
+  function authErr(e) { const m = String(e?.message || ""); return /password/i.test(m) && /6|8|short|weak/i.test(m) ? t("pwShort") : t("authErr"); }
+  function openAccount(view = user ? "me" : "signin", email = "") {
+    const box = $("#acct"); box.hidden = false; document.body.classList.add("noscroll");
+    const close = () => { box.hidden = true; document.body.classList.remove("noscroll"); };
+    const V = {
+      signin: () => `<h2>${t("signin")}</h2><p class="small">${esc(t("acctS"))}</p>${field("aEmail", "email", t("email"), `autocomplete="email" value="${esc(email)}"`)}${field("aPw", "password", t("password"), 'autocomplete="current-password"')}
+        <button class="btn wide" data-do="signin">${t("signin")}</button><div class="alinks"><button class="textlink" data-go="forgot">${t("forgot")}</button><button class="textlink" data-go="signup">${t("noAcc")}</button></div>`,
+      signup: () => `<h2>${t("signup")}</h2><p class="small">${esc(t("acctS"))}</p>${field("aEmail", "email", t("email"), `autocomplete="email" value="${esc(email)}"`)}${field("aPw", "password", t("password"), 'autocomplete="new-password" minlength="8"')}
+        <button class="btn wide" data-do="signup">${t("signup")}</button><div class="alinks"><button class="textlink" data-go="signin">${t("haveAcc")}</button></div>`,
+      verify: () => `<h2>${t("verifyT")}</h2><p class="small">${esc(t("verifyS", { email }))}</p>${field("aCode", "text", t("code"), 'inputmode="numeric" autocomplete="one-time-code" maxlength="10"')}
+        <button class="btn wide" data-do="verify">${t("verify")}</button>`,
+      forgot: () => `<h2>${t("forgot")}</h2>${field("aEmail", "email", t("email"), `autocomplete="email" value="${esc(email)}"`)}<button class="btn wide" data-do="forgot">${t("sendCode")}</button><div class="alinks"><button class="textlink" data-go="signin">${t("signin")}</button></div>`,
+      reset: () => `<h2>${t("resetT")}</h2>${email ? `<p class="small">${esc(t("resetS", { email }))}</p>${field("aCode", "text", t("code"), 'inputmode="numeric" autocomplete="one-time-code" maxlength="10"')}` : ""}${field("aPw", "password", t("newPassword"), 'autocomplete="new-password" minlength="8"')}
+        <button class="btn wide" data-do="reset">${t("savePw")}</button>`,
+      me: () => `<h2>${t("acctT")}</h2><p class="small">${t("signedAs")} <b>${esc(user?.email || "")}</b></p><p class="small">${esc(t("storageNote"))}</p>
+        <button class="btn wide ghost" data-do="logout">${t("logout")}</button><button class="textlink danger" data-do="wipe">${t("deleteAll")}</button>`,
+    };
+    const render = v => {
+      box.querySelector(".abody").innerHTML = V[v]() + `<p class="aerr" role="alert"></p>`;
+      box.querySelectorAll("[data-go]").forEach(el => el.onclick = () => { email = $("#aEmail")?.value.trim() || email; render(el.dataset.go); });
+      box.querySelectorAll("[data-do]").forEach(el => el.onclick = () => act(el.dataset.do, el));
+      box.querySelector("input")?.focus();
+      box.querySelectorAll("input").forEach(i => i.addEventListener("keydown", e => { if (e.key === "Enter") box.querySelector("[data-do]")?.click(); }));
+    };
+    const fail = msg => { const e = box.querySelector(".aerr"); if (e) e.textContent = msg; };
+    async function act(what, el) {
+      if (!SB) return fail(t("authErr"));
+      el.disabled = true; fail("");
+      try {
+        const em = $("#aEmail")?.value.trim() || email, pw = $("#aPw")?.value || "", code = ($("#aCode")?.value || "").replace(/\s/g, "");
+        if ((what === "signup" || what === "reset") && pw.length < 8) return fail(t("pwShort"));
+        if (what === "signin") { const { error } = await SB.auth.signInWithPassword({ email: em, password: pw }); if (error) { if (/confirm/i.test(error.message)) { email = em; await SB.auth.resend({ type: "signup", email: em }).catch(() => {}); return render("verify"); } throw error; } ping("login"); close(); toast(t("welcome")); }
+        else if (what === "signup") { const { data, error } = await SB.auth.signUp({ email: em, password: pw, options: { emailRedirectTo: location.origin + "/" } }); if (error) throw error; email = em; ping("signup"); if (data.session) { close(); toast(t("welcome")); } else render("verify"); }
+        else if (what === "verify") { const { error } = await SB.auth.verifyOtp({ email, token: code, type: "signup" }); if (error) throw error; close(); toast(t("welcome")); }
+        else if (what === "forgot") { const { error } = await SB.auth.resetPasswordForEmail(em, { redirectTo: location.origin + "/" }); if (error) throw error; email = em; render("reset"); }
+        else if (what === "reset") { if (code) { const { error } = await SB.auth.verifyOtp({ email, token: code, type: "recovery" }); if (error) throw error; } const { error } = await SB.auth.updateUser({ password: pw }); if (error) throw error; close(); toast(t("pwSaved")); }
+        else if (what === "logout") { await SB.auth.signOut(); close(); }
+        else if (what === "wipe") {
+          if ((await modal(t("deleteAll"), `<p>${esc(t("deleteQ"))}</p>`, [{ label: t("cancel"), ghost: true, value: false }, { label: t("deleteAll"), value: true }])) !== true) return;
+          const { data: files } = await SB.storage.from("tangent-audio").list(user.id, { limit: 1000 });
+          if (files?.length) await SB.storage.from("tangent-audio").remove(files.map(f => `${user.id}/${f.name}`));
+          await SB.from("tangent_parked").delete().eq("user_id", user.id);
+          await SB.from("tangent_boards").delete().eq("user_id", user.id);
+          store.set("tangent.garden", []); store.set("tangent.parked", []); await idbClear(); renderGarden(); renderHomeThread(); close(); toast(t("deleted"));
+        }
+      } catch (e) { fail(authErr(e)); }
+      finally { el.disabled = false; }
+    }
+    box.querySelector(".aclose").onclick = close;
+    box.onclick = e => { if (e.target === box) close(); };
+    render(view);
+  }
+  if (SB) {
+    SB.auth.onAuthStateChange((ev, session) => {
+      const was = user?.id; user = session?.user || null; renderAcct();
+      if (ev === "PASSWORD_RECOVERY") openAccount("reset");
+      if (user && user.id !== was) cloudPull();
+    });
   }
 
   // ---------- example ----------
@@ -584,5 +869,7 @@
   }
   new MutationObserver(() => { if (!$("#board").hidden && !$("#board").dataset.fx) { $("#board").dataset.fx = 1; tilt($("#board")); } }).observe($("#board"), { childList: true });
 
+  $("#acctBtn").onclick = () => openAccount();
   applyLang(); renderGarden(); show("home"); watchReveal(); tilt();
+  if (!sessionStorage.getItem("tangent.v")) { sessionStorage.setItem("tangent.v", 1); ping("visit"); }
 })();

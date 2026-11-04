@@ -32,6 +32,8 @@ function shape(r) {
     tangents: (Array.isArray(r.tangents) ? r.tangents : []).slice(0, 3).map(k => str(k, 50)),
     sounds: (Array.isArray(r.sounds) ? r.sounds : []).filter(s => SOUNDS.includes(s)).slice(0, 3),
     photo_query: str(r.photo_query, 40),
+    strength: { name: str(r.strength?.name, 40), how: str(r.strength?.how, 160) },
+    same_thread: r.same_thread === true,
   };
 }
 
@@ -46,6 +48,8 @@ export default async (req, context) => {
 
   const text = typeof body.text === "string" ? body.text.trim().slice(0, 4000) : "";
   const audio = typeof body.audio === "string" ? body.audio : "";
+  let prev = typeof body.previous === "string" ? body.previous.trim().slice(0, 220) : "";
+  if (prev && checkText(prev)) prev = "";
   if (!text && !audio) return json(400, { status: "empty" });
   if (audio.length > MAX_AUDIO_B64) return json(413, { status: "too_long" });
 
@@ -55,7 +59,7 @@ export default async (req, context) => {
   // 2. AI (Gemini, then Groq). A provider safety block counts as a violation.
   setBudget(23000);
   let r;
-  try { r = audio ? await analyzeAudio(audio) : await analyzeText(text); }
+  try { r = audio ? await analyzeAudio(audio, prev) : await analyzeText(text, prev); }
   catch (e) {
     if (e instanceof Blocked) return violation(id, "provider");
     console.error("analyze failed:", e.message);
@@ -73,7 +77,7 @@ export default async (req, context) => {
 
   // 4. Rules on what the AI produced. Never show it if it breaks a rule (no strike: not the person's fault).
   const board = shape(r);
-  const produced = [board.core, board.breathe, board.photo_query, ...board.tiles.flatMap(t => [t.subject, t.photo, t.caption]), ...board.steps.flatMap(s => [s.when, s.what]), ...board.tangents].join(" \n ");
+  const produced = [board.core, board.breathe, board.photo_query, ...board.tiles.flatMap(t => [t.subject, t.photo, t.caption]), ...board.steps.flatMap(s => [s.when, s.what]), ...board.tangents, board.strength.name, board.strength.how].join(" \n ");
   if (checkText(produced) || !board.core || board.tiles.length < 3) return json(200, { status: "ai_error" });
 
   await countUse(id, "rec");

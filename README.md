@@ -43,3 +43,15 @@ First prohibited message: session closed with a warning. Second: device and IP b
 ## Sounds
 
 Recorded sounds can replace the synthesised ones, see `public/assets/sounds/README.md`.
+
+
+## Accounts, saving and sharing (v2)
+
+- **Accounts are optional.** Sign-in uses Supabase Auth (for now inside the Sliabh Supabase project, tables prefixed `tangent_`).
+  The browser uses the project's public publishable key; row-level security keeps every board and audio file private to its owner.
+- **Tables:** `tangent_boards`, `tangent_parked`. **Storage bucket:** `tangent-audio` (private, one folder per user).
+- **Supabase dashboard, one-time:** Authentication → URL Configuration → Redirect URLs → add `https://tangent-adhd.netlify.app/**`.
+  To show a 6-digit code in the emails, add `{{ .Token }}` to the "Confirm signup" and "Reset password" templates.
+- **Sharing:** `POST /api/share` stores a read-only copy of the board and its card image in Netlify Blobs (`tangent-shares`); `/s/:id` renders it with a link preview.
+- **Owner stats:** open `/stats.html` and enter `STATS_TOKEN`. Counts are anonymous daily totals.
+- **Reminders** are calendar events (Google Calendar link or `.ics`), so nothing is stored or sent by Tangent.

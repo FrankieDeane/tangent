@@ -138,15 +138,20 @@ async function bump(key) {
   await u.setJSON("total:" + key, { n: (v?.n || 0) + 1 });
 }
 
+// Anonymous product events, counted per day (no ids stored).
+export const EVENTS = ["visit", "share", "listen", "reminder", "signup", "login", "resume", "park", "same_thread", "replay"];
+export async function track(kind) { if (EVENTS.includes(kind)) await bump(kind + ":" + today()); }
+
 export async function stats(days = 14) {
   const u = usage();
   const out = [];
   for (let i = 0; i < days; i++) {
     const d = new Date(Date.now() - i * 864e5).toISOString().slice(0, 10);
-    const [r, dr, v] = await Promise.all([
-      u.get(`total:rec:${d}`, { type: "json" }), u.get(`total:draw:${d}`, { type: "json" }), u.get(`total:violations:${d}`, { type: "json" }),
-    ]);
-    out.push({ date: d, recordings: r?.n || 0, drawings: dr?.n || 0, blocked: v?.n || 0 });
+    const keys = [`total:rec:${d}`, `total:draw:${d}`, `total:violations:${d}`, ...EVENTS.map(e => `total:${e}:${d}`)];
+    const vals = await Promise.all(keys.map(k => u.get(k, { type: "json" })));
+    const row = { date: d, recordings: vals[0]?.n || 0, drawings: vals[1]?.n || 0, blocked: vals[2]?.n || 0 };
+    EVENTS.forEach((e, j) => { row[e] = vals[3 + j]?.n || 0; });
+    out.push(row);
   }
   return out;
 }

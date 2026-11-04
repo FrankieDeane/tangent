@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tangent · Stats</title><meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/assets/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700;800&display=swap">
+<style>
+:root{--bg:#ECECEC;--ink:#141414;--muted:#8C8C8C;--line:#DCDCDC;--card:#FAFAFA;--accent:#6A55E0;--iris:linear-gradient(135deg,#6A55E0,#8796EE 40%,#A7BDF2 65%,#8EA6EE 85%,#7B8FE8)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Inter Tight",system-ui,sans-serif}
+.w{max-width:1040px;margin:0 auto;padding:20px 16px 40px;display:flex;flex-direction:column;gap:18px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:4px;font-weight:800;font-size:24px;letter-spacing:-.05em;color:var(--ink);text-decoration:none}.brand img{height:58px;margin-block:-8px}
+h1{font-size:clamp(34px,6vw,60px);letter-spacing:-.045em;margin:0;line-height:1}h1 em{font-style:normal;color:var(--muted)}
+form{display:flex;gap:8px}input,select{border:1px solid var(--line);border-radius:99px;padding:10px 14px;font:inherit;background:#fff}button{border:0;border-radius:99px;padding:10px 18px;background:var(--ink);color:#fff;font:600 15px inherit}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.k{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px}.k b{display:block;font-size:38px;letter-spacing:-.04em;font-variant-numeric:tabular-nums}.k span{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.k.hero{background:var(--iris);color:#fff;border:0}.k.hero span{color:rgba(255,255,255,.85)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px}
+.card h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0 0 12px;font-weight:600}
+svg{width:100%;height:auto;display:block}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line)}th:first-child,td:first-child{text-align:left}th{color:var(--muted);font-weight:600;font-size:12px}
+.tw{overflow-x:auto}.msg{color:var(--muted)}
+@media (max-width:700px){.kpis{grid-template-columns:1fr 1fr}}
+</style></head><body><div class="w">
+<header><a class="brand" href="/"><img src="/assets/mark@3x.webp" alt="" width="332" height="240">Tangent</a>
+<form id="f"><input id="tok" type="password" placeholder="STATS_TOKEN" autocomplete="current-password"><select id="days"><option value="14">14 días</option><option value="30" selected>30 días</option><option value="60">60 días</option></select><button>Ver</button></form></header>
+<h1>Stats <em>de uso</em></h1>
+<p class="msg" id="msg">Ingresá tu STATS_TOKEN (el que pusiste en Netlify). Se guarda solo en este navegador. Los números son anónimos: no hay datos de personas.</p>
+<div id="out" hidden>
+  <div class="kpis" id="kpis"></div>
+  <div class="card" style="margin-top:12px"><h2>Tableros creados por día</h2><div id="chart"></div></div>
+  <div class="card" style="margin-top:12px"><h2>Detalle por día</h2><div class="tw" id="tbl"></div></div>
+</div>
+</div>
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const NAMES = { recordings: "Tableros", visit: "Visitas", share: "Compartidos", listen: "Escuchas", reminder: "Recordatorios", signup: "Registros", login: "Logins", resume: "Retomadas", park: "Tangentes estac.", same_thread: "Mismo hilo", replay: "Se escucharon", drawings: "Dibujos", blocked: "Bloqueos" };
+  try { $("#tok").value = localStorage.getItem("tangent.statsToken") || ""; } catch {}
+  async function load() {
+    const tok = $("#tok").value.trim(); if (!tok) return;
+    try { localStorage.setItem("tangent.statsToken", tok); } catch {}
+    $("#msg").textContent = "Cargando…";
+    const r = await fetch("/api/stats?days=" + $("#days").value, { headers: { "x-stats-token": tok } }).catch(() => null);
+    const d = r && await r.json().catch(() => null);
+    if (!d || d.status !== "ok") { $("#msg").textContent = "Token incorrecto o sin conexión."; $("#out").hidden = true; return; }
+    $("#msg").textContent = ""; $("#out").hidden = false;
+    const T = d.totals, conv = T.visit ? Math.round(100 * T.recordings / T.visit) : 0;
+    $("#kpis").innerHTML = [["hero", T.recordings, "Tableros"], ["", T.visit, "Visitas"], ["", conv + "%", "Visita → tablero"], ["", T.share, "Compartidos"], ["", T.signup, "Registros"], ["", T.listen, "Escuchas"], ["", T.reminder, "Recordatorios"], ["", T.blocked, "Bloqueos"]]
+      .map(([c, v, l]) => `<div class="k ${c}"><b>${v}</b><span>${l}</span></div>`).join("");
+    const days = d.days.slice().reverse(), max = Math.max(1, ...days.map(x => x.recordings)), W = 1000, H = 260, bw = W / days.length;
+    $("#chart").innerHTML = `<svg viewBox="0 0 ${W} ${H + 30}" role="img" aria-label="Tableros por día"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6A55E0"/><stop offset="1" stop-color="#A7BDF2"/></linearGradient></defs>
+      ${[0, .5, 1].map(f => `<line x1="0" x2="${W}" y1="${H - f * H}" y2="${H - f * H}" stroke="#DCDCDC"/><text x="0" y="${H - f * H - 4}" font-size="12" fill="#8C8C8C">${Math.round(max * f)}</text>`).join("")}
+      ${days.map((x, i) => { const h = x.recordings / max * (H - 10); return `<rect x="${i * bw + bw * .18}" y="${H - h}" width="${bw * .64}" height="${h}" rx="${Math.min(6, bw * .3)}" fill="url(#g)"><title>${x.date}: ${x.recordings}</title></rect>`; }).join("")}
+      ${days.map((x, i) => i % Math.ceil(days.length / 8) ? "" : `<text x="${i * bw + bw / 2}" y="${H + 20}" font-size="12" fill="#8C8C8C" text-anchor="middle">${x.date.slice(5)}</text>`).join("")}</svg>`;
+    const cols = Object.keys(NAMES);
+    $("#tbl").innerHTML = `<table><thead><tr><th>Día</th>${cols.map(c => `<th>${NAMES[c]}</th>`).join("")}</tr></thead><tbody>${d.days.map(x => `<tr><td>${x.date}</td>${cols.map(c => `<td>${x[c] || 0}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+  }
+  $("#f").onsubmit = e => { e.preventDefault(); load(); };
+  if ($("#tok").value) load();
+})();
+</script></body></html>
