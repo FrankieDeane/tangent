@@ -23,9 +23,9 @@ a{color:var(--accent)}
 [hidden]{display:none!important}
 .wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px;min-height:100vh;padding-block:14px 32px}
 .top{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.brand{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink)}
-.brand img{height:54px;width:auto;display:block;filter:saturate(1.08) contrast(1.05)}
-.brand span{font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-.05em;line-height:1}
+.brand{display:flex;align-items:center;gap:4px;text-decoration:none;color:var(--ink)}
+.brand img{height:96px;margin-block:-14px;width:auto;display:block;filter:saturate(1.08) contrast(1.05)}
+.brand span{font-family:var(--display);font-weight:800;font-size:36px;letter-spacing:-.05em;line-height:1}
 .top-r{display:flex;gap:8px;align-items:center}
 .pill{font-size:11px;letter-spacing:.12em;text-transform:uppercase;border:1px solid var(--line);border-radius:99px;padding:5px 12px;color:var(--muted)}
 .lang{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:4px 12px;font-size:13px}
@@ -123,7 +123,7 @@ body.simple .steps .s:not(:first-child){display:none}
   .mosaic > *{flex:0 0 84%;scroll-snap-align:center}
   .tile.big .pic{min-height:260px}
   .srow{grid-template-columns:minmax(0,1fr)}
-  .brand img{height:44px}.brand span{font-size:22px}
+  .brand img{height:58px;margin-block:-6px}.brand span{font-size:24px}.brand{gap:2px}.top .pill{display:none}
 }
 
 /* modal */

@@ -491,7 +491,7 @@
     g.font = '30px "Figtree", sans-serif'; g.globalAlpha = 0.85;
     const s0 = b.steps?.[0]; if (s0) g.fillText(`${s0.when} · ${s0.what}`.slice(0, 60), 60, 1250);
     g.globalAlpha = 0.6; g.font = '26px "Figtree", sans-serif'; g.fillText("Tangent · " + (lang === "es" ? "una idea de Tangent" : "an idea by Tangent"), 60, 1305); g.globalAlpha = 1;
-    try { const logo = new Image(); logo.src = "/assets/mark.png"; await logo.decode(); g.drawImage(logo, W - 190, H - 150, 140, 101); } catch {}
+    try { const logo = new Image(); logo.src = "/assets/mark@3x.webp"; await logo.decode(); g.drawImage(logo, W - 250, H - 190, 200, 145); } catch {}
     const blob = await new Promise(r => c.toBlob(r, "image/png"));
     const file = new File([blob], "tangent.png", { type: "image/png" });
     if (navigator.canShare?.({ files: [file] })) { try { await navigator.share({ files: [file], title: t("shareTitle") }); return; } catch (e) { if (e.name === "AbortError") return; } }
