@@ -1,0 +1,11 @@
+{
+  "name": "tangent",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Tangent: say it messy, see it clear.",
+  "type": "module",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@netlify/blobs": "^11.1.7"
+  }
+}
