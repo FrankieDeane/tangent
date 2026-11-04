@@ -145,35 +145,39 @@ Reply with ONLY a JSON object:
  "letgo": [3 to 6 short noisy phrases copied from the transcript that can be set aside],
  "tangents": [0 to 3 side ideas they mentioned that are not the core, max 5 words each],
  "sounds": [1 to 3 of ${SOUNDS.join("|")} that fit the scenes they imagined or would calm them],
- "photo_query": "2 or 3 English words for a calm, safe stock photo that fits the core"}
+ "photo_query": "2 or 3 English words for a calm, safe stock photo that fits the core",
+ "strength": {"name": "the ADHD strength this note shows, 1 to 3 words in the person's language, e.g. Conectar ideas / Connecting ideas, Hiperfoco / Hyperfocus, Creatividad / Creativity, Energía / Energy, Curiosidad / Curiosity, Visión amplia / Big-picture thinking, Intuición / Intuition", "how": "max 20 words, second person, warm: how this strength helps make this exact idea clear and doable"},
+ "same_thread": true if a previous idea is given below and this note clearly continues it, else false}
 If safety.ok is false or language is "other", still return the JSON but leave core, tiles, steps and the rest empty.`;
 }
 
-export async function analyzeAudio(wavBase64) {
-  const prompt = boardPrompt("The voice note is attached as audio. Transcribe it, then analyse it.");
+const prevLine = prev => (prev ? `\nTheir previous idea, a little while ago, was: """${String(prev).slice(0, 220)}""". Use it only to decide same_thread.` : "");
+
+export async function analyzeAudio(wavBase64, prev) {
+  const prompt = boardPrompt("The voice note is attached as audio. Transcribe it, then analyse it." + prevLine(prev));
   try {
     return { ...parseJSON(await gemini([{ inline_data: { mime_type: "audio/wav", data: wavBase64 } }, { text: prompt }])), provider: "gemini" };
   } catch (e) {
     if (e instanceof Blocked) throw e;
     console.error("gemini audio failed, trying groq:", e.message);
     const transcript = await groqTranscribe(wavBase64);
-    return analyzeTextWithGroq(transcript);
+    return analyzeTextWithGroq(transcript, prev);
   }
 }
 
-export async function analyzeText(text) {
-  const prompt = boardPrompt(`Voice note transcript: """${text.slice(0, 4000)}"""`);
+export async function analyzeText(text, prev) {
+  const prompt = boardPrompt(`Voice note transcript: """${text.slice(0, 4000)}"""` + prevLine(prev));
   try {
     return { ...parseJSON(await gemini([{ text: prompt }])), provider: "gemini" };
   } catch (e) {
     if (e instanceof Blocked) throw e;
     console.error("gemini text failed, trying groq:", e.message);
-    return analyzeTextWithGroq(text);
+    return analyzeTextWithGroq(text, prev);
   }
 }
 
-async function analyzeTextWithGroq(text) {
-  const prompt = boardPrompt(`Voice note transcript: """${String(text).slice(0, 4000)}"""`);
+async function analyzeTextWithGroq(text, prev) {
+  const prompt = boardPrompt(`Voice note transcript: """${String(text).slice(0, 4000)}"""` + prevLine(prev));
   const out = parseJSON(await groqChat(prompt));
   if (!out.transcript) out.transcript = text;
   return { ...out, provider: "groq" };
