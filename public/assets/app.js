@@ -321,6 +321,11 @@
     current = board; currentWave = wave || board.wave || null; current.wave = currentWave;
     renderBoard(board);
     if (fresh) {
+      try {
+        const res = await fetch("/api/photos", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, queries: board.tiles.map(x => x.photo || x.subject) }) });
+        const d = await res.json();
+        if (d.photos?.some(Boolean)) { board.photos = d.photos; if (current === board) renderBoard(board); }
+      } catch {}
       const pics = [...document.querySelectorAll(".tile[data-i] .pic:not(.photo)")];
       pics.forEach(p => { p.classList.add("drawing"); p.dataset.drawing = t("drawing"); });
       const svgs = await drawTiles(board);

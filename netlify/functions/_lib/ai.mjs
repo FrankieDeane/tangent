@@ -12,20 +12,28 @@ export const MOODS = ["calm", "anxious", "excited", "tired", "sad", "focused", "
 
 export class Blocked extends Error { constructor(reason) { super("blocked"); this.reason = reason; } }
 
+let DEADLINE = Infinity;
+export function setBudget(ms) { DEADLINE = Date.now() + ms; }
+const left = () => DEADLINE - Date.now();
+const cap = ms => Math.max(0, Math.min(ms, left() - 800));
 function withTimeout(ms) { const c = new AbortController(); const t = setTimeout(() => c.abort(), ms); return { signal: c.signal, done: () => clearTimeout(t) }; }
 
 const GEMINI_MODELS = () => [...new Set([process.env.GEMINI_MODEL, "gemini-flash-latest", "gemini-2.5-flash", "gemini-flash-lite-latest", "gemini-2.5-flash-lite"].filter(Boolean))];
 async function gemini(parts, opts = {}) {
   let last;
-  for (const model of GEMINI_MODELS()) {
-    try { return await geminiOnce(model, parts, opts); }
+  const models = GEMINI_MODELS();
+  for (const [i, model] of models.entries()) {
+    if (left() < 5000) break;
+    // leave time for the Groq fallback: Gemini gets at most ~60% of what is left
+    const timeout = cap(Math.min(opts.timeout || 40000, i === 0 ? left() * 0.6 : left() * 0.4));
+    try { return await geminiOnce(model, parts, { ...opts, timeout }); }
     catch (e) {
       last = e;
       // try the next model when this one is missing, overloaded, rate limited or erroring; stop on safety blocks and bad keys
       if (e instanceof Blocked || !/gemini_http_(400|404|429|500|503|504)|gemini_empty|aborted|timeout/i.test(e.message)) throw e;
     }
   }
-  throw last;
+  throw last || new Error("gemini_no_time");
 }
 async function geminiOnce(model, parts, { json = true, temperature = 0.7, timeout = 40000 } = {}) {
   const key = (process.env.GEMINI_API_KEY || "").trim();
@@ -37,7 +45,7 @@ async function geminiOnce(model, parts, { json = true, temperature = 0.7, timeou
       headers: { "content-type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({
         contents: [{ role: "user", parts }],
-        generationConfig: { temperature, ...(json ? { responseMimeType: "application/json" } : {}) },
+        generationConfig: { temperature, ...(json ? { responseMimeType: "application/json" } : {}), thinkingConfig: { thinkingBudget: 0 } },
         safetySettings: SAFETY,
       }),
     });
@@ -64,7 +72,8 @@ async function groqChat(prompt, { temperature = 0.7, timeout = 25000 } = {}) {
   if (!key) throw new Error("groq_not_configured");
   let last;
   for (const model of GROQ_MODELS()) {
-    const to = withTimeout(timeout);
+    if (left() < 2500) break;
+    const to = withTimeout(cap(timeout));
     try {
       const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
         method: "POST", signal: to.signal,
@@ -90,8 +99,9 @@ async function groqTranscribe(wavBase64) {
   fd.append("response_format", "json");
   let last;
   for (const model of [...new Set([process.env.GROQ_WHISPER_MODEL, "whisper-large-v3-turbo", "whisper-large-v3"].filter(Boolean))]) {
+    if (left() < 4000) break;
     fd.set("model", model);
-    const to = withTimeout(25000);
+    const to = withTimeout(cap(15000));
     try {
       const r = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", { method: "POST", body: fd, signal: to.signal, headers: { authorization: "Bearer " + key } });
       if (r.ok) return (await r.json()).text || "";
@@ -181,10 +191,10 @@ Reply with ONLY a JSON object {"svgs": [${subjects.length} strings, each the inn
 export async function drawSvgs(subjects, palette) {
   const prompt = drawPrompt(subjects, palette);
   let out;
-  try { out = parseJSON(await gemini([{ text: prompt }], { temperature: 0.8, timeout: 50000 })); }
+  try { out = parseJSON(await gemini([{ text: prompt }], { temperature: 0.8, timeout: 18000 })); }
   catch (e) {
     if (e instanceof Blocked) throw e;
-    out = parseJSON(await groqChat(prompt, { temperature: 0.8, timeout: 45000 }));
+    out = parseJSON(await groqChat(prompt, { temperature: 0.8, timeout: 15000 }));
   }
   const arr = Array.isArray(out) ? out : out.svgs;
   return Array.isArray(arr) ? arr.map(sanitizeSvg) : [];
@@ -214,7 +224,7 @@ const photoCache = () => { try { return getStore({ name: "tangent-photos" }); } 
 const okText = (...t) => !checkText(t.filter(Boolean).join(" "));
 
 async function getJSON(url, headers = {}) {
-  const to = withTimeout(6000);
+  const to = withTimeout(5000);
   try { const r = await fetch(url, { headers, signal: to.signal }); return r.ok ? await r.json() : null; }
   catch { return null; } finally { to.done(); }
 }
