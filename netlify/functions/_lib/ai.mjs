@@ -1,3 +1,5 @@
+import { getStore } from "@netlify/blobs";
+import { checkText } from "./guard.mjs";
 // AI providers: Google Gemini first, Groq as the free backup.
 
 const SAFETY = ["HARM_CATEGORY_HARASSMENT", "HARM_CATEGORY_HATE_SPEECH", "HARM_CATEGORY_SEXUALLY_EXPLICIT", "HARM_CATEGORY_DANGEROUS_CONTENT"]
@@ -96,7 +98,8 @@ Reply with ONLY a JSON object:
  "core": "the core idea in one or two short sentences, max 22 words, second person, calm, in the person's language",
  "mood": "one of ${MOODS.join("|")}",
  "palette": "one of ${PALETTES.join("|")} matching the mood",
- "tiles": [5 objects {"subject": "a concrete, friendly thing or scene to draw from what they actually said, 4-10 words in English", "scene": "closest of ${SCENES.join("|")}", "caption": "max 7 words, image-like, in the person's language"}],
+ "tiles": [5 objects {"subject": "a concrete, friendly thing or scene to draw from what they actually said, 4-10 words in English", "photo": "2 to 4 plain English words to search a real, calm, wholesome stock photo of that subject, e.g. coffee cup morning", "scene": "closest of ${SCENES.join("|")}", "caption": "max 7 words, image-like, in the person's language"}],
+ "mix": {"focus": 0-100, "energy": 0-100, "calm": 0-100, "urgency": 0-100, "clarity": 0-100, "ideas": 0-100} estimated from how they spoke (ideas = how many separate ideas came up),
  "clip": "index 0-4 of the tile that best captures the whole idea",
  "breathe": "one calming line, max 14 words, only if they sound stressed or overwhelmed, else empty string",
  "steps": [3 objects {"when": "short time like 7:00, Hoy/Today, Después/Next", "what": "a concrete action, max 7 words, starting with a verb"}],
@@ -177,15 +180,47 @@ export function sanitizeSvg(s) {
   return cleaned.trim() || null;
 }
 
-export async function findPhotos(query) {
-  const key = process.env.PEXELS_API_KEY;
-  if (!key || !query) return [];
+
+const UTM = "utm_source=tangent&utm_medium=referral";
+const photoCache = () => { try { return getStore({ name: "tangent-photos" }); } catch { return null; } };
+
+async function unsplashOne(query, key) {
+  const q = String(query || "").toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim().slice(0, 60);
+  if (!q) return null;
+  const cache = photoCache();
+  try { const hit = cache && await cache.get(q, { type: "json" }); if (hit && Date.now() - hit.at < 7 * 864e5) return hit.photo; } catch {}
+  let photo = null;
   try {
     const to = withTimeout(6000);
-    const r = await fetch(`https://api.pexels.com/v1/search?per_page=2&orientation=landscape&query=${encodeURIComponent(query)}`, { headers: { authorization: key }, signal: to.signal });
+    const r = await fetch(`https://api.unsplash.com/search/photos?per_page=5&orientation=landscape&content_filter=high&query=${encodeURIComponent(q)}`, {
+      headers: { authorization: `Client-ID ${key}`, "accept-version": "v1" }, signal: to.signal,
+    });
     to.done();
-    if (!r.ok) return [];
+    if (!r.ok) return null;
     const d = await r.json();
-    return (d.photos || []).slice(0, 2).map(p => ({ src: p.src?.large, alt: p.alt || query, credit: p.photographer, url: p.url }));
-  } catch { return []; }
+    // first result whose own description passes the site rules
+    const p = (d.results || []).find(x => !checkText(`${x.alt_description || ""} ${x.description || ""}`));
+    if (p) photo = {
+      src: `${p.urls.raw}&w=1080&h=720&fit=crop&auto=format&q=75`,
+      color: p.color || null,
+      alt: String(p.alt_description || q).slice(0, 140),
+      credit: String(p.user?.name || "Unsplash").slice(0, 60),
+      profile: `${p.user?.links?.html || "https://unsplash.com"}?${UTM}`,
+      url: `${p.links?.html || "https://unsplash.com"}?${UTM}`,
+      dl: p.links?.download_location || null,
+    };
+  } catch { return null; }
+  try { if (cache) await cache.setJSON(q, { at: Date.now(), photo }); } catch {}
+  return photo;
+}
+
+// One Unsplash photo per tile (null where none). Hotlinked, credited, and the download event is reported as Unsplash requires.
+export async function findPhotos(queries) {
+  const key = process.env.UNSPLASH_ACCESS_KEY;
+  if (!key || !queries?.length) return [];
+  const photos = await Promise.all(queries.map(q => unsplashOne(q, key)));
+  const seen = new Set();
+  const out = photos.map(p => (p && !seen.has(p.src) && seen.add(p.src) ? p : null));
+  await Promise.all(out.filter(p => p?.dl).map(p => fetch(`${p.dl}${p.dl.includes("?") ? "&" : "?"}client_id=${key}`).catch(() => {})));
+  return out.map(p => p && (({ dl, ...rest }) => rest)(p));
 }

@@ -14,7 +14,7 @@ Say it messy. See it clear. One button: you talk, Tangent shows a calm visual bo
 | `GROQ_API_KEY` | recommended | Groq key (free backup if Gemini fails) |
 | `TANGENT_SALT` | yes | Any long random text, used to hash device IDs and IPs |
 | `STATS_TOKEN` | yes | Any secret of 8+ characters to read `/api/stats?token=...` |
-| `PEXELS_API_KEY` | optional | Real photos on the board |
+| `UNSPLASH_ACCESS_KEY` | recommended | Unsplash "Access Key" (unsplash.com/developers → New Application). Real photos for each board image; without it, drawings are used. Demo apps get 50 searches/hour; apply for Production in the Unsplash dashboard for 5,000/hour. |
 | `GEMINI_MODEL` | optional | Default `gemini-flash-latest` |
 | `GROQ_MODEL` | optional | Default `llama-3.3-70b-versatile` |
 | `GROQ_WHISPER_MODEL` | optional | Default `whisper-large-v3-turbo` |
