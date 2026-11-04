@@ -1,6 +1,6 @@
 // POST /api/draw  { deviceId, subjects: string[], palette: string }
 import { checkText, identify, isBanned, underLimit, countUse, json } from "./_lib/guard.mjs";
-import { drawSvgs, Blocked } from "./_lib/ai.mjs";
+import { drawSvgs, Blocked, setBudget } from "./_lib/ai.mjs";
 
 const PAL = {
   dawn: ["#FCE6D4", "#F6B99A", "#F28C6B", "#6E5A7E"], mist: ["#E7EEF0", "#C5D6DD", "#8FAAB7", "#3F5866"],
@@ -19,6 +19,7 @@ export default async (req, context) => {
   const subjects = (Array.isArray(body.subjects) ? body.subjects : []).slice(0, 5).map(s => String(s).slice(0, 120));
   if (!subjects.length || checkText(subjects.join(" \n "))) return json(200, { status: "skip", svgs: [] });
 
+  setBudget(22000);
   try {
     const svgs = await drawSvgs(subjects, PAL[body.palette] || PAL.mist);
     await countUse(id, "draw");

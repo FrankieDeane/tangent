@@ -1,7 +1,7 @@
 // POST /api/analyze  { deviceId, audio?: base64 WAV, text?: string }
 // Order matters: ban check -> daily limit -> rules on input -> AI -> rules on AI verdict -> rules on output.
 import { checkText, identify, isBanned, addStrike, underLimit, countUse, json } from "./_lib/guard.mjs";
-import { analyzeAudio, analyzeText, findPhotos, Blocked, SCENES, PALETTES, SOUNDS, MOODS } from "./_lib/ai.mjs";
+import { analyzeAudio, analyzeText, setBudget, Blocked, SCENES, PALETTES, SOUNDS, MOODS } from "./_lib/ai.mjs";
 
 const MAX_AUDIO_B64 = 4_200_000; // about 60-70 s of 16 kHz mono WAV
 
@@ -53,6 +53,7 @@ export default async (req, context) => {
   if (text) { const v = checkText(text); if (v) return violation(id, v.category); }
 
   // 2. AI (Gemini, then Groq). A provider safety block counts as a violation.
+  setBudget(23000);
   let r;
   try { r = audio ? await analyzeAudio(audio) : await analyzeText(text); }
   catch (e) {
@@ -75,7 +76,6 @@ export default async (req, context) => {
   const produced = [board.core, board.breathe, board.photo_query, ...board.tiles.flatMap(t => [t.subject, t.photo, t.caption]), ...board.steps.flatMap(s => [s.when, s.what]), ...board.tangents].join(" \n ");
   if (checkText(produced) || !board.core || board.tiles.length < 3) return json(200, { status: "ai_error" });
 
-  board.photos = await findPhotos(board.tiles.map(t => t.photo || t.subject));
   await countUse(id, "rec");
   return json(200, { status: "ok", transcript, language: r.language || "es", board, provider: r.provider });
 };
