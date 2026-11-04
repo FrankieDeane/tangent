@@ -58,7 +58,7 @@ export default async (req, context) => {
   catch (e) {
     if (e instanceof Blocked) return violation(id, "provider");
     console.error("analyze failed:", e.message);
-    return json(502, { status: "ai_error" });
+    return json(502, { status: "ai_error", reason: String(e.message || "").replace(/key=[^&\s]+/g, "").slice(0, 160) });
   }
 
   const transcript = str(r.transcript || text, 4000);

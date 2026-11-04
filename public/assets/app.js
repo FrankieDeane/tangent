@@ -281,7 +281,7 @@
       case "limit": show("home"); return modal(t("limitT"), `<p>${esc(t("limit"))}</p>`);
       case "empty": show("home"); return modal(t("emptyT"), `<p>${esc(t("empty"))}</p>`);
       case "too_long": show("home"); return modal(t("tooLongT"), `<p>${esc(t("tooLong"))}</p>`);
-      default: show("home"); return modal(t("errT"), `<p>${esc(t("err"))}</p>`);
+      default: show("home"); return modal(t("errT"), `<p>${esc(t("err"))}</p>${data.reason ? `<p style="font-size:12px;color:var(--muted)">${esc(data.reason)}</p>` : ""}`);
     }
   }
   const wait = ms => new Promise(r => setTimeout(r, ms));

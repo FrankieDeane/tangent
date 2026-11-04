@@ -14,14 +14,15 @@ export class Blocked extends Error { constructor(reason) { super("blocked"); thi
 
 function withTimeout(ms) { const c = new AbortController(); const t = setTimeout(() => c.abort(), ms); return { signal: c.signal, done: () => clearTimeout(t) }; }
 
-const GEMINI_MODELS = () => [...new Set([process.env.GEMINI_MODEL, "gemini-flash-latest", "gemini-2.5-flash"].filter(Boolean))];
+const GEMINI_MODELS = () => [...new Set([process.env.GEMINI_MODEL, "gemini-flash-latest", "gemini-2.5-flash", "gemini-flash-lite-latest", "gemini-2.5-flash-lite"].filter(Boolean))];
 async function gemini(parts, opts = {}) {
   let last;
   for (const model of GEMINI_MODELS()) {
     try { return await geminiOnce(model, parts, opts); }
     catch (e) {
       last = e;
-      if (e instanceof Blocked || !/gemini_http_(404|400)/.test(e.message)) throw e; // only retry another model when the model name is the problem
+      // try the next model when this one is missing, overloaded, rate limited or erroring; stop on safety blocks and bad keys
+      if (e instanceof Blocked || !/gemini_http_(400|404|429|500|503|504)|gemini_empty|aborted|timeout/i.test(e.message)) throw e;
     }
   }
   throw last;
@@ -53,25 +54,32 @@ async function geminiOnce(model, parts, { json = true, temperature = 0.7, timeou
   } finally { to.done(); }
 }
 
-async function groqChat(prompt, { temperature = 0.7, timeout = 30000 } = {}) {
+const GROQ_MODELS = () => [...new Set([process.env.GROQ_MODEL, "llama-3.3-70b-versatile", "openai/gpt-oss-120b", "openai/gpt-oss-20b", "llama-3.1-8b-instant"].filter(Boolean))];
+async function groqError(r, what) {
+  let why = ""; try { why = (await r.json())?.error?.message || ""; } catch {}
+  return new Error(`${what}_http_${r.status}: ${why.slice(0, 160)}`);
+}
+async function groqChat(prompt, { temperature = 0.7, timeout = 25000 } = {}) {
   const key = (process.env.GROQ_API_KEY || "").trim();
   if (!key) throw new Error("groq_not_configured");
-  const to = withTimeout(timeout);
-  try {
-    const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST", signal: to.signal,
-      headers: { "content-type": "application/json", authorization: "Bearer " + key },
-      body: JSON.stringify({
-        model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
-        messages: [{ role: "user", content: prompt }],
-        response_format: { type: "json_object" },
-        temperature,
-      }),
-    });
-    if (!r.ok) throw new Error("groq_http_" + r.status);
-    const d = await r.json();
-    return d.choices?.[0]?.message?.content || "";
-  } finally { to.done(); }
+  let last;
+  for (const model of GROQ_MODELS()) {
+    const to = withTimeout(timeout);
+    try {
+      const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST", signal: to.signal,
+        headers: { "content-type": "application/json", authorization: "Bearer " + key },
+        body: JSON.stringify({ model, messages: [{ role: "system", content: "Reply with a single JSON object only." }, { role: "user", content: prompt }], response_format: { type: "json_object" }, temperature }),
+      });
+      if (!r.ok) { last = await groqError(r, "groq_" + model); if ([400, 404, 413, 429, 498, 500, 502, 503].includes(r.status)) continue; throw last; }
+      const d = await r.json();
+      const out = d.choices?.[0]?.message?.content || "";
+      if (out) return out;
+      last = new Error("groq_empty_" + model);
+    } catch (e) { last = e; if (/groq_.*_http_(401|403)/.test(e.message)) throw e; }
+    finally { to.done(); }
+  }
+  throw last || new Error("groq_failed");
 }
 
 async function groqTranscribe(wavBase64) {
@@ -79,14 +87,20 @@ async function groqTranscribe(wavBase64) {
   if (!key) throw new Error("groq_not_configured");
   const fd = new FormData();
   fd.append("file", new Blob([Buffer.from(wavBase64, "base64")], { type: "audio/wav" }), "note.wav");
-  fd.append("model", process.env.GROQ_WHISPER_MODEL || "whisper-large-v3-turbo");
   fd.append("response_format", "json");
-  const to = withTimeout(30000);
-  try {
-    const r = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", { method: "POST", body: fd, signal: to.signal, headers: { authorization: "Bearer " + key } });
-    if (!r.ok) throw new Error("groq_whisper_http_" + r.status);
-    return (await r.json()).text || "";
-  } finally { to.done(); }
+  let last;
+  for (const model of [...new Set([process.env.GROQ_WHISPER_MODEL, "whisper-large-v3-turbo", "whisper-large-v3"].filter(Boolean))]) {
+    fd.set("model", model);
+    const to = withTimeout(25000);
+    try {
+      const r = await fetch("https://api.groq.com/openai/v1/audio/transcriptions", { method: "POST", body: fd, signal: to.signal, headers: { authorization: "Bearer " + key } });
+      if (r.ok) return (await r.json()).text || "";
+      last = await groqError(r, "groq_whisper");
+      if (r.status === 401 || r.status === 403) throw last;
+    } catch (e) { last = e; if (/_http_(401|403)/.test(e.message)) throw e; }
+    finally { to.done(); }
+  }
+  throw last || new Error("groq_whisper_failed");
 }
 
 export function parseJSON(text) {
@@ -264,6 +278,7 @@ export async function findPhotos(queries) {
 export async function health() {
   const has = k => Boolean((process.env[k] || "").trim());
   const out = { gemini_key: has("GEMINI_API_KEY"), groq_key: has("GROQ_API_KEY"), unsplash_key: has("UNSPLASH_ACCESS_KEY"), pixabay_key: has("PIXABAY_API_KEY"), photos: has("UNSPLASH_ACCESS_KEY") ? "unsplash" : has("PIXABAY_API_KEY") ? "pixabay" : "openverse (no key)", salt: has("TANGENT_SALT"), stats_token: has("STATS_TOKEN"), gemini: "skipped" };
+  if (out.groq_key) { try { parseJSON(await groqChat('Return {"ok": true} as JSON.', { timeout: 15000 })); out.groq = "ok"; } catch (e) { out.groq = String(e.message).slice(0, 200); } } else out.groq = "skipped";
   if (out.gemini_key) { try { await gemini([{ text: 'Reply with {"ok":true}' }], { timeout: 15000 }); out.gemini = "ok"; } catch (e) { out.gemini = String(e.message).replace(/key=[^&\s]+/g, "key=…").slice(0, 200); } }
   return out;
 }
