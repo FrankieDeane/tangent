@@ -6,18 +6,19 @@
 <title>Tangent · Say it messy. See it clear.</title>
 <meta name="description" content="Tangent: grabá tu idea como sale y recibí una imagen clara de lo que querés decir. Experimental.">
 <meta name="robots" content="noai, noimageai">
-<meta name="theme-color" content="#EEF2F1">
+<meta name="theme-color" content="#0A0A0B">
 <link rel="icon" href="/assets/favicon.png">
 <link rel="apple-touch-icon" href="/assets/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Figtree:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&family=Figtree:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="/assets/app.css">
 </head>
 <body>
 <div class="wrap">
   <header class="top">
     <a class="brand" href="/" aria-label="Tangent"><img src="/assets/logo.png" alt="Tangent" width="352" height="299"></a>
+    <span class="tagline" data-t="tagline"></span>
     <div class="top-r">
       <span class="pill" data-t="experimental"></span>
       <button class="lang" id="langBtn" aria-label="Language">EN</button>
@@ -27,8 +28,15 @@
   <main>
     <!-- HOME -->
     <section class="screen" id="home">
-      <h1 class="lead"><span data-t="lead1"></span><br><em data-t="lead2"></em></h1>
-      <p class="sub" data-t="sub"></p>
+      <div class="hero">
+        <div class="hero-top"><span data-t="heroL"></span><span>ES · EN</span></div>
+        <h1 class="wordmark">TANGENT<span>.1</span></h1>
+        <div class="hero-bot">
+          <p class="lead"><span data-t="lead1"></span><br><em data-t="lead2"></em></p>
+          <p class="sub" data-t="sub"></p>
+        </div>
+      </div>
+      <div class="recarea">
       <button class="rec" id="recBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0013 0M12 17.5V21"/></svg>
         <span data-t="record"></span>
@@ -44,6 +52,17 @@
         <button class="btn" id="typedGo" data-t="showme"></button>
       </div>
       <p class="small" id="homeNote" role="status"></p>
+      </div>
+      <div class="rows">
+        <div class="rowi"><small>01</small><b data-t="r1"></b><span data-t="r1s"></span></div>
+        <div class="rowi"><small>02</small><b data-t="r2"></b><span data-t="r2s"></span></div>
+        <div class="rowi"><small>03</small><b data-t="r3"></b><span data-t="r3s"></span></div>
+      </div>
+      <div class="stats">
+        <div><b>60s</b><span data-t="st1"></span></div>
+        <div><b>1</b><span data-t="st2"></span></div>
+        <div><b>0</b><span data-t="st3"></span></div>
+      </div>
       <section class="garden" id="garden" hidden>
         <h2 data-t="garden"></h2>
         <div class="seeds" id="seeds"></div>

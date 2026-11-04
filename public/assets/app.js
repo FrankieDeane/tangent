@@ -12,6 +12,9 @@
   const T = {
     es: {
       experimental: "Experimental", lead1: "Decilo como sale.", lead2: "Miralo claro.",
+      tagline: "Una idea de Tangent", heroL: "Para mentes no lineales",
+      r1: "Hablá", r1s: "Como sale, sin ordenar nada", r2: "Mirá", r2s: "Una imagen clara del centro", r3: "Respirá", r3s: "Tres pasos y nada más",
+      st1: "para decirlo todo", st2: "solo botón", st3: "cuentas y contraseñas",
       sub: "Tocá el botón y hablá hasta un minuto, en español o inglés. Tangent lo convierte en una imagen tranquila de lo que querés decir.",
       record: "Grabar tu idea", type: "Prefiero escribir", example: "Ver un ejemplo", showme: "Mostrame",
       garden: "Tu jardín de ideas", listening: "Te escucho. Sin apuro, se corta solo al minuto.", done: "Listo", cancel: "Cancelar",
@@ -43,6 +46,9 @@
     },
     en: {
       experimental: "Experimental", lead1: "Say it messy.", lead2: "See it clear.",
+      tagline: "An idea by Tangent", heroL: "For non-linear minds",
+      r1: "Talk", r1s: "However it comes out", r2: "See", r2s: "A clear picture of the core", r3: "Breathe", r3s: "Three steps, nothing more",
+      st1: "to say it all", st2: "single button", st3: "accounts or passwords",
       sub: "Tap the button and talk for up to a minute, in English or Spanish. Tangent turns it into a calm picture of what you mean.",
       record: "Record your idea", type: "I'd rather type", example: "See an example", showme: "Show me",
       garden: "Your idea garden", listening: "I'm listening. No rush, it stops by itself at one minute.", done: "Done", cancel: "Cancel",
@@ -405,7 +411,7 @@
     try { const img = await svgToImage(b.svgs?.[0] || S.pic(b.tiles?.[0]?.scene || "calmwater", b.palette, false), 1000, 733); g.save(); g.beginPath(); g.roundRect ? g.roundRect(40, 40, 1000, 733, 40) : g.rect(40, 40, 1000, 733); g.clip(); g.drawImage(img, 40, 40, 1000, 733); g.restore(); } catch {}
     if (b.wave?.length) { g.strokeStyle = pal[2]; g.globalAlpha = 0.6; g.lineWidth = 4; g.beginPath(); b.wave.forEach((a, i) => { const x = 60 + i * (960 / (b.wave.length - 1)), y = 840 - a * 40; i ? g.lineTo(x, y) : g.moveTo(x, y); }); g.stroke(); g.globalAlpha = 1; }
     await document.fonts?.ready;
-    g.fillStyle = pal[3]; g.font = '64px "Instrument Serif", Georgia, serif';
+    g.fillStyle = pal[3]; g.font = '600 60px "Syne", sans-serif';
     wrapText(g, b.core || "", 960).slice(0, 4).forEach((l, i) => g.fillText(l, 60, 940 + i * 74));
     g.font = '30px "Figtree", sans-serif'; g.globalAlpha = 0.85;
     const s0 = b.steps?.[0]; if (s0) g.fillText(`${s0.when} · ${s0.what}`.slice(0, 60), 60, 1250);
