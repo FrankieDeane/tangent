@@ -52,6 +52,7 @@
       logout: "Cerrar sesión", deleteAll: "Borrar todo lo guardado", deleteQ: "¿Borrar todos tus tableros y audios guardados? No se puede deshacer.", deleted: "Listo, borramos todo.",
       acctT: "Tu cuenta", acctS: "Guardá todo lo que grabás y volvé a escucharlo cuando quieras. Sin cuenta, Tangent funciona igual.",
       signedAs: "Sesión iniciada como", authErr: "No pudimos completar eso. Revisá los datos y probá de nuevo.", pwShort: "La contraseña necesita al menos 8 caracteres.",
+      exists: "Ese mail ya tiene cuenta. Entrá con tu contraseña o tocá \"Olvidé mi contraseña\" y te mandamos un código.",
       welcome: "Listo, ya estás adentro.", pwSaved: "Contraseña actualizada.", storageNote: "Tus tableros y audios quedan en tu cuenta. Podés borrarlos cuando quieras.",
       listen: "Escuchar", stopListen: "Parar", share: "Compartir", remind: "Recordarme", replay: "Escucharte", power: "Tu superpoder",
       sameThread: "Sigue tu idea anterior", resumeT: "Estabas en…", resumeGo: "Seguir", step1Done: "Paso 1 hecho", nextStep: "Tu próximo paso",
@@ -103,6 +104,7 @@
       logout: "Sign out", deleteAll: "Delete everything saved", deleteQ: "Delete all your saved boards and audio? This can't be undone.", deleted: "Done, everything is deleted.",
       acctT: "Your account", acctS: "Keep everything you record and listen to it again any time. Without an account, Tangent works the same.",
       signedAs: "Signed in as", authErr: "We couldn't do that. Check your details and try again.", pwShort: "The password needs at least 8 characters.",
+      exists: "That email already has an account. Sign in with your password, or tap \"I forgot my password\" and we'll email you a code.",
       welcome: "You're in.", pwSaved: "Password updated.", storageNote: "Your boards and audio stay in your account. You can delete them any time.",
       listen: "Listen", stopListen: "Stop", share: "Share", remind: "Remind me", replay: "Hear yourself", power: "Your superpower",
       sameThread: "Continues your last idea", resumeT: "You were on…", resumeGo: "Continue", step1Done: "Step 1 done", nextStep: "Your next step",
@@ -771,7 +773,9 @@
         const em = $("#aEmail")?.value.trim() || email, pw = $("#aPw")?.value || "", code = ($("#aCode")?.value || "").replace(/\s/g, "");
         if ((what === "signup" || what === "reset") && pw.length < 8) return fail(t("pwShort"));
         if (what === "signin") { const { error } = await SB.auth.signInWithPassword({ email: em, password: pw }); if (error) { if (/confirm/i.test(error.message)) { email = em; await SB.auth.resend({ type: "signup", email: em }).catch(() => {}); return render("verify"); } throw error; } ping("login"); close(); toast(t("welcome")); }
-        else if (what === "signup") { const { data, error } = await SB.auth.signUp({ email: em, password: pw, options: { emailRedirectTo: location.origin + "/" } }); if (error) throw error; email = em; ping("signup"); if (data.session) { close(); toast(t("welcome")); } else render("verify"); }
+        else if (what === "signup") { const { data, error } = await SB.auth.signUp({ email: em, password: pw, options: { emailRedirectTo: location.origin + "/" } }); if (error) throw error; email = em;
+          if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) { render("signin"); return fail(t("exists")); }
+          ping("signup"); if (data.session) { close(); toast(t("welcome")); } else render("verify"); }
         else if (what === "verify") { const { error } = await SB.auth.verifyOtp({ email, token: code, type: "signup" }); if (error) throw error; close(); toast(t("welcome")); }
         else if (what === "forgot") { const { error } = await SB.auth.resetPasswordForEmail(em, { redirectTo: location.origin + "/" }); if (error) throw error; email = em; render("reset"); }
         else if (what === "reset") { if (code) { const { error } = await SB.auth.verifyOtp({ email, token: code, type: "recovery" }); if (error) throw error; } const { error } = await SB.auth.updateUser({ password: pw }); if (error) throw error; close(); toast(t("pwSaved")); }
