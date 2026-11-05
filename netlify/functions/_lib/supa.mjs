@@ -36,7 +36,9 @@ export async function planOf(userId) {
 // Which pieces are in place. Names and yes/no only.
 export async function supaCheck() {
   const e = env();
-  const out = { SUPABASE_URL: Boolean(e.url), SUPABASE_ANON_KEY: Boolean(e.anon), SUPABASE_SERVICE_ROLE_KEY: Boolean(e.service), reachable: false, tables: {} };
+  const out = { SUPABASE_URL: Boolean(e.url), SUPABASE_ANON_KEY: Boolean(e.anon), SUPABASE_SERVICE_ROLE_KEY: Boolean(e.service),
+    MP_ACCESS_TOKEN: Boolean((process.env.MP_ACCESS_TOKEN || "").trim()), MP_PRICE_ARS: Number(process.env.MP_PRICE_ARS) > 0, MP_WEBHOOK_SECRET: Boolean((process.env.MP_WEBHOOK_SECRET || "").trim()),
+    reachable: false, tables: {} };
   if (!e.url || !e.anon) return out;
   try { const r = await fetch(e.url + "/auth/v1/settings", { headers: { apikey: e.anon }, signal: withTimeout() }); out.reachable = r.ok; out.auth = r.ok ? "ok" : "http_" + r.status; }
   catch (err) { out.auth = "error"; }
@@ -48,4 +50,22 @@ export async function supaCheck() {
     } catch { out.tables[t] = "error"; }
   }
   return out;
+}
+
+// Writes the plan of one person (server only: payments webhook / cancel).
+export async function setSubscription(userId, fields) {
+  const e = env();
+  if (!e.url || !e.service || !/^[0-9a-f-]{36}$/i.test(userId || "")) return false;
+  const r = await fetch(`${e.url}/rest/v1/subscriptions?user_id=eq.${userId}`, {
+    method: "PATCH", signal: withTimeout(),
+    headers: { apikey: e.service, authorization: "Bearer " + e.service, "content-type": "application/json", prefer: "return=minimal" },
+    body: JSON.stringify({ ...fields, updated_at: new Date().toISOString() }),
+  });
+  return r.ok;
+}
+export async function subscriptionOf(userId) {
+  const e = env();
+  if (!e.url || !e.service || !/^[0-9a-f-]{36}$/i.test(userId || "")) return null;
+  const r = await fetch(`${e.url}/rest/v1/subscriptions?user_id=eq.${userId}&select=*`, { headers: { apikey: e.service, authorization: "Bearer " + e.service }, signal: withTimeout() });
+  return r.ok ? ((await r.json())?.[0] || null) : null;
 }

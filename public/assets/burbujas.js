@@ -51,6 +51,13 @@ const T = {
   inH: "Tu cuenta", who: "Mail", planL: "Plan", planFree: "Gratis", planActive: "Activa · 1 USD/mes", planPast: "Pago pendiente", activate: "Activar por 1 USD/mes", signOut: "Cerrar sesión",
   checkMail: m => "Te mandamos un mail a " + m + ". Abrilo para verificar tu cuenta y después entrá.", resetSent: "Listo. Revisá tu mail.", passSaved: "Contraseña guardada.",
   welcome: "Entraste. Tus burbujas quedan guardadas.", bye: "Cerraste sesión.", paySoon: "El pago de 1 USD llega muy pronto. Te avisamos.",
+  code: "Código del mail", verifyH: "Revisá tu mail", verifySub: m => "Te mandamos un código a " + m + ". Escribilo acá para verificar tu cuenta.", verifyGo: "Verificar",
+  resetH: "Nueva contraseña", resetSub: m => "Te mandamos un código a " + m + ". Escribilo y elegí una contraseña nueva.", resend: "Reenviar código", resent: "Te mandamos otro código.",
+  cancelSub: "Cancelar suscripción (botón de baja)", cancelQ: "¿Cancelás tu suscripción? Tu historial queda guardado.", cancelYes: "Sí, cancelar", canceled: "Suscripción cancelada.",
+  payOk: "Pago recibido. Tu cuenta se activa en unos segundos.", payErr: "No pudimos abrir Mercado Pago. Probá de nuevo en un rato.", planCanceled: "Cancelada",
+  idea: "Sugerencias", ideaT: "¿Qué le sumarías a Tangent?", ideaSub: "Leemos todo. Sin datos personales, por favor.", ideaGo: "Enviar", ideaOk: "Gracias. Llegó.",
+  regret: "Botón de arrepentimiento", regretT: "Botón de arrepentimiento", regretSub: "Si contrataste la suscripción en los últimos 10 días corridos, podés revocarla sin costo ni motivo (Ley 24.240, art. 34). Dejanos tu mail y te confirmamos por ese medio.", regretGo: "Revocar mi contratación", regretOk: "Recibimos tu pedido. Te vamos a confirmar por mail.",
+  eCode: "El código no es correcto o venció.", eRules: "Ese texto no cumple las normas de Tangent.",
   eBad: "Mail o contraseña incorrectos.", eExists: "Ese mail ya tiene cuenta. Entrá con tu contraseña.", eShort: "La contraseña necesita al menos 8 caracteres.", eMail: "Revisá el mail.", eConfirm: "Primero verificá tu mail con el link que te mandamos.", eGeneric: "No salió. Probá de nuevo en un rato."},
  en: {beta: "beta", lead0: "Tell me everything.<br>I’ll sort it out.", lead1: "Tap a bubble.<br>Drag it anywhere.",
   fine0: "1 free voice note · no account", fine1: "You used your free voice note", type: "I’d rather type", example: "See an example",
@@ -92,6 +99,13 @@ const T = {
   inH: "Your account", who: "Email", planL: "Plan", planFree: "Free", planActive: "Active · 1 USD/month", planPast: "Payment pending", activate: "Activate for 1 USD/month", signOut: "Sign out",
   checkMail: m => "We sent an email to " + m + ". Open it to verify your account, then sign in.", resetSent: "Done. Check your email.", passSaved: "Password saved.",
   welcome: "You\u2019re in. Your bubbles are saved.", bye: "Signed out.", paySoon: "The 1 USD payment is coming very soon. We\u2019ll let you know.",
+  code: "Code from the email", verifyH: "Check your email", verifySub: m => "We sent a code to " + m + ". Type it here to verify your account.", verifyGo: "Verify",
+  resetH: "New password", resetSub: m => "We sent a code to " + m + ". Type it and choose a new password.", resend: "Resend code", resent: "We sent another code.",
+  cancelSub: "Cancel subscription", cancelQ: "Cancel your subscription? Your history stays saved.", cancelYes: "Yes, cancel", canceled: "Subscription cancelled.",
+  payOk: "Payment received. Your account turns on in a few seconds.", payErr: "We couldn\u2019t open Mercado Pago. Try again in a moment.", planCanceled: "Cancelled",
+  idea: "Suggestions", ideaT: "What would you add to Tangent?", ideaSub: "We read everything. No personal data, please.", ideaGo: "Send", ideaOk: "Thanks. It arrived.",
+  regret: "Cancellation right", regretT: "Right to cancel", regretSub: "If you subscribed in the last 10 calendar days, you can revoke it at no cost and without a reason (Argentine Law 24,240, art. 34). Leave your email and we\u2019ll confirm there.", regretGo: "Revoke my purchase", regretOk: "We got your request. We\u2019ll confirm by email.",
+  eCode: "The code is wrong or expired.", eRules: "That text doesn\u2019t follow Tangent\u2019s rules.",
   eBad: "Wrong email or password.", eExists: "That email already has an account. Sign in instead.", eShort: "The password needs at least 8 characters.", eMail: "Check the email address.", eConfirm: "First verify your email with the link we sent.", eGeneric: "That didn\u2019t work. Try again in a moment."}
 };
 
@@ -183,7 +197,7 @@ function texts() {
   $("#payGo").textContent = t.payGo; $("#payNo").textContent = t.payNo;
   $("#whyEy").textContent = t.whyEy; $("#whyH").textContent = t.whyH; $("#stillL").textContent = t.still;
   $("#whyList").innerHTML = t.why.map((x, i) => "<li><em>" + (i + 1) + "</em>" + esc(x) + "</li>").join("");
-  $("#fTerms").textContent = t.terms; $("#fPriv").textContent = t.privacy; $("#fBoard").textContent = t.board;
+  $("#fTerms").textContent = t.terms; $("#fPriv").textContent = t.privacy; $("#fBoard").textContent = t.board; $("#fIdea").textContent = t.idea; $("#fRegret").textContent = t.regret;
   $("#done").textContent = S.doneN ? t.doneN(S.doneN) : ""; $("#done").classList.toggle("on", S.doneN > 0);
   B.forEach(paintEl);
 }
@@ -598,52 +612,101 @@ const ACC = {ready: false, sb: null, user: null, session: null, plan: "free", mo
     this.paint(); open("acct");
   },
   paint() {
-    const t = L(), m = this.mode, inside = m === "in";
+    const t = L(), m = this.mode, inside = m === "in", em = this.email || $("#aEmail").value.trim();
     $("#aEy").textContent = t.aEy;
-    $("#aH").textContent = {signup: t.signupH, login: t.loginH, forgot: t.forgotH, recovery: t.newH, in: t.inH}[m];
-    $("#aSub").textContent = {signup: t.signupSub, login: t.loginSub, forgot: t.forgotSub, recovery: t.newSub, in: ""}[m];
+    $("#aH").textContent = {signup: t.signupH, login: t.loginH, forgot: t.forgotH, verify: t.verifyH, reset: t.resetH, recovery: t.newH, in: t.inH}[m];
+    $("#aSub").textContent = {signup: t.signupSub, login: t.loginSub, forgot: t.forgotSub, verify: t.verifySub(em), reset: t.resetSub(em), recovery: t.newSub, in: ""}[m];
     $("#aForm").hidden = inside; $("#aLinks").hidden = inside || m === "recovery"; $("#aIn").hidden = !inside;
-    $("#aEmailL").textContent = t.email; $("#aPassL").textContent = t.pass;
-    $("#aEmail").closest("label").hidden = m === "recovery";
-    $("#aPassW").hidden = m === "forgot";
+    $("#aEmailL").textContent = t.email; $("#aPassL").textContent = t.pass; $("#aCodeL").textContent = t.code;
+    $("#aEmail").closest("label").hidden = ["recovery", "verify", "reset"].includes(m);
+    $("#aCodeW").hidden = !["verify", "reset"].includes(m);
+    $("#aPassW").hidden = ["forgot", "verify"].includes(m);
     $("#aPass").autocomplete = m === "login" ? "current-password" : "new-password";
-    $("#aGo").textContent = {signup: t.signupGo, login: t.loginGo, forgot: t.forgotGo, recovery: t.newGo}[m] || "";
+    $("#aGo").textContent = {signup: t.signupGo, login: t.loginGo, forgot: t.forgotGo, verify: t.verifyGo, reset: t.newGo, recovery: t.newGo}[m] || "";
     $("#aSwitch").textContent = m === "signup" ? t.toLogin : m === "login" ? t.toSignup : t.back;
     $("#aForgot").textContent = t.forgot; $("#aForgot").hidden = m !== "login";
+    $("#aResend").textContent = t.resend; $("#aResend").hidden = !["verify", "reset"].includes(m);
     $("#aErr").textContent = "";
     if (inside) {
       $("#aWhoL").textContent = t.who; $("#aWho").textContent = this.user?.email || "";
-      $("#aPlanL").textContent = t.planL; $("#aPlan").textContent = this.plan === "active" ? t.planActive : this.plan === "past_due" ? t.planPast : t.planFree;
-      $("#aActivate").textContent = t.activate; $("#aActivate").hidden = this.plan === "active"; $("#aOut").textContent = t.signOut;
+      $("#aPlanL").textContent = t.planL;
+      $("#aPlan").textContent = this.plan === "active" ? t.planActive : this.plan === "past_due" ? t.planPast : this.plan === "canceled" ? t.planCanceled : t.planFree;
+      $("#aActivate").textContent = t.activate; $("#aActivate").hidden = this.plan === "active";
+      $("#aOut").textContent = t.signOut; $("#aCancel").textContent = t.cancelSub; $("#aCancel").hidden = !["active", "past_due"].includes(this.plan);
     }
   },
   err(e) {
     const t = L(), msg = String(e?.message || e || "");
     $("#aErr").textContent = /invalid login/i.test(msg) ? t.eBad : /already (registered|exists)/i.test(msg) ? t.eExists : /password/i.test(msg) && /(6|8|short|least)/i.test(msg) ? t.eShort
-      : /not confirmed/i.test(msg) ? t.eConfirm : /email/i.test(msg) && /invalid/i.test(msg) ? t.eMail : t.eGeneric;
+      : /not confirmed/i.test(msg) ? t.eConfirm : /(token|otp|code).*(invalid|expired)|(invalid|expired).*(token|otp|code)/i.test(msg) ? t.eCode : /email/i.test(msg) && /invalid/i.test(msg) ? t.eMail : t.eGeneric;
+  },
+  async verify(type) {
+    const token = $("#aCode").value.replace(/\D/g, "");
+    if (token.length < 6) throw new Error("invalid code");
+    let r = await this.sb.auth.verifyOtp({email: this.email, token, type});
+    if (r.error && type === "signup") r = await this.sb.auth.verifyOtp({email: this.email, token, type: "email"});
+    if (r.error) throw r.error;
+    return r.data;
   },
   async submit() {
-    const t = L(), email = $("#aEmail").value.trim(), pass = $("#aPass").value, m = this.mode;
-    if (m !== "recovery" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return ($("#aErr").textContent = t.eMail);
-    if ((m === "signup" || m === "recovery" || m === "login") && pass.length < 8 && m !== "login") return ($("#aErr").textContent = t.eShort);
+    const t = L(), m = this.mode, pass = $("#aPass").value;
+    if (["signup", "login", "forgot"].includes(m)) {
+      this.email = $("#aEmail").value.trim();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(this.email)) return ($("#aErr").textContent = t.eMail);
+    }
+    if (["signup", "reset", "recovery"].includes(m) && pass.length < 8) return ($("#aErr").textContent = t.eShort);
     $("#aGo").disabled = true;
     try {
       if (m === "signup") {
-        const {data, error} = await this.sb.auth.signUp({email, password: pass, options: {emailRedirectTo: location.origin, data: {locale: S.lang}}});
+        const {data, error} = await this.sb.auth.signUp({email: this.email, password: pass, options: {emailRedirectTo: location.origin, data: {locale: S.lang}}});
         if (error) throw error;
         if (data?.user && Array.isArray(data.user.identities) && !data.user.identities.length) throw new Error("already registered");
-        if (!data.session) { $("#aSub").textContent = t.checkMail(email); this.mode = "login"; const keep = $("#aSub").textContent; this.paint(); $("#aSub").textContent = keep; }
+        if (!data.session) { this.mode = "verify"; $("#aCode").value = ""; this.paint(); }
+      } else if (m === "verify") {
+        await this.verify("signup");
       } else if (m === "login") {
-        const {error} = await this.sb.auth.signInWithPassword({email, password: pass}); if (error) throw error;
+        const {error} = await this.sb.auth.signInWithPassword({email: this.email, password: pass}); if (error) throw error;
       } else if (m === "forgot") {
-        const {error} = await this.sb.auth.resetPasswordForEmail(email, {redirectTo: location.origin}); if (error) throw error;
-        toast(t.resetSent); this.mode = "login"; this.paint();
+        const {error} = await this.sb.auth.resetPasswordForEmail(this.email, {redirectTo: location.origin}); if (error) throw error;
+        this.mode = "reset"; $("#aCode").value = ""; $("#aPass").value = ""; this.paint();
+      } else if (m === "reset") {
+        await this.verify("recovery");
+        const {error} = await this.sb.auth.updateUser({password: pass}); if (error) throw error;
+        toast(t.passSaved); close("acct");
       } else if (m === "recovery") {
         const {error} = await this.sb.auth.updateUser({password: pass}); if (error) throw error;
         toast(t.passSaved); close("acct"); this.loadedFor = null; this.setSession((await this.sb.auth.getSession()).data.session, "SIGNED_IN");
       }
     } catch (e) { this.err(e); }
     finally { $("#aGo").disabled = false; }
+  },
+  async resend() {
+    try {
+      const r = this.mode === "verify" ? await this.sb.auth.resend({type: "signup", email: this.email}) : await this.sb.auth.resetPasswordForEmail(this.email, {redirectTo: location.origin});
+      if (r?.error) throw r.error; toast(L().resent);
+    } catch (e) { this.err(e); }
+  },
+  async refreshPlan() {
+    if (!this.user) return;
+    try { const {data} = await this.sb.from("subscriptions").select("status").eq("user_id", this.user.id).maybeSingle(); this.plan = data?.status || "free"; } catch {}
+    texts(); if (isOpen("acct")) this.paint();
+  },
+  async pay() {
+    if (!this.user) return this.open("signup");
+    try {
+      const r = await (await fetch("/api/pay/create", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({accessToken: this.token()})})).json();
+      if (r.status === "ok" && r.url) { location.href = r.url; return; }
+      toast(r.status === "not_ready" ? L().paySoon : L().payErr);
+    } catch { toast(L().payErr); }
+  },
+  async cancel() {
+    const t = L();
+    if (!(await modal(t.cancelSub, "<p>" + esc(t.cancelQ) + "</p>", [{label: t.cancelYes, value: true}, {label: t.back, value: false, ghost: true}]))) return;
+    try {
+      const r = await (await fetch("/api/pay/cancel", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({accessToken: this.token()})})).json();
+      if (r.status !== "ok") throw 0;
+      toast(t.canceled); this.refreshPlan();
+    } catch { toast(t.eGeneric); }
   }
 };
 function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = rej; document.head.append(s); }); }
@@ -655,7 +718,29 @@ $("#aOut").addEventListener("click", async () => {
   await ACC.sb?.auth.signOut();
   B.forEach(b => b.el.remove()); B = []; S.tasks = []; save(); close("acct"); texts(); toast(L().bye);
 });
-$("#aActivate").addEventListener("click", () => { if (!store.get("tangent.wantPay", 0)) { store.set("tangent.wantPay", 1); ping("signup"); } toast(L().paySoon); });
+$("#aActivate").addEventListener("click", () => { if (!store.get("tangent.wantPay", 0)) { store.set("tangent.wantPay", 1); ping("signup"); } ACC.pay(); });
+$("#aCancel").addEventListener("click", () => ACC.cancel());
+$("#aResend").addEventListener("click", () => ACC.resend());
+
+/* ---------- sugerencias y arrepentimiento ---------- */
+async function feedback(kind) {
+  const t = L(), regret = kind === "regret";
+  close("why");
+  const p = modal(regret ? t.regretT : t.ideaT, "<p class=\"sub\">" + esc(regret ? t.regretSub : t.ideaSub) + "</p>" +
+    (regret ? '<div class="aform"><label>' + esc(t.email) + '<input type="email" id="fbEmail" autocomplete="email" value="' + esc(ACC.user?.email || "") + '"></label></div>' : "") +
+    '<textarea id="fbText" maxlength="1500"></textarea>', [{label: regret ? t.regretGo : t.ideaGo, value: true}]);
+  const ok = await p; if (!ok) return;
+  const text = ($("#fbText")?.value || "").trim(), email = ($("#fbEmail")?.value || "").trim();
+  try {
+    const r = await (await fetch("/api/suggest", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({deviceId, kind, text, email, lang: S.lang})})).json();
+    if (r.status === "ok") {
+      toast(regret ? t.regretOk : t.ideaOk);
+      if (regret && ACC.user && ["active", "past_due"].includes(ACC.plan)) fetch("/api/pay/cancel", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({accessToken: ACC.token()})}).then(() => ACC.refreshPlan(), () => {});
+    } else toast(r.status === "rules" ? t.eRules : r.status === "email" ? t.eMail : t.eGeneric);
+  } catch { toast(t.offline); }
+}
+$("#fIdea").addEventListener("click", () => feedback("idea"));
+$("#fRegret").addEventListener("click", () => feedback("regret"));
 
 /* ---------- inicio ---------- */
 setMode(S.mode); setStill(!!S.still);
@@ -666,6 +751,8 @@ addEventListener("resize", () => { W = innerWidth; H = innerHeight; B.forEach(pa
 // load the other two scenes once the first one is in
 $(".art.on")?.addEventListener("load", () => $$(".art").forEach(i => { if (!i.src) i.src = SCENE[i.dataset.m]; }), {once: true});
 ping("visit");
-ACC.init();
+const payBack = new URLSearchParams(location.search).get("pago");
+if (payBack) history.replaceState(null, "", location.pathname);
+ACC.init().then(() => { if (payBack === "ok") { toast(L().payOk); [4000, 10000, 20000].forEach(ms => setTimeout(() => ACC.refreshPlan(), ms)); } });
 requestAnimationFrame(tick);
 })();

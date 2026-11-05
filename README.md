@@ -71,3 +71,20 @@ Recorded sounds can replace the synthesised ones, see `public/assets/sounds/READ
   - `POST /api/spark` with `mode: "garden"` links 2 to 4 ideas recorded on different days (only the cores and side ideas from the device are sent).
   - `POST /api/spark` with `mode: "images"` reads 1 to 4 photos, screenshots or charts (resized to 768 px JPEG in the browser), finds the pattern that joins them and links it to recent ideas. Gemini only (vision). Images are not stored. Unsafe images count as a violation, like words.
   - Daily limit `spark`, word rules on input and output. Events `spark_garden`, `spark_images` in stats.
+
+## Burbujas: accounts and payments (v6)
+Netlify environment variables (scopes: Functions + Deploy Previews + Production):
+- `SUPABASE_URL`, `SUPABASE_ANON_KEY` (public), `SUPABASE_SERVICE_ROLE_KEY` (secret key: `sb_secret_...` or legacy `service_role`).
+- `MP_ACCESS_TOKEN` (Mercado Pago production access token), `MP_PRICE_ARS` (monthly amount in pesos, about 1 USD), `MP_WEBHOOK_SECRET` (from Mercado Pago → Your integrations → Webhooks).
+- Check what is in place (yes/no only): `/api/supabase-check`.
+
+Supabase:
+- Run `supabase_schema.sql` once in SQL Editor.
+- Authentication → URL Configuration: Site URL `https://tangent-adhd.netlify.app`; Redirect URLs `https://tangent-adhd.netlify.app/**` and `https://*--tangent-adhd.netlify.app/**`.
+- Authentication → Emails → templates "Confirm signup" and "Reset password": include `{{ .Token }}` so the email carries the 6-digit code the site asks for.
+
+Mercado Pago:
+- Webhooks: URL `https://tangent-adhd.netlify.app/api/pay/webhook`, events "Planes y suscripciones" (subscription_preapproval, subscription_authorized_payment).
+- The plan is read back from Mercado Pago on each notification and written to `subscriptions` with the service key.
+
+Owner: suggestions and right-to-withdraw requests at `/api/suggest?token=STATS_TOKEN`.
