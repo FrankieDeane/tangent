@@ -42,7 +42,16 @@ const T = {
   noTasksT: "No encontré tareas", noTasks: "Te escuché, pero no apareció nada para hacer. Probá contar tus pendientes.",
   tooLongT: "Muy largo", tooLong: "La grabación es demasiado larga. Probá con menos de dos minutos.",
   micT: "Sin micrófono", mic: "No pudimos usar el micrófono. Revisá el permiso del navegador o escribilo.", tooShort: "Muy corto. Hablá al menos un par de segundos.",
-  offline: "Sin conexión. Probá de nuevo en un rato."},
+  offline: "Sin conexión. Probá de nuevo en un rato.",
+  acct: "Cuenta", aEy: "Tu cuenta", email: "Mail", pass: "Contraseña (mínimo 8)",
+  signupH: "Creá tu cuenta", signupSub: "Así se guarda todo tu historial: audios, burbujas y lo que vas terminando.", signupGo: "Crear cuenta", toLogin: "Ya tengo cuenta",
+  loginH: "Entrá a tu cuenta", loginSub: "Tus burbujas te esperan.", loginGo: "Entrar", toSignup: "Crear una cuenta", forgot: "Olvidé mi contraseña",
+  forgotH: "Recuperá tu contraseña", forgotSub: "Te mandamos un mail con un link para crear una nueva.", forgotGo: "Mandarme el link", back: "Volver",
+  newH: "Nueva contraseña", newSub: "Elegí una contraseña nueva para tu cuenta.", newGo: "Guardar",
+  inH: "Tu cuenta", who: "Mail", planL: "Plan", planFree: "Gratis", planActive: "Activa · 1 USD/mes", planPast: "Pago pendiente", activate: "Activar por 1 USD/mes", signOut: "Cerrar sesión",
+  checkMail: m => "Te mandamos un mail a " + m + ". Abrilo para verificar tu cuenta y después entrá.", resetSent: "Listo. Revisá tu mail.", passSaved: "Contraseña guardada.",
+  welcome: "Entraste. Tus burbujas quedan guardadas.", bye: "Cerraste sesión.", paySoon: "El pago de 1 USD llega muy pronto. Te avisamos.",
+  eBad: "Mail o contraseña incorrectos.", eExists: "Ese mail ya tiene cuenta. Entrá con tu contraseña.", eShort: "La contraseña necesita al menos 8 caracteres.", eMail: "Revisá el mail.", eConfirm: "Primero verificá tu mail con el link que te mandamos.", eGeneric: "No salió. Probá de nuevo en un rato."},
  en: {beta: "beta", lead0: "Tell me everything.<br>I’ll sort it out.", lead1: "Tap a bubble.<br>Drag it anywhere.",
   fine0: "1 free voice note · no account", fine1: "You used your free voice note", type: "I’d rather type", example: "See an example",
   recEy: "Listening", recHint: "Talk however it comes out: to-dos, things weighing on you, whatever is in your head.", stop: "Done", cancel: "Cancel",
@@ -74,7 +83,16 @@ const T = {
   noTasksT: "No tasks found", noTasks: "I heard you, but nothing to do came up. Try telling me your to-dos.",
   tooLongT: "Too long", tooLong: "The recording is too long. Try under two minutes.",
   micT: "No microphone", mic: "We couldn’t use the microphone. Check the browser permission, or type it.", tooShort: "Too short. Talk for at least a couple of seconds.",
-  offline: "No connection. Try again in a moment."}
+  offline: "No connection. Try again in a moment.",
+  acct: "Account", aEy: "Your account", email: "Email", pass: "Password (8+ characters)",
+  signupH: "Create your account", signupSub: "So your whole history is kept: voice notes, bubbles and what you finish.", signupGo: "Create account", toLogin: "I already have one",
+  loginH: "Sign in", loginSub: "Your bubbles are waiting.", loginGo: "Sign in", toSignup: "Create an account", forgot: "Forgot my password",
+  forgotH: "Reset your password", forgotSub: "We\u2019ll email you a link to set a new one.", forgotGo: "Send me the link", back: "Back",
+  newH: "New password", newSub: "Choose a new password for your account.", newGo: "Save",
+  inH: "Your account", who: "Email", planL: "Plan", planFree: "Free", planActive: "Active · 1 USD/month", planPast: "Payment pending", activate: "Activate for 1 USD/month", signOut: "Sign out",
+  checkMail: m => "We sent an email to " + m + ". Open it to verify your account, then sign in.", resetSent: "Done. Check your email.", passSaved: "Password saved.",
+  welcome: "You\u2019re in. Your bubbles are saved.", bye: "Signed out.", paySoon: "The 1 USD payment is coming very soon. We\u2019ll let you know.",
+  eBad: "Wrong email or password.", eExists: "That email already has an account. Sign in instead.", eShort: "The password needs at least 8 characters.", eMail: "Check the email address.", eConfirm: "First verify your email with the link we sent.", eGeneric: "That didn\u2019t work. Try again in a moment."}
 };
 
 const ICON = {
@@ -151,9 +169,10 @@ function texts() {
   $("[data-t=beta]").textContent = t.beta;
   const has = S.tasks.some(x => x.status !== "hecha");
   $("#lead").innerHTML = has ? t.lead1 : t.lead0;
-  $("#fine").textContent = S.uses >= 1 && !owner ? t.fine1 : t.fine0;
+  $("#fine").textContent = S.uses >= 1 && !owner && ACC.plan !== "active" ? t.fine1 : t.fine0;
+  $("#acctBtn").textContent = ACC.user ? ACC.user.email.split("@")[0] : t.acct;
   $("#typeLink").textContent = t.type; $("#exampleLink").textContent = t.example;
-  $("#exampleLink").hidden = has; $("#typeLink").hidden = S.uses >= 1 && !owner;
+  $("#exampleLink").hidden = has; $("#typeLink").hidden = usedFree();
   $("#recEy").textContent = t.recEy; $("#recHint").textContent = t.recHint; $("#stopBtn").textContent = t.stop; $("#cancelRec").textContent = t.cancel;
   $("#thinking").textContent = t.thinking;
   $("#askEy").textContent = t.askEy; $("#askH").textContent = t.askH; $("#askSub").textContent = t.askSub; $("#paintBtn").textContent = t.paint;
@@ -257,7 +276,7 @@ function bindDrag(b) {
     if (Math.hypot(e.clientX - sx, e.clientY - sy) > 6) b.moved = true;
     if (b.moved) { const nx = e.clientX + ox, ny = e.clientY + oy; b.vx = (nx - b.x) * .5; b.vy = (ny - b.y) * .5; b.x = nx; b.y = ny; }
   });
-  const up = () => { if (!b.drag) return; b.drag = false; if (!b.moved) return openDetail(b); b.t.hx = b.x / W; b.t.hy = b.y / H; save(); };
+  const up = () => { if (!b.drag) return; b.drag = false; if (!b.moved) return openDetail(b); b.t.hx = b.x / W; b.t.hy = b.y / H; save(); ACC.update(b.t); };
   b.el.addEventListener("pointerup", up); b.el.addEventListener("pointercancel", up);
   b.el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDetail(b); } });
 }
@@ -303,7 +322,7 @@ let rec = null;
 $("#recBtn").addEventListener("click", () => (rec ? stopRecording() : startRecording()));
 $("#stopBtn").addEventListener("click", () => stopRecording());
 $("#cancelRec").addEventListener("click", () => cancelRecording());
-const usedFree = () => S.uses >= 1 && !owner;
+const usedFree = () => S.uses >= 1 && !owner && ACC.plan !== "active";
 async function startRecording() {
   if (banned()) return say("ban");
   if (usedFree()) return open("pay");
@@ -403,12 +422,12 @@ async function openType() {
 async function send(payload) {
   let data;
   try {
-    const res = await fetch("/api/tasks", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({deviceId, lang: S.lang, owner: owner || undefined, ...payload})});
+    const res = await fetch("/api/tasks", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({deviceId, lang: S.lang, owner: owner || undefined, accessToken: ACC.token() || undefined, ...payload})});
     data = await res.json().catch(() => ({status: "ai_error"}));
   } catch { thinking(false); return toast(L().offline); }
   thinking(false);
   switch (data.status) {
-    case "ok": S.uses = (S.uses || 0) + 1; save(); return addTasks(data.tasks);
+    case "ok": S.uses = (S.uses || 0) + 1; save(); addTasks(data.tasks); return ACC.saveNew(S.tasks, data.transcript);
     case "paywall": S.uses = Math.max(1, S.uses || 0); save(); texts(); return open("pay");
     case "warning": return say("warn");
     case "banned": store.set("tangent.banned", true); return say("ban");
@@ -447,7 +466,7 @@ function openAsk() {
 $("#paintBtn").addEventListener("click", () => {
   close("ask");
   S.tasks.filter(t => !t.priority).forEach((t, i) => setTimeout(() => {
-    t.priority = pend[t.id]; t.source = "preguntada"; const b = B.find(x => x.t === t); if (b) paintEl(b); save();
+    t.priority = pend[t.id]; t.source = "preguntada"; const b = B.find(x => x.t === t); if (b) paintEl(b); save(); ACC.update(t);
   }, 300 + i * 260));
 });
 
@@ -465,12 +484,12 @@ function openDetail(b) {
   $("#dSeg").innerHTML = ["planificacion", "en_proceso", "en_pausa", "hecha"].map(s => '<button data-s="' + s + '" aria-pressed="' + (t.status === s) + '">' + l.st[s] + "</button>").join("");
   $$("#dSeg button").forEach(btn => btn.addEventListener("click", () => setStatus(b, btn.dataset.s)));
   $("#dPrio").innerHTML = prioButtons(t.priority);
-  $$("#dPrio button").forEach(btn => btn.addEventListener("click", () => { t.priority = btn.dataset.p; t.source = "manual"; paintEl(b); save(); openDetail(b); }));
+  $$("#dPrio button").forEach(btn => btn.addEventListener("click", () => { t.priority = btn.dataset.p; t.source = "manual"; paintEl(b); save(); ACC.update(t); openDetail(b); }));
   $("#sosBtn").hidden = !(t.steps && t.steps.length);
   if (!isOpen("det")) open("det");
 }
 function setStatus(b, s) {
-  b.t.status = s; paintEl(b); save();
+  b.t.status = s; paintEl(b); save(); ACC.update(b.t);
   if (s !== "hecha") return openDetail(b);
   close("det"); S.doneN++; save();
   setTimeout(() => {
@@ -493,18 +512,150 @@ function showStep() {
 $("#easier").addEventListener("click", () => { stepI = 1; showStep(); });
 $("#didIt").addEventListener("click", () => {
   clearInterval(sosT); close("sos");
-  if (cur && (cur.t.status === "planificacion" || cur.t.status === "en_pausa")) { cur.t.status = "en_proceso"; paintEl(cur); save(); }
+  if (cur && (cur.t.status === "planificacion" || cur.t.status === "en_pausa")) { cur.t.status = "en_proceso"; paintEl(cur); save(); ACC.update(cur.t); }
+  if (cur) ACC.emergency(cur.t, ($("#step").textContent || ""));
   toast(L().started);
 });
 $("#sosOut").addEventListener("click", () => { clearInterval(sosT); close("sos"); });
 
 /* ---------- cuenta, por qué, ajustes ---------- */
-$("#payGo").addEventListener("click", () => { if (!store.get("tangent.wantAccount", 0)) { store.set("tangent.wantAccount", 1); ping("signup"); } toast(L().payToast); close("pay"); });
+$("#payGo").addEventListener("click", () => {
+  if (!store.get("tangent.wantAccount", 0)) { store.set("tangent.wantAccount", 1); ping("signup"); }
+  if (ACC.ready && !ACC.user) { close("pay"); return ACC.open("signup"); }
+  toast(ACC.ready ? L().paySoon : L().payToast); close("pay");
+});
 $("#whyBtn").addEventListener("click", () => open("why"));
 $("#still").addEventListener("click", () => setStill(!S.still));
 $$(".sw").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
 $("#lang").addEventListener("click", () => { S.lang = S.lang === "es" ? "en" : "es"; save(); texts(); if (isOpen("det") && cur) openDetail(cur); });
-document.addEventListener("keydown", e => { if (e.key === "Escape") ["det", "pay", "why"].forEach(id => isOpen(id) && close(id)); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") ["det", "pay", "why", "acct"].forEach(id => isOpen(id) && close(id)); });
+
+/* ---------- cuenta (Supabase) ---------- */
+// Loaded only when the site has Supabase settings. Bubbles of a signed-in person are saved with row level security:
+// each person reads and writes only their own rows.
+const ACC = {ready: false, sb: null, user: null, session: null, plan: "free", mode: "signup", loadedFor: null,
+  token() { return this.session?.access_token || ""; },
+  async init() {
+    let cfg; try { cfg = (await (await fetch("/api/config")).json()).supabase; } catch {}
+    if (!cfg) return;
+    try { await loadScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"); } catch { return; }
+    if (!window.supabase?.createClient) return;
+    this.sb = window.supabase.createClient(cfg.url, cfg.anon, {auth: {persistSession: true, autoRefreshToken: true, detectSessionInUrl: true}});
+    this.ready = true; $("#acctBtn").hidden = false;
+    this.sb.auth.onAuthStateChange((ev, session) => {
+      if (ev === "PASSWORD_RECOVERY") { this.session = session; this.user = session?.user || null; return this.open("recovery"); }
+      this.setSession(session, ev);
+    });
+  },
+  async setSession(session, ev) {
+    this.session = session || null; this.user = session?.user || null;
+    if (!this.user) { this.plan = "free"; this.loadedFor = null; texts(); return; }
+    if (this.loadedFor === this.user.id) return;
+    this.loadedFor = this.user.id;
+    try { const {data} = await this.sb.from("subscriptions").select("status").eq("user_id", this.user.id).maybeSingle(); this.plan = data?.status || "free"; } catch {}
+    // keep what was made before signing in (the free voice note), then show everything saved
+    const local = S.tasks.filter(t => !t.dbId && !t.example && t.status !== "hecha");
+    if (local.length) await this.saveNew(local, "");
+    await this.load();
+    texts();
+    if (ev === "SIGNED_IN" && isOpen("acct")) { close("acct"); toast(L().welcome); }
+  },
+  async load() {
+    if (!this.user) return;
+    const {data, error} = await this.sb.from("bubbles").select("*").neq("status", "hecha").order("created_at", {ascending: true}).limit(12);
+    if (error || !data) return;
+    B.forEach(b => b.el.remove()); B = [];
+    S.tasks = data.map(r => ({id: "db" + r.id, dbId: r.id, title: r.title, summary: r.summary, raw: r.raw_quote, icon: r.icon || "other", priority: r.priority, cue: r.priority_cue, source: r.priority_source, status: r.status, steps: r.emergency_steps || [], hx: r.pos_x, hy: r.pos_y}));
+    const free = S.tasks.filter(t => t.hx == null || t.hy == null);
+    if (free.length) layoutHomes(S.tasks);
+    save(); S.tasks.forEach(t => makeBubble(t, false));
+    if (S.tasks.some(t => !t.priority)) setTimeout(openAsk, 600);
+  },
+  async saveNew(tasks, transcript) {
+    if (!this.user || !tasks.length) return;
+    try {
+      const {data: rec} = await this.sb.from("recordings").insert({user_id: this.user.id, transcript: transcript || null, lang: S.lang, priority_found: tasks.every(t => t.priority)}).select("id").single();
+      const rows = tasks.map(t => ({user_id: this.user.id, recording_id: rec?.id || null, title: String(t.title).slice(0, 40), summary: t.summary || t.title, raw_quote: t.raw || null, icon: t.icon || null,
+        priority: t.priority || null, priority_source: t.priority ? (t.source || "dicha") : null, priority_cue: t.cue || null, status: t.priority ? t.status : "planificacion", emergency_steps: t.steps || [], pos_x: t.hx ?? null, pos_y: t.hy ?? null}));
+      const {data} = await this.sb.from("bubbles").insert(rows).select("id");
+      (data || []).forEach((r, i) => { tasks[i].dbId = r.id; });
+      save();
+    } catch {}
+  },
+  update(t) {
+    if (!this.user || !t.dbId) return;
+    clearTimeout(t._sync);
+    t._sync = setTimeout(() => {
+      this.sb.from("bubbles").update({priority: t.priority || null, priority_source: t.priority ? (t.source || "manual") : null, status: t.priority ? t.status : "planificacion", pos_x: t.hx ?? null, pos_y: t.hy ?? null}).eq("id", t.dbId).then(() => {}, () => {});
+    }, 400);
+  },
+  emergency(t, step) {
+    if (!this.user || !t.dbId) return;
+    this.sb.from("emergency_runs").insert({bubble_id: t.dbId, user_id: this.user.id, step_text: step.slice(0, 200), completed: true}).then(() => {}, () => {});
+  },
+  open(mode) {
+    this.mode = this.user && mode !== "recovery" ? "in" : (mode || "signup");
+    this.paint(); open("acct");
+  },
+  paint() {
+    const t = L(), m = this.mode, inside = m === "in";
+    $("#aEy").textContent = t.aEy;
+    $("#aH").textContent = {signup: t.signupH, login: t.loginH, forgot: t.forgotH, recovery: t.newH, in: t.inH}[m];
+    $("#aSub").textContent = {signup: t.signupSub, login: t.loginSub, forgot: t.forgotSub, recovery: t.newSub, in: ""}[m];
+    $("#aForm").hidden = inside; $("#aLinks").hidden = inside || m === "recovery"; $("#aIn").hidden = !inside;
+    $("#aEmailL").textContent = t.email; $("#aPassL").textContent = t.pass;
+    $("#aEmail").closest("label").hidden = m === "recovery";
+    $("#aPassW").hidden = m === "forgot";
+    $("#aPass").autocomplete = m === "login" ? "current-password" : "new-password";
+    $("#aGo").textContent = {signup: t.signupGo, login: t.loginGo, forgot: t.forgotGo, recovery: t.newGo}[m] || "";
+    $("#aSwitch").textContent = m === "signup" ? t.toLogin : m === "login" ? t.toSignup : t.back;
+    $("#aForgot").textContent = t.forgot; $("#aForgot").hidden = m !== "login";
+    $("#aErr").textContent = "";
+    if (inside) {
+      $("#aWhoL").textContent = t.who; $("#aWho").textContent = this.user?.email || "";
+      $("#aPlanL").textContent = t.planL; $("#aPlan").textContent = this.plan === "active" ? t.planActive : this.plan === "past_due" ? t.planPast : t.planFree;
+      $("#aActivate").textContent = t.activate; $("#aActivate").hidden = this.plan === "active"; $("#aOut").textContent = t.signOut;
+    }
+  },
+  err(e) {
+    const t = L(), msg = String(e?.message || e || "");
+    $("#aErr").textContent = /invalid login/i.test(msg) ? t.eBad : /already (registered|exists)/i.test(msg) ? t.eExists : /password/i.test(msg) && /(6|8|short|least)/i.test(msg) ? t.eShort
+      : /not confirmed/i.test(msg) ? t.eConfirm : /email/i.test(msg) && /invalid/i.test(msg) ? t.eMail : t.eGeneric;
+  },
+  async submit() {
+    const t = L(), email = $("#aEmail").value.trim(), pass = $("#aPass").value, m = this.mode;
+    if (m !== "recovery" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return ($("#aErr").textContent = t.eMail);
+    if ((m === "signup" || m === "recovery" || m === "login") && pass.length < 8 && m !== "login") return ($("#aErr").textContent = t.eShort);
+    $("#aGo").disabled = true;
+    try {
+      if (m === "signup") {
+        const {data, error} = await this.sb.auth.signUp({email, password: pass, options: {emailRedirectTo: location.origin, data: {locale: S.lang}}});
+        if (error) throw error;
+        if (data?.user && Array.isArray(data.user.identities) && !data.user.identities.length) throw new Error("already registered");
+        if (!data.session) { $("#aSub").textContent = t.checkMail(email); this.mode = "login"; const keep = $("#aSub").textContent; this.paint(); $("#aSub").textContent = keep; }
+      } else if (m === "login") {
+        const {error} = await this.sb.auth.signInWithPassword({email, password: pass}); if (error) throw error;
+      } else if (m === "forgot") {
+        const {error} = await this.sb.auth.resetPasswordForEmail(email, {redirectTo: location.origin}); if (error) throw error;
+        toast(t.resetSent); this.mode = "login"; this.paint();
+      } else if (m === "recovery") {
+        const {error} = await this.sb.auth.updateUser({password: pass}); if (error) throw error;
+        toast(t.passSaved); close("acct"); this.loadedFor = null; this.setSession((await this.sb.auth.getSession()).data.session, "SIGNED_IN");
+      }
+    } catch (e) { this.err(e); }
+    finally { $("#aGo").disabled = false; }
+  }
+};
+function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = rej; document.head.append(s); }); }
+$("#acctBtn").addEventListener("click", () => ACC.open(ACC.user ? "in" : "login"));
+$("#aForm").addEventListener("submit", e => { e.preventDefault(); ACC.submit(); });
+$("#aSwitch").addEventListener("click", () => { ACC.mode = ACC.mode === "signup" ? "login" : ACC.mode === "login" ? "signup" : "login"; ACC.paint(); });
+$("#aForgot").addEventListener("click", () => { ACC.mode = "forgot"; ACC.paint(); });
+$("#aOut").addEventListener("click", async () => {
+  await ACC.sb?.auth.signOut();
+  B.forEach(b => b.el.remove()); B = []; S.tasks = []; save(); close("acct"); texts(); toast(L().bye);
+});
+$("#aActivate").addEventListener("click", () => { if (!store.get("tangent.wantPay", 0)) { store.set("tangent.wantPay", 1); ping("signup"); } toast(L().paySoon); });
 
 /* ---------- inicio ---------- */
 setMode(S.mode); setStill(!!S.still);
@@ -515,5 +666,6 @@ addEventListener("resize", () => { W = innerWidth; H = innerHeight; B.forEach(pa
 // load the other two scenes once the first one is in
 $(".art.on")?.addEventListener("load", () => $$(".art").forEach(i => { if (!i.src) i.src = SCENE[i.dataset.m]; }), {once: true});
 ping("visit");
+ACC.init();
 requestAnimationFrame(tick);
 })();

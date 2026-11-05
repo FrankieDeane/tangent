@@ -214,3 +214,14 @@ textarea:focus{outline:2px solid var(--accent)}
 .foot{margin-top:16px;font-size:13px;color:var(--ink2);display:flex;gap:14px;flex-wrap:wrap}
 .recbtn.busy{pointer-events:none;opacity:.6}
 .recbtn.live span{border-radius:7px;width:22px;height:22px;background:var(--alta);box-shadow:0 0 0 6px rgba(255,255,255,.2)}
+.aform{display:flex;flex-direction:column;gap:12px;margin:16px 0 4px}
+.aform label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+.aform input{height:50px;border-radius:14px;border:0;box-shadow:inset 0 0 0 1px var(--line);background:transparent;color:var(--ink);font:17px var(--sans);padding:0 14px;text-transform:none;letter-spacing:0}
+.aform input:focus{outline:2px solid var(--accent)}
+.aerr{min-height:20px;font-size:14px;color:var(--alta)}
+.alt2{display:flex;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap}
+.arow2{display:flex;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid var(--line);font-size:15px;color:var(--ink2)}
+.arow2 b{color:var(--ink);font-weight:700;overflow-wrap:anywhere;text-align:right}
+#acctBtn{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+[hidden]{display:none!important}
+@media (max-width:420px){.mark i{display:none}.tools{gap:6px}}
