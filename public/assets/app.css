@@ -402,3 +402,17 @@ svg.dots circle{transform-box:fill-box;transform-origin:center;animation:pop .45
 .sayout .sharevia{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .sayload{animation:sayP 1.4s ease-in-out infinite}
 @keyframes sayP{50%{opacity:.4}}
+
+/* ---------- v5: separate ideas, fix a reading ---------- */
+.ib{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;font:700 11px/1 var(--sans);font-style:normal;color:#fff;margin-right:7px;vertical-align:2px;flex:none}
+.ib.i0{background:#6b5bff}.ib.i1{background:#ff7ab0}.ib.i2{background:#1fa98a}
+.tile.ideas .irow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-top:10px}
+.idea{background:#F4F4F4;border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.idea b{display:flex;align-items:center;font-size:17px;letter-spacing:-.01em}
+.idea span{color:var(--muted);font-size:15px;line-height:1.4}
+.s b{display:flex;align-items:center}
+.fix{display:grid;gap:10px;margin-top:14px;width:100%;max-width:640px}
+.fix label{color:rgba(255,255,255,.85);font-size:15px}
+.fix textarea{width:100%;border:0;border-radius:14px;padding:12px 14px;font:500 15px/1.45 var(--sans);background:rgba(255,255,255,.1);color:#fff;resize:vertical}
+.fix textarea::placeholder{color:rgba(255,255,255,.45)}
+.vb.on{background:#fff;color:var(--ink);justify-self:start}

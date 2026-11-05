@@ -60,3 +60,9 @@ Recorded sounds can replace the synthesised ones, see `public/assets/sounds/READ
 
 - **Live ink**: while recording on a computer, key words float up around the waves using the browser's own speech recognition (Chrome, Edge, Safari on Mac). Phones skip it, because the system can't share the microphone safely with the recording. The words then carry into the "thinking" screen. Event `ink` in stats.
 - **Tell someone**: `POST /api/say` turns a board into a 3-line message for a boss/client, partner/family, team or friend. Same rules as everything else: ban check, daily limit (`say`), word rules on the board and on the AI answer. Event `say` in stats.
+
+## Sharper reading (v5)
+
+- **Mixed ideas**: the AI lists 1 to 3 separate `ideas`; every tile and step carries its idea number, and the board shows "You talked about N ideas" so unrelated topics never blend.
+- **Board language**: the board is written in the language picked in the header (people can mix Spanish and English while talking). Switching language translates the open board with `POST /api/translate` (cached per board, daily limit `tr`, word rules on both sides).
+- **Fix + learn**: voting "Sort of" or "No" opens "What did I get wrong?". The correction rebuilds the board from the transcript, and is kept on the device (`tangent.learn`, last 12) and sent as short `notes` with every new recording, so the AI reads that person better each time. Events `correct` and `translate`.

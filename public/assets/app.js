@@ -54,6 +54,9 @@
       signedAs: "Sesión iniciada como", authErr: "No pudimos completar eso. Revisá los datos y probá de nuevo.", pwShort: "La contraseña necesita al menos 8 caracteres.",
       exists: "Ese mail ya tiene cuenta. Entrá con tu contraseña o tocá \"Olvidé mi contraseña\" y te mandamos un código.",
       welcome: "Listo, ya estás adentro.", pwSaved: "Contraseña actualizada.", storageNote: "Tus tableros y audios quedan en tu cuenta. Podés borrarlos cuando quieras.",
+      ideasT: "Hablaste de {n} ideas", ideasS: "Las separé para que no se mezclen. Cada foto y cada paso lleva el número de su idea.",
+      fixQ: "¿Qué entendí mal? Contámelo en una frase.", fixPh: "Ej.: eran dos ideas distintas: el viaje de SUP y las features de la app", fixGo: "Corregir el tablero", fixDone: "Listo. Lo voy a tener en cuenta la próxima vez.",
+      translating: "Traduciendo tu tablero…", trErr: "No pude traducir el tablero ahora.",
       copyText: "Copiar", say: "Contárselo a alguien", sayT: "Contárselo a alguien", sayS: "Elegí a quién y Tangent te arma un mensaje de 3 líneas, claro y listo para mandar. Podés editarlo antes.",
       to_boss: "Jefe o cliente", to_partner: "Pareja o familia", to_team: "Equipo", to_friend: "Amigo/a", sayWait: "Armando tu mensaje…", sayAgain: "Otra versión", sayErr: "No pude armar el mensaje ahora. Probá de nuevo en un rato.",
       listen: "Escuchar", stopListen: "Parar", share: "Compartir", remind: "Recordarme", replay: "Escucharte", power: "Tu superpoder",
@@ -112,6 +115,9 @@
       signedAs: "Signed in as", authErr: "We couldn't do that. Check your details and try again.", pwShort: "The password needs at least 8 characters.",
       exists: "That email already has an account. Sign in with your password, or tap \"I forgot my password\" and we'll email you a code.",
       welcome: "You're in.", pwSaved: "Password updated.", storageNote: "Your boards and audio stay in your account. You can delete them any time.",
+      ideasT: "You talked about {n} ideas", ideasS: "I kept them apart so they don't blend. Each photo and step carries its idea's number.",
+      fixQ: "What did I get wrong? Tell me in one sentence.", fixPh: "e.g. these were two different ideas: the SUP trip and the app features", fixGo: "Fix the board", fixDone: "Done. I'll keep that in mind next time.",
+      translating: "Translating your board…", trErr: "I couldn't translate the board right now.",
       copyText: "Copy", say: "Tell someone", sayT: "Tell someone", sayS: "Pick who it's for and Tangent writes a clear 3-line message, ready to send. You can edit it first.",
       to_boss: "Boss or client", to_partner: "Partner or family", to_team: "Team", to_friend: "Friend", sayWait: "Writing your message…", sayAgain: "Another version", sayErr: "I couldn't write the message right now. Try again in a moment.",
       listen: "Listen", stopListen: "Stop", share: "Share", remind: "Remind me", replay: "Hear yourself", power: "Your superpower",
@@ -137,7 +143,7 @@
     document.querySelectorAll('a[href^="/terms.html"],a[href^="/privacy.html"]').forEach(a => { a.href = a.getAttribute("href").split("#")[0] + "#" + lang; });
     splitLead();
     $("#typed").placeholder = lang === "es" ? "Escribí como pensás, sin ordenar nada…" : "Write the way you think, no need to tidy it…";
-    if (current) { if (current.example) current = { ...exampleBoard(), wave: current.wave }; renderBoard(current, true); }
+    if (current) { if (current.example) current = { ...exampleBoard(), wave: current.wave }; renderBoard(current, true); translateBoard(current); }
     renderAcct(); renderHomeThread();
   }
   document.querySelectorAll("#langSw [data-lang]").forEach(b => b.onclick = () => {
@@ -363,7 +369,7 @@
     let res, data;
     try {
       const last = gardenList()[0], previous = last && Date.now() - (last.at || 0) < 3 * 36e5 ? last.core : "";
-      res = await fetch("/api/analyze", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, lang, previous, ...payload }) });
+      res = await fetch("/api/analyze", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, lang, previous, notes: learnNotes(), ...payload }) });
       data = await res.json().catch(() => ({ status: "ai_error" }));
     } catch {
       stopThinking(); note(t("offline")); return openBoard(exampleBoard(), wave);
@@ -373,6 +379,7 @@
       case "ok": {
         const keys = (data.board.keep || []).concat(data.board.core.split(/\s+/));
         if (data.transcript) { placeWords(data.transcript.split(/\s+/)); await wait(400); placeWords(data.transcript.split(/\s+/), keys); await wait(2200); }
+        if (payload.redo) return payload.redo(data);
         const last = gardenList()[0], same = data.board.same_thread && last && Date.now() - (last.at || 0) < 3 * 36e5;
         if (same) ping("same_thread");
         const id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
@@ -424,6 +431,7 @@
   async function openBoard(board, wave, fresh) {
     current = board; currentWave = wave || board.wave || null; current.wave = currentWave;
     renderBoard(board);
+    if (!fresh) translateBoard(board);
     if (fresh) {
       try {
         const res = await fetch("/api/photos", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, queries: board.tiles.map(x => x.photo || x.subject) }) });
@@ -436,6 +444,7 @@
       board.svgs = svgs.slice(0, board.tiles.length);
       pics.forEach(p => { const i = +p.closest(".tile").dataset.i, s = board.svgs[i]; if (s) { p.innerHTML = s; if (+p.closest(".tile").dataset.i === board.clip) p.firstElementChild?.classList.add("kb"); } p.classList.remove("drawing"); });
       saveToGarden(board);
+      if (fresh === "redo") { if (SB && user && board.id) SB.from("tangent_boards").update({ core: board.core, board: { ...board, svgs: undefined } }).eq("id", board.id).then(() => {}, () => {}); toast(t("fixDone")); return; }
       const audio = lastAudio; lastAudio = null;
       if (audio) { board.hasAudio = true; idbPut(board.id, audio); }
       cloudSave(board, audio);
@@ -494,9 +503,10 @@
       const inner = ph
         ? `<img class="${moving ? "kb" : ""}" src="${esc(ph.src)}" alt="${esc(ph.alt || x.caption || "")}" loading="${i < 2 ? "eager" : "lazy"}" referrerpolicy="no-referrer" data-fallback="${i}" style="background:${esc(ph.color || "#ddd")}"><span class="credit"><a href="${esc(ph.profile)}" target="_blank" rel="noopener">${esc(ph.credit)}</a> / <a href="${esc(ph.sourceUrl || ph.url)}" target="_blank" rel="noopener">${esc(ph.source || "Unsplash")}</a></span>`
         : (b.svgs?.[i] || S.pic(x.scene, pal, moving));
-      return `<figure class="tile${i === 0 ? " big" : ""}" data-i="${i}"><div class="pic${ph ? " photo" : ""}">${inner}${moving ? `<span class="play">${t("clip")}</span>` : ""}</div>${x.caption ? `<figcaption class="cap">${esc(x.caption)}</figcaption>` : ""}</figure>`;
+      return `<figure class="tile${i === 0 ? " big" : ""}" data-i="${i}"><div class="pic${ph ? " photo" : ""}">${inner}${moving ? `<span class="play">${t("clip")}</span>` : ""}</div>${x.caption ? `<figcaption class="cap">${badge(x.idea || 0)}${esc(x.caption)}</figcaption>` : ""}</figure>`;
     };
-    const parts = [];
+    const parts = [], many = (b.ideas || []).length > 1;
+    const badge = n => (many ? `<i class="ib i${n}">${n + 1}</i>` : "");
     tiles.forEach((x, i) => parts.push(tileHtml(x, i)));
     if (b.brain?.region) parts.splice(b.strength?.name ? 1 : 1, 0, brainCard(b.brain));
     if (b.strength?.name) parts.splice(b.brain?.region ? 2 : 1, 0, `<div class="tile power"><span class="plabel">${t("power")}</span><b>${esc(b.strength.name)}</b><p>${esc(b.strength.how)}</p><svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.2"><circle cx="60" cy="60" r="20"/><circle cx="60" cy="60" r="36"/><circle cx="60" cy="60" r="52"/></g><g fill="#fff">${[0, 1, 2, 3, 4, 5].map(i => `<circle cx="${(60 + Math.cos(i * 1.047) * 36).toFixed(1)}" cy="${(60 + Math.sin(i * 1.047) * 36).toFixed(1)}" r="3"/>`).join("")}<circle cx="60" cy="60" r="6"/></g></svg></div>`);
@@ -504,9 +514,10 @@
     if (b.breathe) parts.splice(2 + extra, 0, `<div class="tile breathe"><div class="bcirc">${t("breathe")}</div><p>${esc(b.breathe)}<small>${t("breatheSub")}</small></p></div>`);
     parts.splice((b.breathe ? 3 : 2) + extra, 0, voiceCard(b));
     if (tiles.length) parts.unshift(`<div class="tile panel anchors"><h3>${t("anchorsT")}</h3><p>${esc(t("anchorsS"))}</p></div>`);
+    if (many) parts.unshift(`<div class="tile panel ideas"><h3>${t("ideasT", { n: b.ideas.length })}</h3><p class="small">${esc(t("ideasS"))}</p><div class="irow">${b.ideas.map((x, i) => `<div class="idea">${badge(i)}<b>${esc(x.title)}</b><span>${esc(x.line)}</span></div>`).join("")}</div></div>`);
     if (b.summary) parts.unshift(`<div class="tile panel summary"><h3>${t("summaryT")}</h3><p>${esc(b.summary)}</p></div>`);
     const steps = b.steps || [];
-    if (steps.length) parts.push(`<div class="tile panel steps"><h3>${t("steps")}</h3><div class="srow">${steps.map(s => `<div class="s"><b>${esc(s.when)}</b><span>${esc(s.what)}</span></div>`).join("")}</div></div>`);
+    if (steps.length) parts.push(`<div class="tile panel steps"><h3>${t("steps")}</h3><div class="srow">${steps.map(s => `<div class="s"><b>${badge(s.idea || 0)}${esc(s.when)}</b><span>${esc(s.what)}</span></div>`).join("")}</div></div>`);
     if (b.letgo?.length) parts.push(`<div class="tile panel letgo"><h3>${t("letgo")}</h3><div>${b.letgo.map(x => `<s>${esc(x)}</s>`).join("")}</div></div>`);
     if (b.tangents?.length) parts.push(`<div class="tile panel bubbles" aria-label="${t("tangents")}"><h3>${t("tangents")}</h3>${b.tangents.map((x, i) => `<button class="bub" data-park="${i}" title="${esc(t("park"))}" style="left:${8 + i * 30}%;top:${44 + (i % 2) * 26}px;width:${104 + (x.length % 3) * 12}px;height:${104 + (x.length % 3) * 12}px;animation-delay:-${i * 2}s">${esc(x)}<small>${esc(t("park"))} ↘</small></button>`).join("")}</div>`);
     const sugg = b.sounds || [], all = [...sugg, ...SND.NAMES.filter(n => !sugg.includes(n))];
@@ -545,6 +556,7 @@
     document.querySelectorAll("[data-vote]").forEach(el => el.onclick = () => {
       b.vote = el.dataset.vote; ping("vote_" + b.vote); saveToGarden(b);
       $("#voteBox").innerHTML = `<h3>${t("voteQ")}</h3><p class="thanks">${esc(t("voteThanks"))}</p>`;
+      if (b.vote !== "yes" && b.transcript) fixBox(b);
       if (SB && user && b.id) SB.from("tangent_boards").update({ board: { ...b, svgs: undefined } }).eq("id", b.id).then(() => {}, () => {});
     });
     if ($("#replayBtn")) $("#replayBtn").onclick = () => replay(b);
@@ -557,6 +569,60 @@
     document.querySelectorAll("[data-sound]").forEach(el => el.onclick = async () => { const on = await SND.toggle(el.dataset.sound, 0.6); el.setAttribute("aria-pressed", String(on)); });
     armShake();
   }
+  // ---------- correct a reading + learn from it ----------
+  // Corrections stay on this device and travel with each new recording as short notes, so the AI reads this person better every time.
+  const learnList = () => store.get("tangent.learn", []);
+  const learnNotes = () => learnList().slice(0, 8).map(x => x.fix).join(" | ").slice(0, 700);
+  function fixBox(b) {
+    const box = $("#voteBox"); if (!box) return;
+    box.insertAdjacentHTML("beforeend", `<div class="fix"><label for="fixTxt">${esc(t("fixQ"))}</label><textarea id="fixTxt" rows="2" maxlength="300" placeholder="${esc(t("fixPh"))}"></textarea><button class="vb on" id="fixGo">${t("fixGo")}</button></div>`);
+    $("#fixTxt").focus();
+    $("#fixGo").onclick = async () => {
+      const fix = $("#fixTxt").value.trim();
+      if (fix.length < 4) return $("#fixTxt").focus();
+      store.set("tangent.learn", [{ fix, at: Date.now() }, ...learnList()].slice(0, 12));
+      ping("correct"); hush(); SND.stopAll();
+      const keep = { id: b.id, thread: b.thread, sameThread: b.sameThread, at: b.at, secs: b.secs, hasAudio: b.hasAudio, audioPath: b.audioPath, transcript: b.transcript };
+      thinking(b.transcript.split(/\s+/));
+      analyze({ text: b.transcript, correction: fix, redo: data => {
+        const nb = { ...data.board, ...keep, lang: data.language, fixed: true };
+        lastAudio = null;
+        return openBoard(nb, b.wave, "redo");
+      } }, b.wave, b.secs || 0);
+    };
+  }
+
+  // ---------- language: the board follows the language you pick ----------
+  const TR_KEYS = b => ({
+    core: b.core, summary: b.summary, breathe: b.breathe, ideas: b.ideas || [], captions: (b.tiles || []).map(x => x.caption),
+    steps: (b.steps || []).map(x => ({ when: x.when, what: x.what })), letgo: b.letgo || [], tangents: b.tangents || [],
+    strength: b.strength || {}, brain: b.brain?.why || "",
+  });
+  function applyTr(b, f) {
+    b.core = f.core; b.summary = f.summary; b.breathe = f.breathe;
+    b.ideas = (b.ideas || []).map((x, i) => ({ ...x, ...(f.ideas[i] || {}) }));
+    b.tiles = (b.tiles || []).map((x, i) => ({ ...x, caption: f.captions[i] ?? x.caption }));
+    b.steps = (b.steps || []).map((x, i) => ({ ...x, ...(f.steps[i] || {}) }));
+    b.letgo = f.letgo; b.tangents = f.tangents; b.strength = { ...(b.strength || {}), ...f.strength };
+    if (b.brain) b.brain = { ...b.brain, why: f.brain };
+  }
+  let trBusy = null;
+  async function translateBoard(b) {
+    const from = b.lang || "es", to = lang;
+    if (!b || b.example || from === to || trBusy === b) return;
+    b.tr = b.tr || {}; b.tr[from] = b.tr[from] || TR_KEYS(b);
+    if (b.tr[to]) { applyTr(b, b.tr[to]); b.lang = to; saveToGarden(b); if (current === b) renderBoard(b, true); return; }
+    trBusy = b; toast(t("translating"));
+    try {
+      const res = await fetch("/api/translate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, to, board: b }) });
+      const d = await res.json();
+      if (d.status !== "ok") throw new Error(d.status);
+      b.tr[to] = d.board; applyTr(b, d.board); b.lang = to; ping("translate"); saveToGarden(b);
+      if (current === b && lang === to) renderBoard(b, true);
+    } catch { toast(t("trErr")); }
+    finally { trBusy = null; }
+  }
+
   // stylised side view of the brain (front on the left); regions are approximate and illustrative
   const BRAIN = {
     prefrontal: [[78, 96, 30, 34]], motor: [[148, 58, 18, 40]], parietal: [[196, 66, 36, 28]],
@@ -912,7 +978,7 @@
           if (files?.length) await SB.storage.from("tangent-audio").remove(files.map(f => `${user.id}/${f.name}`));
           await SB.from("tangent_parked").delete().eq("user_id", user.id);
           await SB.from("tangent_boards").delete().eq("user_id", user.id);
-          store.set("tangent.garden", []); store.set("tangent.parked", []); await idbClear(); renderGarden(); renderHomeThread(); close(); toast(t("deleted"));
+          store.set("tangent.garden", []); store.set("tangent.parked", []); store.set("tangent.learn", []); await idbClear(); renderGarden(); renderHomeThread(); close(); toast(t("deleted"));
         }
       } catch (e) { fail(authErr(e)); }
       finally { el.disabled = false; }
