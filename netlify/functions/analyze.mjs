@@ -41,6 +41,11 @@ function shape(r) {
     photo_query: str(r.photo_query, 40),
     strength: { name: str(r.strength?.name, 40), how: str(r.strength?.how, 160) },
     same_thread: r.same_thread === true,
+    spark: (() => {
+      const jumps = (Array.isArray(r.spark?.jumps) ? r.spark.jumps : []).slice(0, 5).map(k => str(k, 30)).filter(Boolean);
+      const link = str(r.spark?.link, 120), idea = str(r.spark?.idea, 220);
+      return jumps.length >= 2 && link && idea ? { jumps, link, idea } : null;
+    })(),
   };
 }
 
@@ -91,7 +96,7 @@ export default async (req, context) => {
 
   // 4. Rules on what the AI produced. Never show it if it breaks a rule (no strike: not the person's fault).
   const board = shape(r);
-  const produced = [...board.ideas.flatMap(x => [x.title, x.line]), board.core, board.breathe, board.photo_query, ...board.tiles.flatMap(t => [t.subject, t.photo, t.caption]), ...board.steps.flatMap(s => [s.when, s.what]), ...board.tangents, board.strength.name, board.strength.how, board.summary, board.brain.why].join(" \n ");
+  const produced = [...board.ideas.flatMap(x => [x.title, x.line]), board.core, board.breathe, board.photo_query, ...board.tiles.flatMap(t => [t.subject, t.photo, t.caption]), ...board.steps.flatMap(s => [s.when, s.what]), ...board.tangents, board.strength.name, board.strength.how, board.summary, board.brain.why, ...(board.spark ? [...board.spark.jumps, board.spark.link, board.spark.idea] : [])].join(" \n ");
   if (checkText(produced) || !board.core || board.tiles.length < 3) return json(200, { status: "ai_error" });
 
   await countUse(id, "rec");

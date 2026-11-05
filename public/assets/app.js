@@ -70,6 +70,12 @@
       regions: { prefrontal: "Corteza prefrontal", motor: "Corteza motora", parietal: "Lóbulo parietal", temporal: "Lóbulo temporal", occipital: "Lóbulo occipital", limbic: "Sistema límbico" },
       voteQ: "¿Esta síntesis refleja lo que tenías en la cabeza?", voteYes: "Sí, exacto", voteMid: "Más o menos", voteNo: "No", voteThanks: "Gracias. Con tu voto Tangent aprende a entenderte mejor.",
       tonight: "Hoy, 20:00", tomorrow: "Mañana, 9:00", daily: "Ancla diaria: 9:00 durante 7 días", gcal: "Google Calendar", ics: "Apple / Outlook",
+      sparkT: "La Chispa", sparkS: "Tu cabeza saltó entre estas cosas. Esto es lo que las une.", sparkIdea: "La idea que aparece al unirlas",
+      sparkHome: "Tu cerebro salta. Tangent encuentra el hilo.", sparkHomeS: "Uní ideas que grabaste en distintos días, o subí fotos, capturas o gráficos que quizás solo para vos tienen sentido.",
+      sparkGarden: "Conectar mis ideas", sparkImages: "Subir imágenes o gráficos", sparkFew: "Grabá al menos 2 ideas y La Chispa las conecta.",
+      sparkWait: "Buscando el hilo oculto…", sparkErr: "Esta vez no encontré la chispa. Probá de nuevo en un rato.", sparkStep: "Para probarla", sparkTry: "Grabar sobre esto", sparkClose: "Cerrar",
+      sparkSee: "Lo que vi", sparkPattern: "El patrón que viste", sparkLink: "Con tus ideas", sparkTooBig: "Una de las imágenes no se pudo leer. Probá con otra.", sparkPick: "Elegí de 1 a 4 imágenes.",
+      sparkPrivacy: "Las imágenes se usan solo para esta lectura. Tangent no las guarda.", sparkGardenT: "Lo que une tus ideas",
     },
     en: {
       experimental: "Experimental", lead1: "Say it messy.", lead2: "See it clear.",
@@ -131,6 +137,12 @@
       regions: { prefrontal: "Prefrontal cortex", motor: "Motor cortex", parietal: "Parietal lobe", temporal: "Temporal lobe", occipital: "Occipital lobe", limbic: "Limbic system" },
       voteQ: "Does this summary match what was in your head?", voteYes: "Yes, exactly", voteMid: "Sort of", voteNo: "No", voteThanks: "Thanks. Your vote helps Tangent understand you better.",
       tonight: "Tonight, 8 pm", tomorrow: "Tomorrow, 9 am", daily: "Daily anchor: 9 am for 7 days", gcal: "Google Calendar", ics: "Apple / Outlook",
+      sparkT: "The Spark", sparkS: "Your mind jumped between these things. This is what joins them.", sparkIdea: "The idea that appears when you join them",
+      sparkHome: "Your brain jumps. Tangent finds the thread.", sparkHomeS: "Join ideas you recorded on different days, or upload photos, screenshots or charts that maybe only make sense to you.",
+      sparkGarden: "Connect my ideas", sparkImages: "Upload images or charts", sparkFew: "Record at least 2 ideas and The Spark connects them.",
+      sparkWait: "Looking for the hidden thread…", sparkErr: "I couldn't find the spark this time. Try again in a moment.", sparkStep: "To try it", sparkTry: "Record about this", sparkClose: "Close",
+      sparkSee: "What I saw", sparkPattern: "The pattern you saw", sparkLink: "With your ideas", sparkTooBig: "One of the images couldn't be read. Try another one.", sparkPick: "Pick 1 to 4 images.",
+      sparkPrivacy: "Images are only used for this reading. Tangent doesn't keep them.", sparkGardenT: "What joins your ideas",
     },
   };
   let lang = store.get("tangent.lang", (navigator.language || "es").toLowerCase().startsWith("en") ? "en" : "es");
@@ -516,6 +528,7 @@
     if (tiles.length) parts.unshift(`<div class="tile panel anchors"><h3>${t("anchorsT")}</h3><p>${esc(t("anchorsS"))}</p></div>`);
     if (many) parts.unshift(`<div class="tile panel ideas"><h3>${t("ideasT", { n: b.ideas.length })}</h3><p class="small">${esc(t("ideasS"))}</p><div class="irow">${b.ideas.map((x, i) => `<div class="idea">${badge(i)}<b>${esc(x.title)}</b><span>${esc(x.line)}</span></div>`).join("")}</div></div>`);
     if (b.summary) parts.unshift(`<div class="tile panel summary"><h3>${t("summaryT")}</h3><p>${esc(b.summary)}</p></div>`);
+    if (b.spark?.link) parts.splice(b.summary ? 1 : 0, 0, sparkTile(b.spark));
     const steps = b.steps || [];
     if (steps.length) parts.push(`<div class="tile panel steps"><h3>${t("steps")}</h3><div class="srow">${steps.map(s => `<div class="s"><b>${badge(s.idea || 0)}${esc(s.when)}</b><span>${esc(s.what)}</span></div>`).join("")}</div></div>`);
     if (b.letgo?.length) parts.push(`<div class="tile panel letgo"><h3>${t("letgo")}</h3><div>${b.letgo.map(x => `<s>${esc(x)}</s>`).join("")}</div></div>`);
@@ -597,6 +610,7 @@
     core: b.core, summary: b.summary, breathe: b.breathe, ideas: b.ideas || [], captions: (b.tiles || []).map(x => x.caption),
     steps: (b.steps || []).map(x => ({ when: x.when, what: x.what })), letgo: b.letgo || [], tangents: b.tangents || [],
     strength: b.strength || {}, brain: b.brain?.why || "",
+    spark: b.spark ? { jumps: b.spark.jumps || [], link: b.spark.link || "", idea: b.spark.idea || "" } : { jumps: [], link: "", idea: "" },
   });
   function applyTr(b, f) {
     b.core = f.core; b.summary = f.summary; b.breathe = f.breathe;
@@ -605,6 +619,7 @@
     b.steps = (b.steps || []).map((x, i) => ({ ...x, ...(f.steps[i] || {}) }));
     b.letgo = f.letgo; b.tangents = f.tangents; b.strength = { ...(b.strength || {}), ...f.strength };
     if (b.brain) b.brain = { ...b.brain, why: f.brain };
+    if (b.spark && f.spark?.link) b.spark = { ...b.spark, ...f.spark };
   }
   let trBusy = null;
   async function translateBoard(b) {
@@ -716,6 +731,112 @@
     return c;
   }
 
+  // ---------- The Spark: the ADHD jump is the superpower ----------
+  // A constellation: each jump is a star, the path is the order the mind jumped, every star points to the hidden thread in the middle.
+  function constellation(labels, center, cls = "") {
+    const W = 640, H = 300, cx = W / 2, cy = H / 2, n = labels.length;
+    const pts = labels.map((_, i) => { const a = -Math.PI / 2 + (i / n) * Math.PI * 2 + (n % 2 ? 0 : -Math.PI / n); return [cx + Math.cos(a) * 200, cy + Math.sin(a) * 105]; });
+    const path = pts.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" ");
+    const dust = Array.from({ length: 34 }, (_, i) => `<circle cx="${(i * 197) % W}" cy="${(i * 89 + 23) % H}" r="${(i % 3) * .5 + .6}" opacity="${.15 + (i % 4) * .12}"/>`).join("");
+    const short = x => (x.length > 18 ? x.slice(0, 17) + "…" : x);
+    return `<svg class="constel ${cls}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(labels.join(" · ") + " → " + center)}">
+      <defs><radialGradient id="sg"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#C7B8FF"/><stop offset="1" stop-color="#6A55E0" stop-opacity="0"/></radialGradient>
+      <linearGradient id="sl" x1="0" x2="1"><stop offset="0" stop-color="#8796EE"/><stop offset=".5" stop-color="#FF7AB0"/><stop offset="1" stop-color="#7FE0C2"/></linearGradient></defs>
+      <g fill="#fff">${dust}</g>
+      <path class="jumppath" d="${path}" fill="none" stroke="url(#sl)" stroke-width="2" stroke-dasharray="6 7" stroke-linecap="round"/>
+      <g stroke="rgba(199,184,255,.55)" stroke-width="1.2">${pts.map((p, i) => `<line class="ray" style="--d:${i * .25}s" x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${cx}" y2="${cy}"/>`).join("")}</g>
+      <circle class="core-star" cx="${cx}" cy="${cy}" r="46" fill="url(#sg)"/><circle cx="${cx}" cy="${cy}" r="7" fill="#fff"/>
+      ${pts.map((p, i) => `<g class="star" style="--d:${i * .25}s"><circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="13" fill="url(#sg)"/><circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4.5" fill="#fff"/>
+        <text x="${p[0].toFixed(1)}" y="${(p[1] + (p[1] < cy ? -20 : 30)).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="15" font-weight="600">${esc(short(labels[i]))}</text>
+        <text x="${(p[0] + 15).toFixed(1)}" y="${(p[1] + 5).toFixed(1)}" fill="rgba(255,255,255,.5)" font-size="11">${i + 1}</text></g>`).join("")}
+    </svg>`;
+  }
+  function sparkTile(sp) {
+    return `<div class="tile panel spark"><span class="plabel">✦ ${t("sparkT")}</span><p class="sp-s">${esc(t("sparkS"))}</p>
+      ${constellation(sp.jumps || [], sp.link)}
+      <h4 class="sp-link">${esc(sp.link)}</h4>
+      <div class="sp-idea"><small>${t("sparkIdea")}</small><p>${esc(sp.idea)}</p></div></div>`;
+  }
+  const sparkReady = () => gardenList().filter(x => !x.example && x.core).length >= 2;
+  function renderSparkHome() {
+    const box = $("#sparkBox"); if (!box) return;
+    $("#sparkG").disabled = !sparkReady(); $("#sparkG").title = sparkReady() ? "" : t("sparkFew");
+    $("#sparkNote").textContent = sparkReady() ? t("sparkHomeS") : t("sparkHomeS") + " " + t("sparkFew");
+  }
+  function sparkSave(kind, sp) { const l = store.get("tangent.sparks", []); l.unshift({ kind, ...sp, at: Date.now(), lang }); store.set("tangent.sparks", l.slice(0, 20)); }
+  async function sparkCall(payload) {
+    const done = sparkBusy();
+    try {
+      const res = await fetch("/api/spark", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, lang, ...payload }) });
+      return await res.json().catch(() => ({ status: "ai_error" }));
+    } catch { return { status: "ai_error" }; }
+    finally { done(); }
+  }
+  function sparkBusy() {
+    const el = document.createElement("div"); el.className = "sparkwait"; el.setAttribute("role", "status");
+    el.innerHTML = `<div class="sw-star"></div><p>${esc(t("sparkWait"))}</p>`; document.body.append(el);
+    requestAnimationFrame(() => el.classList.add("on"));
+    return () => { el.classList.remove("on"); setTimeout(() => el.remove(), 400); };
+  }
+  async function sparkStatus(d) {
+    switch (d.status) {
+      case "ok": return true;
+      case "warning": await modal(t("warnT"), `<p>${esc(t("warn"))}</p>`); return false;
+      case "banned": store.set("tangent.banned", true); await showBanned(); return false;
+      case "support": await modal(t("supportT"), helpHtml(), [{ label: t("close") }]); return false;
+      case "limit": await modal(t("limitT"), `<p>${esc(t("limit"))}</p>`); return false;
+      case "too_big": case "empty": await modal(t("sparkT"), `<p>${esc(t("sparkTooBig"))}</p>`); return false;
+      default: await modal(t("sparkT"), `<p>${esc(t("sparkErr"))}</p>`); return false;
+    }
+  }
+  async function sparkResult(title, html, sp) {
+    const go = await modal(title, html, [{ label: t("sparkClose"), ghost: true, value: "close" }, { label: t("sparkTry"), value: "try" }]);
+    if (go === "try") { show("home"); $("#typeBox").hidden = false; $("#typed").value = sp.idea + " "; $("#typed").focus(); }
+  }
+  async function sparkGardenRun() {
+    const list = gardenList().filter(x => !x.example && x.core).slice(0, 12);
+    if (list.length < 2) return toast(t("sparkFew"));
+    ping("spark_garden");
+    const d = await sparkCall({ mode: "garden", items: list.map(x => ({ core: x.core, tangents: x.tangents || [], at: x.at })) });
+    if (!(await sparkStatus(d))) return;
+    const sp = d.spark; sparkSave("garden", sp);
+    const when = i => { const at = list[i]?.at; if (!at) return ""; try { return new Date(at).toLocaleDateString(lang === "es" ? "es-AR" : "en-US", { day: "numeric", month: "short" }); } catch { return ""; } };
+    await sparkResult(t("sparkGardenT"), `<div class="spm">${constellation(sp.labels, sp.link, "inmodal")}
+      ${sp.pattern ? `<span class="plabel">✦ ${esc(sp.pattern)}</span>` : ""}<h4 class="sp-link">${esc(sp.link)}</h4>
+      <ul class="sp-from">${sp.from.map((i, k) => `<li><b>${k + 1}</b> ${esc(list[i]?.core || "")} <small>${esc(when(i))}</small></li>`).join("")}</ul>
+      <div class="sp-idea"><small>${t("sparkIdea")}</small><p>${esc(sp.idea)}</p></div>
+      ${sp.step ? `<p class="sp-step"><span>${t("sparkStep")}</span> ${esc(sp.step)}</p>` : ""}</div>`, sp);
+  }
+  // Shrink each image in the browser (max 768 px, JPEG) so it travels light. Nothing is stored.
+  async function shrink(file) {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image(); img.src = url; await img.decode();
+      const k = Math.min(1, 768 / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
+      const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+      return c.toDataURL("image/jpeg", 0.8);
+    } finally { URL.revokeObjectURL(url); }
+  }
+  async function sparkImagesRun(files) {
+    files = [...files].filter(f => /^image\//.test(f.type));
+    if (!files.length || files.length > 4) return toast(t("sparkPick"));
+    let urls;
+    try { urls = await Promise.all(files.map(shrink)); } catch { return modal(t("sparkT"), `<p>${esc(t("sparkTooBig"))}</p>`); }
+    ping("spark_images");
+    const d = await sparkCall({ mode: "images", images: urls.map(u => u.split(",")[1]), ideas: gardenList().filter(x => !x.example && x.core).slice(0, 5).map(x => x.core) });
+    if (!(await sparkStatus(d))) return;
+    const sp = d.spark; sparkSave("images", sp);
+    await sparkResult(t("sparkT"), `<div class="spm">
+      <div class="sp-imgs n${urls.length}">${urls.map((u, i) => `<figure><img src="${u}" alt=""><figcaption><b>${i + 1}</b> ${esc(sp.see[i] || "")}</figcaption></figure>`).join("")}
+        <svg class="sp-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${urls.map((_, i) => `<line x1="${(i + .5) * 100 / urls.length}" y1="20" x2="50" y2="100"/>`).join("")}</svg></div>
+      <span class="plabel">✦ ${esc(sp.name || t("sparkPattern"))}</span><h4 class="sp-link">${esc(sp.pattern)}</h4>
+      ${sp.link ? `<p class="sp-with"><span>${t("sparkLink")}</span> ${esc(sp.link)}</p>` : ""}
+      <div class="sp-idea"><small>${t("sparkIdea")}</small><p>${esc(sp.idea)}</p></div>
+      ${sp.step ? `<p class="sp-step"><span>${t("sparkStep")}</span> ${esc(sp.step)}</p>` : ""}
+      <p class="small">${esc(t("sparkPrivacy"))}</p></div>`, sp);
+  }
+
   // ---------- garden ----------
   const gardenList = () => store.get("tangent.garden", []);
   function saveToGarden(b) {
@@ -728,6 +849,7 @@
   }
   function renderGarden() {
     const list = store.get("tangent.garden", []);
+    renderSparkHome();
     $("#garden").hidden = !list.length;
     $("#seeds").innerHTML = list.map((b, i) => { const p = (S.PAL[b.palette] || S.PAL.mist); return `<button class="seed" data-g="${i}" title="${esc(b.core)}"><i style="background:radial-gradient(circle at 35% 35%,${p[1]},${p[2]})"></i><span>${esc((b.core || "").slice(0, 42))}${(b.core || "").length > 42 ? "…" : ""}</span></button>`; }).join("");
     document.querySelectorAll("[data-g]").forEach(el => el.onclick = () => { const b = store.get("tangent.garden", [])[+el.dataset.g]; if (b) openBoard(b, b.wave, false); });
@@ -1014,6 +1136,8 @@
         : [{ when: "Now", what: "Set an alarm for 6:40" }, { when: "7:00", what: "Coffee and open email" }, { when: "7:30", what: "Pick just one task" }],
       letgo: es ? ["lo de la semana pasada", "contestar todo hoy"] : ["last week's stuff", "answering everything today"],
       tangents: es ? ["¿y si salgo a caminar?", "llamar a mamá", "ordenar el escritorio"] : ["a walk later?", "call mom", "tidy the desk"],
+      spark: es ? { jumps: ["empezar a las 7", "salir a caminar", "llamar a mamá"], link: "Todo lo que te ordena empieza moviendo el cuerpo", idea: "Hacé la llamada a tu mamá caminando, antes de abrir el mail: el día arranca en movimiento y con alguien que te quiere." }
+        : { jumps: ["start at 7", "go for a walk", "call mom"], link: "Everything that settles you starts with moving", idea: "Call your mom while you walk, before opening email: the day starts moving and with someone who loves you." },
       sounds: ["birds", "cafe"], keep: [], photos: [], example: true, secs: 42, words: 84,
       mix: { focus: 38, energy: 62, calm: 30, urgency: 74, clarity: 45, ideas: 81 },
     };
@@ -1027,6 +1151,9 @@
   $("#typedGo").onclick = sendTyped;
   $("#typed").addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) sendTyped(); });
   $("#exampleLink").onclick = () => openBoard(exampleBoard(), null, false);
+  $("#sparkG").onclick = sparkGardenRun;
+  $("#sparkI").onclick = () => $("#sparkFile").click();
+  $("#sparkFile").onchange = e => { const f = e.target.files; if (f?.length) sparkImagesRun(f); e.target.value = ""; };
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#modal").hidden) $("#mBtns button")?.click(); });
   if (banned()) $("#recBtn").disabled = true;
   // ---------- effects ----------

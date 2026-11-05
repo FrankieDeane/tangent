@@ -66,3 +66,8 @@ Recorded sounds can replace the synthesised ones, see `public/assets/sounds/READ
 - **Mixed ideas**: the AI lists 1 to 3 separate `ideas`; every tile and step carries its idea number, and the board shows "You talked about N ideas" so unrelated topics never blend.
 - **Board language**: the board is written in the language picked in the header (people can mix Spanish and English while talking). Switching language translates the open board with `POST /api/translate` (cached per board, daily limit `tr`, word rules on both sides).
 - **Fix + learn**: voting "Sort of" or "No" opens "What did I get wrong?". The correction rebuilds the board from the transcript, and is kept on the device (`tangent.learn`, last 12) and sent as short `notes` with every new recording, so the AI reads that person better each time. Events `correct` and `translate`.
+- **The Spark**: an ADHD mind jumps between topics; Tangent treats those jumps as divergent thinking, not noise.
+  - Every board can carry `spark` (`jumps`, `link`, `idea`): the topics the person jumped between, the hidden thread that joins them, and an original idea born from joining them. Shown as a constellation tile.
+  - `POST /api/spark` with `mode: "garden"` links 2 to 4 ideas recorded on different days (only the cores and side ideas from the device are sent).
+  - `POST /api/spark` with `mode: "images"` reads 1 to 4 photos, screenshots or charts (resized to 768 px JPEG in the browser), finds the pattern that joins them and links it to recent ideas. Gemini only (vision). Images are not stored. Unsafe images count as a violation, like words.
+  - Daily limit `spark`, word rules on input and output. Events `spark_garden`, `spark_images` in stats.
