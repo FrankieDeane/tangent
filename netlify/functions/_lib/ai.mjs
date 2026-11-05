@@ -401,3 +401,60 @@ Reply with ONLY a JSON object:
   const parts = [...images.map(data => ({ inline_data: { mime_type: "image/jpeg", data } })), { text: prompt }];
   return parseJSON(await gemini(parts, { temperature: 0.8, timeout: 24000 }));
 }
+
+// ---------- Burbujas: voice note -> tasks ----------
+// Contract: /mnt/project-files/tangent/mvp/ai_contract.md. Priority only from the person's own words, never from tone.
+function tasksPrompt(source, lang) {
+  const out = lang === "en" ? "English" : "Spanish from Argentina (natural voseo)";
+  return `You help a person with ADHD. They recorded a messy voice note with things they have to do. Split it into separate tasks.
+Everything must come from what they actually said. Never invent tasks, people, places or dates.
+${RULES}
+
+${source}
+Output language for title, summary and emergency_steps: ${out}. raw_quote stays exactly in the spoken language.
+
+Rules:
+- At most 7 tasks. If there are more, group related ones.
+- title: 2 to 4 words, max 32 characters. It is read inside a bubble.
+- summary: one clear sentence, no filler words, with the what and the when if they said it.
+- raw_quote: the exact phrase from the transcript this task came from.
+- priority: "alta", "media" or "baja" ONLY if the person said it with words (e.g. "urgente", "hoy sí o sí", "me pesa", "es importante" = alta; "esta semana", "en algún momento pronto" = media; "tranqui", "cuando pueda", "no hay apuro" = baja; same in English). If they did not say it, null. NEVER infer it from tone of voice, emotions, volume or how often they repeat it.
+- priority_cue: the exact word(s) that justified the priority, copied from the transcript, or null.
+- icon: one of send|shirt|phone|bolt|run|cart|home|mail|calendar|money|doc|heart|car|book|food|work|clean|plant|pet|health|other.
+- emergency_steps: two tiny physical actions of under 10 seconds that need no decision. Each starts with a verb in the imperative (voseo in Spanish: "Abrí", "Tocá", "Escribí solo"). The second one is even easier than the first.
+
+Reply with ONLY a JSON object:
+{"transcript": "exact transcript of what the person said",
+ "language": "es|en|other",
+ "safety": {"ok": true or false, "topic": "none|sexual|minors|violence|war|hate|politics|abortion|death|selfharm|drugs|profanity|other"},
+ "tasks": [{"title": "", "summary": "", "raw_quote": "", "icon": "", "priority": "alta|media|baja|null", "priority_cue": "or null", "emergency_steps": ["", ""]}]}
+If safety.ok is false or language is "other", still return the JSON with an empty tasks array.`;
+}
+
+export async function tasksAudio(wavBase64, lang) {
+  const prompt = tasksPrompt("The voice note is attached as audio. Transcribe it word for word in the language actually spoken, then split it.", lang);
+  try {
+    return { ...parseJSON(await gemini([{ inline_data: { mime_type: "audio/wav", data: wavBase64 } }, { text: prompt }], { temperature: 0.2 })), provider: "gemini" };
+  } catch (e) {
+    if (e instanceof Blocked) throw e;
+    console.error("gemini tasks audio failed, trying groq:", e.message);
+    const transcript = await groqTranscribe(wavBase64);
+    return tasksTextGroq(transcript, lang);
+  }
+}
+
+export async function tasksText(text, lang) {
+  const prompt = tasksPrompt(`Voice note transcript: """${String(text).slice(0, 4000)}"""`, lang);
+  try { return { ...parseJSON(await gemini([{ text: prompt }], { temperature: 0.2 })), provider: "gemini" }; }
+  catch (e) {
+    if (e instanceof Blocked) throw e;
+    console.error("gemini tasks text failed, trying groq:", e.message);
+    return tasksTextGroq(text, lang);
+  }
+}
+
+async function tasksTextGroq(text, lang) {
+  const out = parseJSON(await groqChat(tasksPrompt(`Voice note transcript: """${String(text).slice(0, 4000)}"""`, lang), { temperature: 0.2 }));
+  if (!out.transcript) out.transcript = text;
+  return { ...out, provider: "groq" };
+}
