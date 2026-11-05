@@ -16,6 +16,7 @@ function fieldsOf(b) {
     letgo: arr(b.letgo, 6).map(x => str(x, 60)), tangents: arr(b.tangents, 3).map(x => str(x, 50)),
     strength: { name: str(b.strength?.name, 40), how: str(b.strength?.how, 160) },
     brain: str(b.brain?.why, 200),
+    spark: { jumps: arr(b.spark?.jumps, 5).map(x => str(x, 30)), link: str(b.spark?.link, 120), idea: str(b.spark?.idea, 220) },
   };
 }
 // Keep the translation to the same shape and size as the original.
@@ -30,9 +31,10 @@ function sameShape(src, out) {
     letgo: src.letgo.map((x, i) => s(o.letgo?.[i], 60, x)), tangents: src.tangents.map((x, i) => s(o.tangents?.[i], 50, x)),
     strength: { name: s(o.strength?.name, 40, src.strength.name), how: s(o.strength?.how, 160, src.strength.how) },
     brain: s(o.brain, 200, src.brain),
+    spark: { jumps: src.spark.jumps.map((x, i) => s(o.spark?.jumps?.[i], 30, x)), link: s(o.spark?.link, 120, src.spark.link), idea: s(o.spark?.idea, 220, src.spark.idea) },
   };
 }
-const allText = f => [f.core, f.summary, f.breathe, ...f.ideas.flatMap(x => [x.title, x.line]), ...f.captions, ...f.steps.flatMap(x => [x.when, x.what]), ...f.letgo, ...f.tangents, f.strength.name, f.strength.how, f.brain].join(" \n ");
+const allText = f => [f.core, f.summary, f.breathe, ...f.ideas.flatMap(x => [x.title, x.line]), ...f.captions, ...f.steps.flatMap(x => [x.when, x.what]), ...f.letgo, ...f.tangents, f.strength.name, f.strength.how, f.brain, ...f.spark.jumps, f.spark.link, f.spark.idea].join(" \n ");
 
 export default async (req, context) => {
   if (req.method !== "POST") return json(405, { status: "error" });

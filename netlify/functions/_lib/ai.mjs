@@ -149,6 +149,7 @@ Reply with ONLY a JSON object:
  "keep": [3 to 6 single key words copied exactly from the transcript],
  "letgo": [3 to 6 short noisy phrases copied from the transcript that can be set aside],
  "tangents": [0 to 3 side ideas they mentioned that are not the core, max 5 words each],
+ "spark": {"jumps": [the 2 to 5 topics the person jumped between, in the order they came up, 1 to 3 words each, in the output language; empty array if they stayed on one topic], "link": "the hidden thread that joins those jumps, the thing they have in common that the person probably did not notice, max 14 words, in the output language; empty if there were no jumps", "idea": "one original, concrete idea that only appears when you join those jumps, max 26 words, second person, in the output language. It may be new, but it must be built only from the topics they mentioned; empty if there were no jumps"},
  "sounds": [1 to 3 of ${SOUNDS.join("|")} that fit the scenes they imagined or would calm them],
  "photo_query": "2 or 3 English words for a calm, safe stock photo that fits the core",
  "strength": {"name": "the ADHD strength this note shows, 1 to 3 words in the output language, e.g. Conectar ideas / Connecting ideas, Hiperfoco / Hyperfocus, Creatividad / Creativity, Energía / Energy, Curiosidad / Curiosity, Visión amplia / Big-picture thinking, Intuición / Intuition", "how": "max 20 words, second person, warm: how this strength helps make this exact idea clear and doable"},
@@ -352,4 +353,51 @@ Reply with ONLY the translated JSON object.`;
     console.error("gemini translate failed, trying groq:", e.message);
     return parseJSON(await groqChat(prompt, { temperature: 0.2, timeout: 12000 }));
   }
+}
+
+
+// ---------- The Spark: an ADHD brain jumps between things; Tangent finds the hidden thread ----------
+const sparkLang = l => (l === "en" ? "English" : "Spanish from Argentina (natural voseo)");
+const SPARK_RULES = `Keep it wholesome and calm: nothing about sex, nudity, violence, weapons, war, hate, politics, abortion, death, self-harm, drugs or insults.`;
+
+// Across recordings: find what links ideas recorded on different days.
+export async function sparkGarden(items, lang) {
+  const list = items.map((x, i) => `${i}: [${x.ago}] ${x.core}${x.tangents.length ? ` (side ideas: ${x.tangents.join("; ")})` : ""}`).join("\n");
+  const prompt = `A person with ADHD records rambling voice notes with Tangent. Below are the core ideas (and side ideas) of their past notes, recorded at different times. ADHD brains jump between topics; those jumps are divergent thinking, joining things nobody else joins.
+Find the most surprising but real connection between 2 to 4 of these notes, ideally recorded on different days and about seemingly unrelated topics. Then turn it into one original idea that only exists when you join them.
+Rules: use only what is in the notes; never invent people, places, numbers or facts. Be warm, brief, second person, in ${sparkLang(lang)}. ${SPARK_RULES}
+Notes:
+${list}
+Reply with ONLY a JSON object:
+{"from": [indexes of the 2 to 4 notes you connected],
+ "labels": [one label per connected note, same order, 1 to 3 words each],
+ "link": "the hidden thread they share, max 14 words",
+ "idea": "the original idea born from joining them, max 30 words",
+ "step": "one tiny first step to try this idea, max 9 words, starting with a verb",
+ "pattern": "the name of the thinking pattern you saw, 1 to 3 words, e.g. Same problem, different places / Mismo problema, distintos lugares"}`;
+  try { return parseJSON(await gemini([{ text: prompt }], { temperature: 0.9, timeout: 20000 })); }
+  catch (e) {
+    if (e instanceof Blocked) throw e;
+    console.error("gemini spark failed, trying groq:", e.message);
+    return parseJSON(await groqChat(prompt, { temperature: 0.9, timeout: 15000 }));
+  }
+}
+
+// From things the person uploads (photos, screenshots, odd charts, drawings): see the pattern an ADHD eye sees.
+export async function sparkImages(images, ideas, lang) {
+  const prompt = `A person with ADHD uploaded ${images.length} images to Tangent: photos, screenshots, charts or drawings that may look unrelated or even make no sense to other people. ADHD brains notice patterns others miss: shapes, rhythms, colours, numbers, moods, repetitions, contradictions.
+First check safety. Mark safety.ok false if any image shows nudity or sexual content, minors in any unsafe context, violence, blood, weapons, war, hate symbols, political content, drugs, death or self-harm.
+Then look closely at each image and find the hidden pattern that connects them, the one a person with ADHD would see and others would not. If you can, link that pattern to one of their recent ideas listed below. Then give one original idea that comes from that pattern.
+Rules: describe only what is really visible; never identify real people or read private data out loud. Be warm, brief, second person, in ${sparkLang(lang)}. ${SPARK_RULES}
+${ideas.length ? `Their recent ideas:\n${ideas.map((x, i) => `${i}: ${x}`).join("\n")}` : "They have no recent ideas yet."}
+Reply with ONLY a JSON object:
+{"safety": {"ok": true or false, "topic": "none|sexual|minors|violence|war|hate|politics|drugs|death|selfharm|other"},
+ "see": [one per image, in order: what you notice in it that matters for the pattern, max 9 words],
+ "pattern": "the hidden pattern that joins all the images, max 18 words",
+ "name": "a short name for that pattern, 1 to 3 words",
+ "link": "how it connects to one of their recent ideas, max 18 words, or empty string",
+ "idea": "an original idea born from this pattern, max 30 words",
+ "step": "one tiny first step, max 9 words, starting with a verb"}`;
+  const parts = [...images.map(data => ({ inline_data: { mime_type: "image/jpeg", data } })), { text: prompt }];
+  return parseJSON(await gemini(parts, { temperature: 0.8, timeout: 24000 }));
 }
