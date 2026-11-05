@@ -39,6 +39,8 @@ export async function supaCheck() {
   const e = env();
   const out = { SUPABASE_URL: Boolean(e.url), SUPABASE_ANON_KEY: Boolean(e.anon), SUPABASE_SERVICE_ROLE_KEY: Boolean(e.service),
     MP_ACCESS_TOKEN: Boolean((process.env.MP_ACCESS_TOKEN || "").trim()), MP_PRICE_ARS: Number(process.env.MP_PRICE_ARS) > 0, MP_WEBHOOK_SECRET: Boolean((process.env.MP_WEBHOOK_SECRET || "").trim()),
+    context: process.env.CONTEXT || "", // production | deploy-preview | branch-deploy: each one can have its own values in Netlify
+    empty: ["SUPABASE_URL", "SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY", "MP_ACCESS_TOKEN", "MP_PRICE_ARS", "MP_WEBHOOK_SECRET"].filter(k => k in process.env && !String(process.env[k]).trim()),
     reachable: false, tables: {},
     // names only (never values) of the settings that look like Supabase or Mercado Pago, to spot a typo
     names: Object.keys(process.env).filter(k => /supa|^mp_|mercado/i.test(k)).sort() };
