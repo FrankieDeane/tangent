@@ -55,3 +55,8 @@ Recorded sounds can replace the synthesised ones, see `public/assets/sounds/READ
 - **Sharing:** `POST /api/share` stores a read-only copy of the board and its card image in Netlify Blobs (`tangent-shares`); `/s/:id` renders it with a link preview.
 - **Owner stats:** open `/stats.html` and enter `STATS_TOKEN`. Counts are anonymous daily totals.
 - **Reminders** are calendar events (Google Calendar link or `.ics`), so nothing is stored or sent by Tangent.
+
+## Live ink and "Tell someone" (v4)
+
+- **Live ink**: while recording on a computer, key words float up around the waves using the browser's own speech recognition (Chrome, Edge, Safari on Mac). Phones skip it, because the system can't share the microphone safely with the recording. The words then carry into the "thinking" screen. Event `ink` in stats.
+- **Tell someone**: `POST /api/say` turns a board into a 3-line message for a boss/client, partner/family, team or friend. Same rules as everything else: ban check, daily limit (`say`), word rules on the board and on the AI answer. Event `say` in stats.

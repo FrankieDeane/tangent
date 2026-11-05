@@ -54,6 +54,8 @@
       signedAs: "Sesión iniciada como", authErr: "No pudimos completar eso. Revisá los datos y probá de nuevo.", pwShort: "La contraseña necesita al menos 8 caracteres.",
       exists: "Ese mail ya tiene cuenta. Entrá con tu contraseña o tocá \"Olvidé mi contraseña\" y te mandamos un código.",
       welcome: "Listo, ya estás adentro.", pwSaved: "Contraseña actualizada.", storageNote: "Tus tableros y audios quedan en tu cuenta. Podés borrarlos cuando quieras.",
+      copyText: "Copiar", say: "Contárselo a alguien", sayT: "Contárselo a alguien", sayS: "Elegí a quién y Tangent te arma un mensaje de 3 líneas, claro y listo para mandar. Podés editarlo antes.",
+      to_boss: "Jefe o cliente", to_partner: "Pareja o familia", to_team: "Equipo", to_friend: "Amigo/a", sayWait: "Armando tu mensaje…", sayAgain: "Otra versión", sayErr: "No pude armar el mensaje ahora. Probá de nuevo en un rato.",
       listen: "Escuchar", stopListen: "Parar", share: "Compartir", remind: "Recordarme", replay: "Escucharte", power: "Tu superpoder",
       sameThread: "Sigue tu idea anterior", resumeT: "Estabas en…", resumeGo: "Seguir", step1Done: "Paso 1 hecho", nextStep: "Tu próximo paso",
       parkedT: "Tangentes estacionadas", park: "Estacionar", parked: "Estacionada. La retomás desde el inicio.", unpark: "Listo",
@@ -110,6 +112,8 @@
       signedAs: "Signed in as", authErr: "We couldn't do that. Check your details and try again.", pwShort: "The password needs at least 8 characters.",
       exists: "That email already has an account. Sign in with your password, or tap \"I forgot my password\" and we'll email you a code.",
       welcome: "You're in.", pwSaved: "Password updated.", storageNote: "Your boards and audio stay in your account. You can delete them any time.",
+      copyText: "Copy", say: "Tell someone", sayT: "Tell someone", sayS: "Pick who it's for and Tangent writes a clear 3-line message, ready to send. You can edit it first.",
+      to_boss: "Boss or client", to_partner: "Partner or family", to_team: "Team", to_friend: "Friend", sayWait: "Writing your message…", sayAgain: "Another version", sayErr: "I couldn't write the message right now. Try again in a moment.",
       listen: "Listen", stopListen: "Stop", share: "Share", remind: "Remind me", replay: "Hear yourself", power: "Your superpower",
       sameThread: "Continues your last idea", resumeT: "You were on…", resumeGo: "Continue", step1Done: "Step 1 done", nextStep: "Your next step",
       parkedT: "Parked tangents", park: "Park it", parked: "Parked. Pick it up from the home screen.", unpark: "Done",
@@ -198,7 +202,7 @@
     mr.ondataavailable = e => e.data.size && chunks.push(e.data);
     rec = { stream, ctx, an, mr, chunks, amps: [], t0: performance.now(), cancelled: false, raf: 0 };
     mr.start(250);
-    show("recording"); drawLive();
+    show("recording"); drawLive(); startInk();
   }
   function drawLive() {
     const c = $("#live"), g = c.getContext("2d"), data = new Uint8Array(rec.an.fftSize);
@@ -226,17 +230,69 @@
     const done = new Promise(res => { r.mr.onstop = res; });
     try { r.mr.stop(); } catch {}
     await done; endStream(r);
+    const inkWords = stopInk();
+    if (inkWords.length) ping("ink");
     const secs = (performance.now() - r.t0) / 1000;
     if (secs < 1.5) { show("home"); return note(t("tooShort")); }
     const blob = new Blob(r.chunks, { type: r.mr.mimeType || "audio/webm" });
     lastAudio = blob;
     const wave = downsample(r.amps, 120);
-    thinking([]);
+    thinking(inkWords);
     let wav;
     try { wav = await toWavBase64(blob); } catch { show("home"); return modal(t("errT"), `<p>${esc(t("err"))}</p>`); }
     analyze({ audio: wav }, wave, secs);
   }
-  function cancelRecording() { if (!rec) return; const r = rec; rec = null; try { r.mr.stop(); } catch {} endStream(r); show("home"); }
+  function cancelRecording() { if (!rec) return; const r = rec; rec = null; try { r.mr.stop(); } catch {} endStream(r); stopInk(); show("home"); }
+
+  // ---------- live ink: key words float up while you talk ----------
+  // Uses the browser's own speech recognition, only on computers: on phones the system
+  // can't share the microphone safely with the recording, so phones keep the live waves.
+  const STOP = new Set(("que como cuando donde para pero porque entonces tambien también esto esta este estos estas eso esa ese esos esas aquello algo nada todo toda todos todas otro otra otros otras mucho mucha muchos muchas poco poca muy mas más menos tiene tengo tenés tenes tenemos tienen hacer hago hace hacés haces hacemos hacen quiero quiere querés queres decir digo dice dije bueno buena bien cosa cosas onda tipo sea sino aunque mientras desde hasta sobre entre hacia según sin con contra ante bajo cada cual cuál quien quién ahora después despues antes luego ayer hoy mañana manana siempre nunca solo sólo creo creer parece puedo puede podés podes podemos pueden estoy está estás estas estamos están estan estaba fueron fuimos seria sería tenía tenia había habia hay voy vamos vas van ser son soy eres era eran porque pues osea digamos viste sabés sabes mismo misma vez veces acá aca allá alla aquí aqui ahí ahi nosotros ellos ellas usted ustedes mío mio tuyo suyo nuestro nuestra " +
+    "that this with have from they what when where which there their would could should about just like really thing things kind sort some something anything nothing everything very much many more most less then than them these those been being were will into onto over under after before because while also even still well yeah okay going gonna wanna want need know think mean said says other your yours mine ours here only same such does doing done make made maybe actually basically literally").split(" "));
+  let ink = null;
+  const inkOk = () => !!(window.SpeechRecognition || window.webkitSpeechRecognition) && matchMedia("(pointer: fine)").matches && !/Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  function startInk() {
+    const box = $("#ink"); if (box) box.innerHTML = "";
+    if (!inkOk() || store.get("tangent.ink", true) === false) return;
+    const R = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const me = ink = { words: [], seen: new Set(), r: null, alive: true };
+    const begin = () => {
+      if (!me.alive || ink !== me) return;
+      const r = new R(); me.r = r;
+      r.lang = lang === "en" ? "en-US" : "es-AR"; r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
+      r.onresult = e => { for (let i = e.resultIndex; i < e.results.length; i++) inkText(me, e.results[i][0].transcript); };
+      r.onerror = e => { if (/not-allowed|service-not-allowed|audio-capture|language-not-supported/.test(e.error)) me.alive = false; };
+      r.onend = () => { if (me.alive && ink === me && rec) setTimeout(begin, 120); };
+      try { r.start(); } catch { me.alive = false; }
+    };
+    begin();
+  }
+  function inkText(me, text) {
+    for (const raw of String(text).split(/\s+/)) {
+      const w = raw.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "");
+      if (w.length < 4 || STOP.has(w) || me.seen.has(w)) continue;
+      me.seen.add(w); me.words.push(raw.replace(/[^\p{L}\p{N}]/gu, ""));
+      inkWord(w, me.words.length);
+    }
+  }
+  function inkWord(w, n) {
+    const box = $("#ink"); if (!box) return;
+    const el = document.createElement("span"); el.className = "iw"; el.textContent = w;
+    // keep the words in the side bands, around the live waves, alternating left and right
+    el.style[n % 2 ? "left" : "right"] = 1 + Math.random() * 6 + "%";
+    el.style.top = 6 + [3, 0, 6, 1, 5, 2, 7, 4][Math.floor((n - 1) / 2) % 8] * 11.5 + Math.random() * 3 + "%"; // 8 rows per side, no overlaps
+    el.style.fontSize = Math.min(26, 15 + w.length) + "px";
+    el.style.setProperty("--d", (n % 7) * -1.3 + "s");
+    box.append(el);
+    const all = box.querySelectorAll(".iw:not(.old)");
+    if (all.length > 16) { const o = all[0]; o.classList.add("old"); setTimeout(() => o.remove(), 1200); }
+  }
+  function stopInk() {
+    const me = ink; ink = null;
+    if (!me) return [];
+    me.alive = false; try { me.r?.stop(); } catch {}
+    return me.words.slice(0, 60);
+  }
   function downsample(a, n) { if (!a.length) return []; const out = []; for (let i = 0; i < n; i++) { const s = Math.floor(i * a.length / n), e = Math.max(s + 1, Math.floor((i + 1) * a.length / n)); out.push(Math.max(...a.slice(s, e))); } return out; }
 
   async function toWavBase64(blob) {
@@ -471,6 +527,7 @@
             <button class="act" id="listenBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8.5a5 5 0 010 7M18.5 6a8.5 8.5 0 010 12" fill="none"/></svg><span>${t("listen")}</span></button>
             ${b.hasAudio ? `<button class="act" id="replayBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0013 0M12 17.5V21" fill="none"/></svg><span>${t("replay")}</span></button>` : ""}
             ${b.example ? "" : `<button class="act" id="shareBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V3M7 8l5-5 5 5" fill="none"/><path d="M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" fill="none"/></svg><span>${t("share")}</span></button>`}
+            ${b.example ? "" : `<button class="act" id="sayBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16v11H9l-5 4V5z" fill="none"/><path d="M8 9h8M8 12h5" fill="none"/></svg><span>${t("say")}</span></button>`}
             ${b.steps?.length ? `<button class="act" id="remindBtn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 8a6 6 0 0112 0c0 7 3 8 3 8H3s3-1 3-8" fill="none"/><path d="M10 20a2 2 0 004 0" fill="none"/></svg><span>${t("remind")}</span></button>` : ""}
           </div>
         </div>
@@ -493,6 +550,7 @@
     if ($("#replayBtn")) $("#replayBtn").onclick = () => replay(b);
     if ($("#shareBtn")) $("#shareBtn").onclick = () => shareBoard(b);
     if ($("#remindBtn")) $("#remindBtn").onclick = () => remind(b);
+    if ($("#sayBtn")) $("#sayBtn").onclick = () => sayIt(b);
     document.querySelectorAll("[data-park]").forEach(el => el.onclick = () => { park(b.tangents[+el.dataset.park], b); el.classList.add("gone"); });
     $("#againBtn").onclick = () => { SND.stopAll(); hush(); startRecording(); };
     $("#homeBtn").onclick = () => { SND.stopAll(); hush(); current = null; show("home"); renderGarden(); renderHomeThread(); };
@@ -701,6 +759,40 @@
       await p;
     } catch { modal(t("shareT"), `<p>${esc(t("shareErr"))}</p>`); }
     finally { btn?.classList.remove("busy"); }
+  }
+
+  // ---------- say it to someone: a 3-line message, ready to send ----------
+  const AUD = ["boss", "partner", "team", "friend"];
+  function sayIt(b) {
+    b.msgs = b.msgs || {};
+    const p = modal(t("sayT"), `<p class="small">${esc(t("sayS"))}</p><div class="aud">${AUD.map(k => `<button class="chip" data-to="${k}">${t("to_" + k)}</button>`).join("")}</div><div id="sayOut" class="sayout" hidden></div>`, [{ label: t("close") }]);
+    const out = $("#sayOut");
+    const showMsg = (to, msg) => {
+      const enc = encodeURIComponent, subj = (b.core || "").slice(0, 80);
+      out.hidden = false;
+      out.innerHTML = `<textarea id="sayTxt" rows="4" aria-label="${esc(t("sayT"))}">${esc(msg)}</textarea>
+        <div class="sharevia"><button class="btn" id="sayCopy">${t("copyText")}</button><a class="chip" id="sayWa" target="_blank" rel="noopener">WhatsApp</a><a class="chip" id="sayMail">Email</a>${navigator.share && matchMedia("(pointer: coarse)").matches ? `<button class="chip" id="sayShare">↗</button>` : ""}<button class="chip" id="sayAgain" data-again="${to}">${t("sayAgain")}</button></div>`;
+      const txt = () => $("#sayTxt").value.trim();
+      const links = () => { $("#sayWa").href = `https://wa.me/?text=${enc(txt())}`; $("#sayMail").href = `mailto:?subject=${enc(subj)}&body=${enc(txt())}`; };
+      links(); $("#sayTxt").oninput = links;
+      $("#sayCopy").onclick = async () => { try { await navigator.clipboard.writeText(txt()); } catch { $("#sayTxt").select(); document.execCommand?.("copy"); } $("#sayCopy").textContent = t("copied"); };
+      if ($("#sayShare")) $("#sayShare").onclick = () => navigator.share({ text: txt() }).catch(() => {});
+      $("#sayAgain").onclick = () => { delete b.msgs[to]; ask(to); };
+    };
+    const ask = async to => {
+      document.querySelectorAll("[data-to]").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.to === to)));
+      if (b.msgs[to]) return showMsg(to, b.msgs[to]);
+      out.hidden = false; out.innerHTML = `<p class="small sayload">${esc(t("sayWait"))}</p>`;
+      try {
+        const res = await fetch("/api/say", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, to, lang: b.lang || lang, board: { core: b.core, summary: b.summary, steps: b.steps } }) });
+        const d = await res.json().catch(() => ({ status: "ai_error" }));
+        if (d.status === "ok") { b.msgs[to] = d.message; if (!b.example) saveToGarden(b); return showMsg(to, d.message); }
+        if (d.status === "banned") { store.set("tangent.banned", true); }
+        out.innerHTML = `<p class="small">${esc(t(d.status === "limit" ? "limit" : d.status === "refused" ? "shareRefused" : "sayErr"))}</p>`;
+      } catch { out.innerHTML = `<p class="small">${esc(t("sayErr"))}</p>`; }
+    };
+    document.querySelectorAll("[data-to]").forEach(el => el.onclick = () => ask(el.dataset.to));
+    return p;
   }
 
   // ---------- remind: calendar event (.ics or Google) ----------
