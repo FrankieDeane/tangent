@@ -2,7 +2,8 @@
 const env = () => ({
   url: (process.env.SUPABASE_URL || "").trim().replace(/\/+$/, ""),
   anon: (process.env.SUPABASE_ANON_KEY || "").trim(),
-  service: (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim(),
+  // the secret key, under the names people usually give it
+  service: (process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_KEY || process.env.SUPABASE_SERVICE_ROLE || "").trim(),
 });
 export const supaConfigured = () => { const e = env(); return Boolean(e.url && e.anon); };
 export const publicConfig = () => { const e = env(); return e.url && e.anon ? { url: e.url, anon: e.anon } : null; };
@@ -38,7 +39,9 @@ export async function supaCheck() {
   const e = env();
   const out = { SUPABASE_URL: Boolean(e.url), SUPABASE_ANON_KEY: Boolean(e.anon), SUPABASE_SERVICE_ROLE_KEY: Boolean(e.service),
     MP_ACCESS_TOKEN: Boolean((process.env.MP_ACCESS_TOKEN || "").trim()), MP_PRICE_ARS: Number(process.env.MP_PRICE_ARS) > 0, MP_WEBHOOK_SECRET: Boolean((process.env.MP_WEBHOOK_SECRET || "").trim()),
-    reachable: false, tables: {} };
+    reachable: false, tables: {},
+    // names only (never values) of the settings that look like Supabase or Mercado Pago, to spot a typo
+    names: Object.keys(process.env).filter(k => /supa|^mp_|mercado/i.test(k)).sort() };
   if (!e.url || !e.anon) return out;
   try { const r = await fetch(e.url + "/auth/v1/settings", { headers: { apikey: e.anon }, signal: withTimeout() }); out.reachable = r.ok; out.auth = r.ok ? "ok" : "http_" + r.status; }
   catch (err) { out.auth = "error"; }
