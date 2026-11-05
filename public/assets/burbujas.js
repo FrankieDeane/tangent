@@ -43,7 +43,7 @@ const T = {
   tooLongT: "Muy largo", tooLong: "La grabación es demasiado larga. Probá con menos de dos minutos.",
   micT: "Sin micrófono", mic: "No pudimos usar el micrófono. Revisá el permiso del navegador o escribilo.", tooShort: "Muy corto. Hablá al menos un par de segundos.",
   offline: "Sin conexión. Probá de nuevo en un rato.",
-  acct: "Cuenta", aEy: "Tu cuenta", email: "Mail", pass: "Contraseña (mínimo 8)",
+  acct: "Cuenta", signIn: "Entrar", loginOr: "Entrar o crear cuenta", aEy: "Tu cuenta", email: "Mail", pass: "Contraseña (mínimo 8)",
   signupH: "Creá tu cuenta", signupSub: "Así se guarda todo tu historial: audios, burbujas y lo que vas terminando.", signupGo: "Crear cuenta", toLogin: "Ya tengo cuenta",
   loginH: "Entrá a tu cuenta", loginSub: "Tus burbujas te esperan.", loginGo: "Entrar", toSignup: "Crear una cuenta", forgot: "Olvidé mi contraseña",
   forgotH: "Recuperá tu contraseña", forgotSub: "Te mandamos un mail con un link para crear una nueva.", forgotGo: "Mandarme el link", back: "Volver",
@@ -91,7 +91,7 @@ const T = {
   tooLongT: "Too long", tooLong: "The recording is too long. Try under two minutes.",
   micT: "No microphone", mic: "We couldn’t use the microphone. Check the browser permission, or type it.", tooShort: "Too short. Talk for at least a couple of seconds.",
   offline: "No connection. Try again in a moment.",
-  acct: "Account", aEy: "Your account", email: "Email", pass: "Password (8+ characters)",
+  acct: "Account", signIn: "Sign in", loginOr: "Sign in or create account", aEy: "Your account", email: "Email", pass: "Password (8+ characters)",
   signupH: "Create your account", signupSub: "So your whole history is kept: voice notes, bubbles and what you finish.", signupGo: "Create account", toLogin: "I already have one",
   loginH: "Sign in", loginSub: "Your bubbles are waiting.", loginGo: "Sign in", toSignup: "Create an account", forgot: "Forgot my password",
   forgotH: "Reset your password", forgotSub: "We\u2019ll email you a link to set a new one.", forgotGo: "Send me the link", back: "Back",
@@ -184,7 +184,8 @@ function texts() {
   const has = S.tasks.some(x => x.status !== "hecha");
   $("#lead").innerHTML = has ? t.lead1 : t.lead0;
   $("#fine").textContent = S.uses >= 1 && !owner && ACC.plan !== "active" ? t.fine1 : t.fine0;
-  $("#acctBtn").textContent = ACC.user ? ACC.user.email.split("@")[0] : t.acct;
+  $("#acctBtn").textContent = ACC.user ? ACC.user.email.split("@")[0] : t.signIn;
+  $("#loginLink").textContent = t.loginOr; $("#loginLink").hidden = !ACC.ready || !!ACC.user;
   $("#typeLink").textContent = t.type; $("#exampleLink").textContent = t.example;
   $("#exampleLink").hidden = has; $("#typeLink").hidden = usedFree();
   $("#recEy").textContent = t.recEy; $("#recHint").textContent = t.recHint; $("#stopBtn").textContent = t.stop; $("#cancelRec").textContent = t.cancel;
@@ -555,7 +556,7 @@ const ACC = {ready: false, sb: null, user: null, session: null, plan: "free", mo
     try { await loadScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"); } catch { return; }
     if (!window.supabase?.createClient) return;
     this.sb = window.supabase.createClient(cfg.url, cfg.anon, {auth: {persistSession: true, autoRefreshToken: true, detectSessionInUrl: true}});
-    this.ready = true; $("#acctBtn").hidden = false;
+    this.ready = true; $("#acctBtn").hidden = false; texts();
     this.sb.auth.onAuthStateChange((ev, session) => {
       if (ev === "PASSWORD_RECOVERY") { this.session = session; this.user = session?.user || null; return this.open("recovery"); }
       this.setSession(session, ev);
@@ -711,6 +712,7 @@ const ACC = {ready: false, sb: null, user: null, session: null, plan: "free", mo
 };
 function loadScript(src) { return new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = rej; document.head.append(s); }); }
 $("#acctBtn").addEventListener("click", () => ACC.open(ACC.user ? "in" : "login"));
+$("#loginLink").addEventListener("click", () => ACC.open("login"));
 $("#aForm").addEventListener("submit", e => { e.preventDefault(); ACC.submit(); });
 $("#aSwitch").addEventListener("click", () => { ACC.mode = ACC.mode === "signup" ? "login" : ACC.mode === "login" ? "signup" : "login"; ACC.paint(); });
 $("#aForgot").addEventListener("click", () => { ACC.mode = "forgot"; ACC.paint(); });
