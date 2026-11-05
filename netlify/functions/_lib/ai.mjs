@@ -299,3 +299,32 @@ export async function health() {
   if (out.gemini_key) { try { await gemini([{ text: 'Reply with {"ok":true}' }], { timeout: 15000 }); out.gemini = "ok"; } catch (e) { out.gemini = String(e.message).replace(/key=[^&\s]+/g, "key=…").slice(0, 200); } }
   return out;
 }
+
+// "Say it to someone": turn a board into a short message the person can send.
+const AUDIENCES = {
+  boss: "their boss or a client: professional, concise, confident",
+  partner: "their partner or family: warm, simple, no jargon",
+  team: "their team or colleagues: clear, friendly, with the next step",
+  friend: "a friend: casual and natural",
+};
+export const AUDIENCE_KEYS = Object.keys(AUDIENCES);
+export async function writeMessage(board, to, language) {
+  const es = language !== "en";
+  const prompt = `A person with ADHD has an idea and wants to explain it clearly to ${AUDIENCES[to] || AUDIENCES.friend}.
+Write the message they will send, in their own voice (first person), in ${es ? "Spanish from Argentina (voseo, natural, not formal Spain Spanish)" : "English"}.
+Exactly 3 short lines, at most 60 words in total: line 1 says the idea, line 2 why it matters or what it needs, line 3 a concrete next step or a clear ask.
+Use only what is in the idea below. Never invent names, dates, numbers or facts. No greeting, no sign-off, no hashtags, no emojis, no quotes.
+Keep it wholesome: nothing about sex, violence, politics, death, drugs or insults.
+Idea: """${String(board.core || "").slice(0, 220)}"""
+Summary: """${String(board.summary || "").slice(0, 420)}"""
+Steps: ${(board.steps || []).map(s => s.what).join("; ").slice(0, 300)}
+Reply with ONLY a JSON object {"message": "line 1\\nline 2\\nline 3"}.`;
+  let out;
+  try { out = parseJSON(await gemini([{ text: prompt }], { temperature: 0.6, timeout: 15000 })); }
+  catch (e) {
+    if (e instanceof Blocked) throw e;
+    console.error("gemini say failed, trying groq:", e.message);
+    out = parseJSON(await groqChat(prompt, { temperature: 0.6, timeout: 12000 }));
+  }
+  return String(out?.message || "").replace(/\r/g, "").split("\n").map(l => l.trim()).filter(Boolean).slice(0, 3).join("\n").slice(0, 480);
+}

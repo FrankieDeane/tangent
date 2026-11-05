@@ -35,7 +35,7 @@ table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:ta
 <script>
 (() => {
   const $ = s => document.querySelector(s);
-  const NAMES = { recordings: "Tableros", visit: "Visitas", share: "Compartidos", listen: "Escuchas", reminder: "Recordatorios", signup: "Registros", login: "Logins", resume: "Retomadas", park: "Tangentes estac.", same_thread: "Mismo hilo", vote_yes: "Síntesis: sí", vote_mid: "Síntesis: más o menos", vote_no: "Síntesis: no", replay: "Se escucharon", drawings: "Dibujos", blocked: "Bloqueos" };
+  const NAMES = { recordings: "Tableros", visit: "Visitas", share: "Compartidos", listen: "Escuchas", reminder: "Recordatorios", signup: "Registros", login: "Logins", resume: "Retomadas", park: "Tangentes estac.", same_thread: "Mismo hilo", vote_yes: "Síntesis: sí", vote_mid: "Síntesis: más o menos", vote_no: "Síntesis: no", say: "Mensajes armados", ink: "Tinta en vivo", replay: "Se escucharon", drawings: "Dibujos", blocked: "Bloqueos" };
   try { $("#tok").value = localStorage.getItem("tangent.statsToken") || ""; } catch {}
   async function load() {
     const tok = $("#tok").value.trim(); if (!tok) return;
@@ -46,7 +46,7 @@ table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:ta
     if (!d || d.status !== "ok") { $("#msg").textContent = "Token incorrecto o sin conexión."; $("#out").hidden = true; return; }
     $("#msg").textContent = ""; $("#out").hidden = false;
     const T = d.totals, conv = T.visit ? Math.round(100 * T.recordings / T.visit) : 0;
-    $("#kpis").innerHTML = [["hero", T.recordings, "Tableros"], ["", T.visit, "Visitas"], ["", conv + "%", "Visita → tablero"], ["", T.share, "Compartidos"], ["", T.signup, "Registros"], ["", T.listen, "Escuchas"], ["", T.reminder, "Recordatorios"], ["", (T.vote_yes + T.vote_mid + T.vote_no) ? Math.round(100 * T.vote_yes / (T.vote_yes + T.vote_mid + T.vote_no)) + "%" : "–", "Síntesis correcta"]]
+    $("#kpis").innerHTML = [["hero", T.recordings, "Tableros"], ["", T.visit, "Visitas"], ["", conv + "%", "Visita → tablero"], ["", T.share, "Compartidos"], ["", T.signup, "Registros"], ["", T.listen, "Escuchas"], ["", T.reminder, "Recordatorios"], ["", T.say || 0, "Mensajes armados"], ["", (T.vote_yes + T.vote_mid + T.vote_no) ? Math.round(100 * T.vote_yes / (T.vote_yes + T.vote_mid + T.vote_no)) + "%" : "–", "Síntesis correcta"]]
       .map(([c, v, l]) => `<div class="k ${c}"><b>${v}</b><span>${l}</span></div>`).join("");
     const days = d.days.slice().reverse(), max = Math.max(1, ...days.map(x => x.recordings)), W = 1000, H = 260, bw = W / days.length;
     $("#chart").innerHTML = `<svg viewBox="0 0 ${W} ${H + 30}" role="img" aria-label="Tableros por día"><defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6A55E0"/><stop offset="1" stop-color="#A7BDF2"/></linearGradient></defs>
