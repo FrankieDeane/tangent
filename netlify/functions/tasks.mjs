@@ -4,6 +4,7 @@
 import { getStore } from "@netlify/blobs";
 import { checkText, identify, isBanned, addStrike, underLimit, countUse, today, json } from "./_lib/guard.mjs";
 import { tasksAudio, tasksText, setBudget, Blocked } from "./_lib/ai.mjs";
+import { userFromToken, planOf } from "./_lib/supa.mjs";
 
 const MAX_AUDIO_B64 = 5_400_000;
 const FREE_USES = Number(process.env.TANGENT_FREE_USES || 1);   // without an account
@@ -43,11 +44,14 @@ export default async (req, context) => {
   const id = identify(req, context, body.deviceId);
   if (await isBanned(id)) return json(403, { status: "banned" });
 
-  const owner = Boolean(process.env.STATS_TOKEN) && body.owner === process.env.STATS_TOKEN;
+  // An account with an active plan records without the free limit.
+  const user = body.accessToken ? await userFromToken(body.accessToken) : null;
+  const plan = user ? await planOf(user.id) : "free";
+  const owner = (Boolean(process.env.STATS_TOKEN) && body.owner === process.env.STATS_TOKEN) || plan === "active";
   const u = usage(), freeKey = "free:" + id.dev, ipKey = `${today()}:free:${id.ip}`;
   if (!owner) {
     const [mine, net] = await Promise.all([u.get(freeKey, { type: "json" }), u.get(ipKey, { type: "json" })]);
-    if ((mine?.n || 0) >= FREE_USES || (net?.n || 0) >= FREE_PER_IP_DAY) return json(200, { status: "paywall" });
+    if ((mine?.n || 0) >= FREE_USES || (net?.n || 0) >= FREE_PER_IP_DAY) return json(200, { status: "paywall", signedIn: Boolean(user), plan });
   }
   if (!(await underLimit(id, "rec"))) return json(429, { status: "limit" });
 
