@@ -54,6 +54,9 @@
       signedAs: "Sesión iniciada como", authErr: "No pudimos completar eso. Revisá los datos y probá de nuevo.", pwShort: "La contraseña necesita al menos 8 caracteres.",
       exists: "Ese mail ya tiene cuenta. Entrá con tu contraseña o tocá \"Olvidé mi contraseña\" y te mandamos un código.",
       welcome: "Listo, ya estás adentro.", pwSaved: "Contraseña actualizada.", storageNote: "Tus tableros y audios quedan en tu cuenta. Podés borrarlos cuando quieras.",
+      ideasT: "Hablaste de {n} ideas", ideasS: "Las separé para que no se mezclen. Cada foto y cada paso lleva el número de su idea.",
+      fixQ: "¿Qué entendí mal? Contámelo en una frase.", fixPh: "Ej.: eran dos ideas distintas: el viaje de SUP y las features de la app", fixGo: "Corregir el tablero", fixDone: "Listo. Lo voy a tener en cuenta la próxima vez.",
+      translating: "Traduciendo tu tablero…", trErr: "No pude traducir el tablero ahora.",
       copyText: "Copiar", say: "Contárselo a alguien", sayT: "Contárselo a alguien", sayS: "Elegí a quién y Tangent te arma un mensaje de 3 líneas, claro y listo para mandar. Podés editarlo antes.",
       to_boss: "Jefe o cliente", to_partner: "Pareja o familia", to_team: "Equipo", to_friend: "Amigo/a", sayWait: "Armando tu mensaje…", sayAgain: "Otra versión", sayErr: "No pude armar el mensaje ahora. Probá de nuevo en un rato.",
       listen: "Escuchar", stopListen: "Parar", share: "Compartir", remind: "Recordarme", replay: "Escucharte", power: "Tu superpoder",
@@ -67,6 +70,12 @@
       regions: { prefrontal: "Corteza prefrontal", motor: "Corteza motora", parietal: "Lóbulo parietal", temporal: "Lóbulo temporal", occipital: "Lóbulo occipital", limbic: "Sistema límbico" },
       voteQ: "¿Esta síntesis refleja lo que tenías en la cabeza?", voteYes: "Sí, exacto", voteMid: "Más o menos", voteNo: "No", voteThanks: "Gracias. Con tu voto Tangent aprende a entenderte mejor.",
       tonight: "Hoy, 20:00", tomorrow: "Mañana, 9:00", daily: "Ancla diaria: 9:00 durante 7 días", gcal: "Google Calendar", ics: "Apple / Outlook",
+      sparkT: "La Chispa", sparkS: "Tu cabeza saltó entre estas cosas. Esto es lo que las une.", sparkIdea: "La idea que aparece al unirlas",
+      sparkHome: "Tu cerebro salta. Tangent encuentra el hilo.", sparkHomeS: "Uní ideas que grabaste en distintos días, o subí fotos, capturas o gráficos que quizás solo para vos tienen sentido.",
+      sparkGarden: "Conectar mis ideas", sparkImages: "Subir imágenes o gráficos", sparkFew: "Grabá al menos 2 ideas y La Chispa las conecta.",
+      sparkWait: "Buscando el hilo oculto…", sparkErr: "Esta vez no encontré la chispa. Probá de nuevo en un rato.", sparkStep: "Para probarla", sparkTry: "Grabar sobre esto", sparkClose: "Cerrar",
+      sparkSee: "Lo que vi", sparkPattern: "El patrón que viste", sparkLink: "Con tus ideas", sparkTooBig: "Una de las imágenes no se pudo leer. Probá con otra.", sparkPick: "Elegí de 1 a 4 imágenes.",
+      sparkPrivacy: "Las imágenes se usan solo para esta lectura. Tangent no las guarda.", sparkGardenT: "Lo que une tus ideas",
     },
     en: {
       experimental: "Experimental", lead1: "Say it messy.", lead2: "See it clear.",
@@ -112,6 +121,9 @@
       signedAs: "Signed in as", authErr: "We couldn't do that. Check your details and try again.", pwShort: "The password needs at least 8 characters.",
       exists: "That email already has an account. Sign in with your password, or tap \"I forgot my password\" and we'll email you a code.",
       welcome: "You're in.", pwSaved: "Password updated.", storageNote: "Your boards and audio stay in your account. You can delete them any time.",
+      ideasT: "You talked about {n} ideas", ideasS: "I kept them apart so they don't blend. Each photo and step carries its idea's number.",
+      fixQ: "What did I get wrong? Tell me in one sentence.", fixPh: "e.g. these were two different ideas: the SUP trip and the app features", fixGo: "Fix the board", fixDone: "Done. I'll keep that in mind next time.",
+      translating: "Translating your board…", trErr: "I couldn't translate the board right now.",
       copyText: "Copy", say: "Tell someone", sayT: "Tell someone", sayS: "Pick who it's for and Tangent writes a clear 3-line message, ready to send. You can edit it first.",
       to_boss: "Boss or client", to_partner: "Partner or family", to_team: "Team", to_friend: "Friend", sayWait: "Writing your message…", sayAgain: "Another version", sayErr: "I couldn't write the message right now. Try again in a moment.",
       listen: "Listen", stopListen: "Stop", share: "Share", remind: "Remind me", replay: "Hear yourself", power: "Your superpower",
@@ -125,6 +137,12 @@
       regions: { prefrontal: "Prefrontal cortex", motor: "Motor cortex", parietal: "Parietal lobe", temporal: "Temporal lobe", occipital: "Occipital lobe", limbic: "Limbic system" },
       voteQ: "Does this summary match what was in your head?", voteYes: "Yes, exactly", voteMid: "Sort of", voteNo: "No", voteThanks: "Thanks. Your vote helps Tangent understand you better.",
       tonight: "Tonight, 8 pm", tomorrow: "Tomorrow, 9 am", daily: "Daily anchor: 9 am for 7 days", gcal: "Google Calendar", ics: "Apple / Outlook",
+      sparkT: "The Spark", sparkS: "Your mind jumped between these things. This is what joins them.", sparkIdea: "The idea that appears when you join them",
+      sparkHome: "Your brain jumps. Tangent finds the thread.", sparkHomeS: "Join ideas you recorded on different days, or upload photos, screenshots or charts that maybe only make sense to you.",
+      sparkGarden: "Connect my ideas", sparkImages: "Upload images or charts", sparkFew: "Record at least 2 ideas and The Spark connects them.",
+      sparkWait: "Looking for the hidden thread…", sparkErr: "I couldn't find the spark this time. Try again in a moment.", sparkStep: "To try it", sparkTry: "Record about this", sparkClose: "Close",
+      sparkSee: "What I saw", sparkPattern: "The pattern you saw", sparkLink: "With your ideas", sparkTooBig: "One of the images couldn't be read. Try another one.", sparkPick: "Pick 1 to 4 images.",
+      sparkPrivacy: "Images are only used for this reading. Tangent doesn't keep them.", sparkGardenT: "What joins your ideas",
     },
   };
   let lang = store.get("tangent.lang", (navigator.language || "es").toLowerCase().startsWith("en") ? "en" : "es");
@@ -137,7 +155,7 @@
     document.querySelectorAll('a[href^="/terms.html"],a[href^="/privacy.html"]').forEach(a => { a.href = a.getAttribute("href").split("#")[0] + "#" + lang; });
     splitLead();
     $("#typed").placeholder = lang === "es" ? "Escribí como pensás, sin ordenar nada…" : "Write the way you think, no need to tidy it…";
-    if (current) { if (current.example) current = { ...exampleBoard(), wave: current.wave }; renderBoard(current, true); }
+    if (current) { if (current.example) current = { ...exampleBoard(), wave: current.wave }; renderBoard(current, true); translateBoard(current); }
     renderAcct(); renderHomeThread();
   }
   document.querySelectorAll("#langSw [data-lang]").forEach(b => b.onclick = () => {
@@ -363,7 +381,7 @@
     let res, data;
     try {
       const last = gardenList()[0], previous = last && Date.now() - (last.at || 0) < 3 * 36e5 ? last.core : "";
-      res = await fetch("/api/analyze", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, lang, previous, ...payload }) });
+      res = await fetch("/api/analyze", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, lang, previous, notes: learnNotes(), ...payload }) });
       data = await res.json().catch(() => ({ status: "ai_error" }));
     } catch {
       stopThinking(); note(t("offline")); return openBoard(exampleBoard(), wave);
@@ -373,6 +391,7 @@
       case "ok": {
         const keys = (data.board.keep || []).concat(data.board.core.split(/\s+/));
         if (data.transcript) { placeWords(data.transcript.split(/\s+/)); await wait(400); placeWords(data.transcript.split(/\s+/), keys); await wait(2200); }
+        if (payload.redo) return payload.redo(data);
         const last = gardenList()[0], same = data.board.same_thread && last && Date.now() - (last.at || 0) < 3 * 36e5;
         if (same) ping("same_thread");
         const id = crypto.randomUUID ? crypto.randomUUID() : String(Date.now());
@@ -424,6 +443,7 @@
   async function openBoard(board, wave, fresh) {
     current = board; currentWave = wave || board.wave || null; current.wave = currentWave;
     renderBoard(board);
+    if (!fresh) translateBoard(board);
     if (fresh) {
       try {
         const res = await fetch("/api/photos", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, queries: board.tiles.map(x => x.photo || x.subject) }) });
@@ -436,6 +456,7 @@
       board.svgs = svgs.slice(0, board.tiles.length);
       pics.forEach(p => { const i = +p.closest(".tile").dataset.i, s = board.svgs[i]; if (s) { p.innerHTML = s; if (+p.closest(".tile").dataset.i === board.clip) p.firstElementChild?.classList.add("kb"); } p.classList.remove("drawing"); });
       saveToGarden(board);
+      if (fresh === "redo") { if (SB && user && board.id) SB.from("tangent_boards").update({ core: board.core, board: { ...board, svgs: undefined } }).eq("id", board.id).then(() => {}, () => {}); toast(t("fixDone")); return; }
       const audio = lastAudio; lastAudio = null;
       if (audio) { board.hasAudio = true; idbPut(board.id, audio); }
       cloudSave(board, audio);
@@ -494,9 +515,10 @@
       const inner = ph
         ? `<img class="${moving ? "kb" : ""}" src="${esc(ph.src)}" alt="${esc(ph.alt || x.caption || "")}" loading="${i < 2 ? "eager" : "lazy"}" referrerpolicy="no-referrer" data-fallback="${i}" style="background:${esc(ph.color || "#ddd")}"><span class="credit"><a href="${esc(ph.profile)}" target="_blank" rel="noopener">${esc(ph.credit)}</a> / <a href="${esc(ph.sourceUrl || ph.url)}" target="_blank" rel="noopener">${esc(ph.source || "Unsplash")}</a></span>`
         : (b.svgs?.[i] || S.pic(x.scene, pal, moving));
-      return `<figure class="tile${i === 0 ? " big" : ""}" data-i="${i}"><div class="pic${ph ? " photo" : ""}">${inner}${moving ? `<span class="play">${t("clip")}</span>` : ""}</div>${x.caption ? `<figcaption class="cap">${esc(x.caption)}</figcaption>` : ""}</figure>`;
+      return `<figure class="tile${i === 0 ? " big" : ""}" data-i="${i}"><div class="pic${ph ? " photo" : ""}">${inner}${moving ? `<span class="play">${t("clip")}</span>` : ""}</div>${x.caption ? `<figcaption class="cap">${badge(x.idea || 0)}${esc(x.caption)}</figcaption>` : ""}</figure>`;
     };
-    const parts = [];
+    const parts = [], many = (b.ideas || []).length > 1;
+    const badge = n => (many ? `<i class="ib i${n}">${n + 1}</i>` : "");
     tiles.forEach((x, i) => parts.push(tileHtml(x, i)));
     if (b.brain?.region) parts.splice(b.strength?.name ? 1 : 1, 0, brainCard(b.brain));
     if (b.strength?.name) parts.splice(b.brain?.region ? 2 : 1, 0, `<div class="tile power"><span class="plabel">${t("power")}</span><b>${esc(b.strength.name)}</b><p>${esc(b.strength.how)}</p><svg viewBox="0 0 120 120" aria-hidden="true"><g fill="none" stroke="rgba(255,255,255,.55)" stroke-width="1.2"><circle cx="60" cy="60" r="20"/><circle cx="60" cy="60" r="36"/><circle cx="60" cy="60" r="52"/></g><g fill="#fff">${[0, 1, 2, 3, 4, 5].map(i => `<circle cx="${(60 + Math.cos(i * 1.047) * 36).toFixed(1)}" cy="${(60 + Math.sin(i * 1.047) * 36).toFixed(1)}" r="3"/>`).join("")}<circle cx="60" cy="60" r="6"/></g></svg></div>`);
@@ -504,9 +526,11 @@
     if (b.breathe) parts.splice(2 + extra, 0, `<div class="tile breathe"><div class="bcirc">${t("breathe")}</div><p>${esc(b.breathe)}<small>${t("breatheSub")}</small></p></div>`);
     parts.splice((b.breathe ? 3 : 2) + extra, 0, voiceCard(b));
     if (tiles.length) parts.unshift(`<div class="tile panel anchors"><h3>${t("anchorsT")}</h3><p>${esc(t("anchorsS"))}</p></div>`);
+    if (many) parts.unshift(`<div class="tile panel ideas"><h3>${t("ideasT", { n: b.ideas.length })}</h3><p class="small">${esc(t("ideasS"))}</p><div class="irow">${b.ideas.map((x, i) => `<div class="idea">${badge(i)}<b>${esc(x.title)}</b><span>${esc(x.line)}</span></div>`).join("")}</div></div>`);
     if (b.summary) parts.unshift(`<div class="tile panel summary"><h3>${t("summaryT")}</h3><p>${esc(b.summary)}</p></div>`);
+    if (b.spark?.link) parts.splice(b.summary ? 1 : 0, 0, sparkTile(b.spark));
     const steps = b.steps || [];
-    if (steps.length) parts.push(`<div class="tile panel steps"><h3>${t("steps")}</h3><div class="srow">${steps.map(s => `<div class="s"><b>${esc(s.when)}</b><span>${esc(s.what)}</span></div>`).join("")}</div></div>`);
+    if (steps.length) parts.push(`<div class="tile panel steps"><h3>${t("steps")}</h3><div class="srow">${steps.map(s => `<div class="s"><b>${badge(s.idea || 0)}${esc(s.when)}</b><span>${esc(s.what)}</span></div>`).join("")}</div></div>`);
     if (b.letgo?.length) parts.push(`<div class="tile panel letgo"><h3>${t("letgo")}</h3><div>${b.letgo.map(x => `<s>${esc(x)}</s>`).join("")}</div></div>`);
     if (b.tangents?.length) parts.push(`<div class="tile panel bubbles" aria-label="${t("tangents")}"><h3>${t("tangents")}</h3>${b.tangents.map((x, i) => `<button class="bub" data-park="${i}" title="${esc(t("park"))}" style="left:${8 + i * 30}%;top:${44 + (i % 2) * 26}px;width:${104 + (x.length % 3) * 12}px;height:${104 + (x.length % 3) * 12}px;animation-delay:-${i * 2}s">${esc(x)}<small>${esc(t("park"))} ↘</small></button>`).join("")}</div>`);
     const sugg = b.sounds || [], all = [...sugg, ...SND.NAMES.filter(n => !sugg.includes(n))];
@@ -545,6 +569,7 @@
     document.querySelectorAll("[data-vote]").forEach(el => el.onclick = () => {
       b.vote = el.dataset.vote; ping("vote_" + b.vote); saveToGarden(b);
       $("#voteBox").innerHTML = `<h3>${t("voteQ")}</h3><p class="thanks">${esc(t("voteThanks"))}</p>`;
+      if (b.vote !== "yes" && b.transcript) fixBox(b);
       if (SB && user && b.id) SB.from("tangent_boards").update({ board: { ...b, svgs: undefined } }).eq("id", b.id).then(() => {}, () => {});
     });
     if ($("#replayBtn")) $("#replayBtn").onclick = () => replay(b);
@@ -557,6 +582,62 @@
     document.querySelectorAll("[data-sound]").forEach(el => el.onclick = async () => { const on = await SND.toggle(el.dataset.sound, 0.6); el.setAttribute("aria-pressed", String(on)); });
     armShake();
   }
+  // ---------- correct a reading + learn from it ----------
+  // Corrections stay on this device and travel with each new recording as short notes, so the AI reads this person better every time.
+  const learnList = () => store.get("tangent.learn", []);
+  const learnNotes = () => learnList().slice(0, 8).map(x => x.fix).join(" | ").slice(0, 700);
+  function fixBox(b) {
+    const box = $("#voteBox"); if (!box) return;
+    box.insertAdjacentHTML("beforeend", `<div class="fix"><label for="fixTxt">${esc(t("fixQ"))}</label><textarea id="fixTxt" rows="2" maxlength="300" placeholder="${esc(t("fixPh"))}"></textarea><button class="vb on" id="fixGo">${t("fixGo")}</button></div>`);
+    $("#fixTxt").focus();
+    $("#fixGo").onclick = async () => {
+      const fix = $("#fixTxt").value.trim();
+      if (fix.length < 4) return $("#fixTxt").focus();
+      store.set("tangent.learn", [{ fix, at: Date.now() }, ...learnList()].slice(0, 12));
+      ping("correct"); hush(); SND.stopAll();
+      const keep = { id: b.id, thread: b.thread, sameThread: b.sameThread, at: b.at, secs: b.secs, hasAudio: b.hasAudio, audioPath: b.audioPath, transcript: b.transcript };
+      thinking(b.transcript.split(/\s+/));
+      analyze({ text: b.transcript, correction: fix, redo: data => {
+        const nb = { ...data.board, ...keep, lang: data.language, fixed: true };
+        lastAudio = null;
+        return openBoard(nb, b.wave, "redo");
+      } }, b.wave, b.secs || 0);
+    };
+  }
+
+  // ---------- language: the board follows the language you pick ----------
+  const TR_KEYS = b => ({
+    core: b.core, summary: b.summary, breathe: b.breathe, ideas: b.ideas || [], captions: (b.tiles || []).map(x => x.caption),
+    steps: (b.steps || []).map(x => ({ when: x.when, what: x.what })), letgo: b.letgo || [], tangents: b.tangents || [],
+    strength: b.strength || {}, brain: b.brain?.why || "",
+    spark: b.spark ? { jumps: b.spark.jumps || [], link: b.spark.link || "", idea: b.spark.idea || "" } : { jumps: [], link: "", idea: "" },
+  });
+  function applyTr(b, f) {
+    b.core = f.core; b.summary = f.summary; b.breathe = f.breathe;
+    b.ideas = (b.ideas || []).map((x, i) => ({ ...x, ...(f.ideas[i] || {}) }));
+    b.tiles = (b.tiles || []).map((x, i) => ({ ...x, caption: f.captions[i] ?? x.caption }));
+    b.steps = (b.steps || []).map((x, i) => ({ ...x, ...(f.steps[i] || {}) }));
+    b.letgo = f.letgo; b.tangents = f.tangents; b.strength = { ...(b.strength || {}), ...f.strength };
+    if (b.brain) b.brain = { ...b.brain, why: f.brain };
+    if (b.spark && f.spark?.link) b.spark = { ...b.spark, ...f.spark };
+  }
+  let trBusy = null;
+  async function translateBoard(b) {
+    const from = b.lang || "es", to = lang;
+    if (!b || b.example || from === to || trBusy === b) return;
+    b.tr = b.tr || {}; b.tr[from] = b.tr[from] || TR_KEYS(b);
+    if (b.tr[to]) { applyTr(b, b.tr[to]); b.lang = to; saveToGarden(b); if (current === b) renderBoard(b, true); return; }
+    trBusy = b; toast(t("translating"));
+    try {
+      const res = await fetch("/api/translate", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, to, board: b }) });
+      const d = await res.json();
+      if (d.status !== "ok") throw new Error(d.status);
+      b.tr[to] = d.board; applyTr(b, d.board); b.lang = to; ping("translate"); saveToGarden(b);
+      if (current === b && lang === to) renderBoard(b, true);
+    } catch { toast(t("trErr")); }
+    finally { trBusy = null; }
+  }
+
   // stylised side view of the brain (front on the left); regions are approximate and illustrative
   const BRAIN = {
     prefrontal: [[78, 96, 30, 34]], motor: [[148, 58, 18, 40]], parietal: [[196, 66, 36, 28]],
@@ -650,6 +731,112 @@
     return c;
   }
 
+  // ---------- The Spark: the ADHD jump is the superpower ----------
+  // A constellation: each jump is a star, the path is the order the mind jumped, every star points to the hidden thread in the middle.
+  function constellation(labels, center, cls = "") {
+    const W = 640, H = 300, cx = W / 2, cy = H / 2, n = labels.length;
+    const pts = labels.map((_, i) => { const a = -Math.PI / 2 + (i / n) * Math.PI * 2 + (n % 2 ? 0 : -Math.PI / n); return [cx + Math.cos(a) * 200, cy + Math.sin(a) * 105]; });
+    const path = pts.map((p, i) => `${i ? "L" : "M"}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(" ");
+    const dust = Array.from({ length: 34 }, (_, i) => `<circle cx="${(i * 197) % W}" cy="${(i * 89 + 23) % H}" r="${(i % 3) * .5 + .6}" opacity="${.15 + (i % 4) * .12}"/>`).join("");
+    const short = x => (x.length > 18 ? x.slice(0, 17) + "…" : x);
+    return `<svg class="constel ${cls}" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(labels.join(" · ") + " → " + center)}">
+      <defs><radialGradient id="sg"><stop offset="0" stop-color="#fff"/><stop offset=".35" stop-color="#C7B8FF"/><stop offset="1" stop-color="#6A55E0" stop-opacity="0"/></radialGradient>
+      <linearGradient id="sl" x1="0" x2="1"><stop offset="0" stop-color="#8796EE"/><stop offset=".5" stop-color="#FF7AB0"/><stop offset="1" stop-color="#7FE0C2"/></linearGradient></defs>
+      <g fill="#fff">${dust}</g>
+      <path class="jumppath" d="${path}" fill="none" stroke="url(#sl)" stroke-width="2" stroke-dasharray="6 7" stroke-linecap="round"/>
+      <g stroke="rgba(199,184,255,.55)" stroke-width="1.2">${pts.map((p, i) => `<line class="ray" style="--d:${i * .25}s" x1="${p[0].toFixed(1)}" y1="${p[1].toFixed(1)}" x2="${cx}" y2="${cy}"/>`).join("")}</g>
+      <circle class="core-star" cx="${cx}" cy="${cy}" r="46" fill="url(#sg)"/><circle cx="${cx}" cy="${cy}" r="7" fill="#fff"/>
+      ${pts.map((p, i) => `<g class="star" style="--d:${i * .25}s"><circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="13" fill="url(#sg)"/><circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4.5" fill="#fff"/>
+        <text x="${p[0].toFixed(1)}" y="${(p[1] + (p[1] < cy ? -20 : 30)).toFixed(1)}" text-anchor="middle" fill="#fff" font-size="15" font-weight="600">${esc(short(labels[i]))}</text>
+        <text x="${(p[0] + 15).toFixed(1)}" y="${(p[1] + 5).toFixed(1)}" fill="rgba(255,255,255,.5)" font-size="11">${i + 1}</text></g>`).join("")}
+    </svg>`;
+  }
+  function sparkTile(sp) {
+    return `<div class="tile panel spark"><span class="plabel">✦ ${t("sparkT")}</span><p class="sp-s">${esc(t("sparkS"))}</p>
+      ${constellation(sp.jumps || [], sp.link)}
+      <h4 class="sp-link">${esc(sp.link)}</h4>
+      <div class="sp-idea"><small>${t("sparkIdea")}</small><p>${esc(sp.idea)}</p></div></div>`;
+  }
+  const sparkReady = () => gardenList().filter(x => !x.example && x.core).length >= 2;
+  function renderSparkHome() {
+    const box = $("#sparkBox"); if (!box) return;
+    $("#sparkG").disabled = !sparkReady(); $("#sparkG").title = sparkReady() ? "" : t("sparkFew");
+    $("#sparkNote").textContent = sparkReady() ? t("sparkHomeS") : t("sparkHomeS") + " " + t("sparkFew");
+  }
+  function sparkSave(kind, sp) { const l = store.get("tangent.sparks", []); l.unshift({ kind, ...sp, at: Date.now(), lang }); store.set("tangent.sparks", l.slice(0, 20)); }
+  async function sparkCall(payload) {
+    const done = sparkBusy();
+    try {
+      const res = await fetch("/api/spark", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ deviceId, lang, ...payload }) });
+      return await res.json().catch(() => ({ status: "ai_error" }));
+    } catch { return { status: "ai_error" }; }
+    finally { done(); }
+  }
+  function sparkBusy() {
+    const el = document.createElement("div"); el.className = "sparkwait"; el.setAttribute("role", "status");
+    el.innerHTML = `<div class="sw-star"></div><p>${esc(t("sparkWait"))}</p>`; document.body.append(el);
+    requestAnimationFrame(() => el.classList.add("on"));
+    return () => { el.classList.remove("on"); setTimeout(() => el.remove(), 400); };
+  }
+  async function sparkStatus(d) {
+    switch (d.status) {
+      case "ok": return true;
+      case "warning": await modal(t("warnT"), `<p>${esc(t("warn"))}</p>`); return false;
+      case "banned": store.set("tangent.banned", true); await showBanned(); return false;
+      case "support": await modal(t("supportT"), helpHtml(), [{ label: t("close") }]); return false;
+      case "limit": await modal(t("limitT"), `<p>${esc(t("limit"))}</p>`); return false;
+      case "too_big": case "empty": await modal(t("sparkT"), `<p>${esc(t("sparkTooBig"))}</p>`); return false;
+      default: await modal(t("sparkT"), `<p>${esc(t("sparkErr"))}</p>`); return false;
+    }
+  }
+  async function sparkResult(title, html, sp) {
+    const go = await modal(title, html, [{ label: t("sparkClose"), ghost: true, value: "close" }, { label: t("sparkTry"), value: "try" }]);
+    if (go === "try") { show("home"); $("#typeBox").hidden = false; $("#typed").value = sp.idea + " "; $("#typed").focus(); }
+  }
+  async function sparkGardenRun() {
+    const list = gardenList().filter(x => !x.example && x.core).slice(0, 12);
+    if (list.length < 2) return toast(t("sparkFew"));
+    ping("spark_garden");
+    const d = await sparkCall({ mode: "garden", items: list.map(x => ({ core: x.core, tangents: x.tangents || [], at: x.at })) });
+    if (!(await sparkStatus(d))) return;
+    const sp = d.spark; sparkSave("garden", sp);
+    const when = i => { const at = list[i]?.at; if (!at) return ""; try { return new Date(at).toLocaleDateString(lang === "es" ? "es-AR" : "en-US", { day: "numeric", month: "short" }); } catch { return ""; } };
+    await sparkResult(t("sparkGardenT"), `<div class="spm">${constellation(sp.labels, sp.link, "inmodal")}
+      ${sp.pattern ? `<span class="plabel">✦ ${esc(sp.pattern)}</span>` : ""}<h4 class="sp-link">${esc(sp.link)}</h4>
+      <ul class="sp-from">${sp.from.map((i, k) => `<li><b>${k + 1}</b> ${esc(list[i]?.core || "")} <small>${esc(when(i))}</small></li>`).join("")}</ul>
+      <div class="sp-idea"><small>${t("sparkIdea")}</small><p>${esc(sp.idea)}</p></div>
+      ${sp.step ? `<p class="sp-step"><span>${t("sparkStep")}</span> ${esc(sp.step)}</p>` : ""}</div>`, sp);
+  }
+  // Shrink each image in the browser (max 768 px, JPEG) so it travels light. Nothing is stored.
+  async function shrink(file) {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = new Image(); img.src = url; await img.decode();
+      const k = Math.min(1, 768 / Math.max(img.naturalWidth, img.naturalHeight));
+      const c = document.createElement("canvas"); c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
+      const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+      return c.toDataURL("image/jpeg", 0.8);
+    } finally { URL.revokeObjectURL(url); }
+  }
+  async function sparkImagesRun(files) {
+    files = [...files].filter(f => /^image\//.test(f.type));
+    if (!files.length || files.length > 4) return toast(t("sparkPick"));
+    let urls;
+    try { urls = await Promise.all(files.map(shrink)); } catch { return modal(t("sparkT"), `<p>${esc(t("sparkTooBig"))}</p>`); }
+    ping("spark_images");
+    const d = await sparkCall({ mode: "images", images: urls.map(u => u.split(",")[1]), ideas: gardenList().filter(x => !x.example && x.core).slice(0, 5).map(x => x.core) });
+    if (!(await sparkStatus(d))) return;
+    const sp = d.spark; sparkSave("images", sp);
+    await sparkResult(t("sparkT"), `<div class="spm">
+      <div class="sp-imgs n${urls.length}">${urls.map((u, i) => `<figure><img src="${u}" alt=""><figcaption><b>${i + 1}</b> ${esc(sp.see[i] || "")}</figcaption></figure>`).join("")}
+        <svg class="sp-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">${urls.map((_, i) => `<line x1="${(i + .5) * 100 / urls.length}" y1="20" x2="50" y2="100"/>`).join("")}</svg></div>
+      <span class="plabel">✦ ${esc(sp.name || t("sparkPattern"))}</span><h4 class="sp-link">${esc(sp.pattern)}</h4>
+      ${sp.link ? `<p class="sp-with"><span>${t("sparkLink")}</span> ${esc(sp.link)}</p>` : ""}
+      <div class="sp-idea"><small>${t("sparkIdea")}</small><p>${esc(sp.idea)}</p></div>
+      ${sp.step ? `<p class="sp-step"><span>${t("sparkStep")}</span> ${esc(sp.step)}</p>` : ""}
+      <p class="small">${esc(t("sparkPrivacy"))}</p></div>`, sp);
+  }
+
   // ---------- garden ----------
   const gardenList = () => store.get("tangent.garden", []);
   function saveToGarden(b) {
@@ -662,6 +849,7 @@
   }
   function renderGarden() {
     const list = store.get("tangent.garden", []);
+    renderSparkHome();
     $("#garden").hidden = !list.length;
     $("#seeds").innerHTML = list.map((b, i) => { const p = (S.PAL[b.palette] || S.PAL.mist); return `<button class="seed" data-g="${i}" title="${esc(b.core)}"><i style="background:radial-gradient(circle at 35% 35%,${p[1]},${p[2]})"></i><span>${esc((b.core || "").slice(0, 42))}${(b.core || "").length > 42 ? "…" : ""}</span></button>`; }).join("");
     document.querySelectorAll("[data-g]").forEach(el => el.onclick = () => { const b = store.get("tangent.garden", [])[+el.dataset.g]; if (b) openBoard(b, b.wave, false); });
@@ -912,7 +1100,7 @@
           if (files?.length) await SB.storage.from("tangent-audio").remove(files.map(f => `${user.id}/${f.name}`));
           await SB.from("tangent_parked").delete().eq("user_id", user.id);
           await SB.from("tangent_boards").delete().eq("user_id", user.id);
-          store.set("tangent.garden", []); store.set("tangent.parked", []); await idbClear(); renderGarden(); renderHomeThread(); close(); toast(t("deleted"));
+          store.set("tangent.garden", []); store.set("tangent.parked", []); store.set("tangent.learn", []); await idbClear(); renderGarden(); renderHomeThread(); close(); toast(t("deleted"));
         }
       } catch (e) { fail(authErr(e)); }
       finally { el.disabled = false; }
@@ -948,6 +1136,8 @@
         : [{ when: "Now", what: "Set an alarm for 6:40" }, { when: "7:00", what: "Coffee and open email" }, { when: "7:30", what: "Pick just one task" }],
       letgo: es ? ["lo de la semana pasada", "contestar todo hoy"] : ["last week's stuff", "answering everything today"],
       tangents: es ? ["¿y si salgo a caminar?", "llamar a mamá", "ordenar el escritorio"] : ["a walk later?", "call mom", "tidy the desk"],
+      spark: es ? { jumps: ["empezar a las 7", "salir a caminar", "llamar a mamá"], link: "Todo lo que te ordena empieza moviendo el cuerpo", idea: "Hacé la llamada a tu mamá caminando, antes de abrir el mail: el día arranca en movimiento y con alguien que te quiere." }
+        : { jumps: ["start at 7", "go for a walk", "call mom"], link: "Everything that settles you starts with moving", idea: "Call your mom while you walk, before opening email: the day starts moving and with someone who loves you." },
       sounds: ["birds", "cafe"], keep: [], photos: [], example: true, secs: 42, words: 84,
       mix: { focus: 38, energy: 62, calm: 30, urgency: 74, clarity: 45, ideas: 81 },
     };
@@ -961,6 +1151,9 @@
   $("#typedGo").onclick = sendTyped;
   $("#typed").addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) sendTyped(); });
   $("#exampleLink").onclick = () => openBoard(exampleBoard(), null, false);
+  $("#sparkG").onclick = sparkGardenRun;
+  $("#sparkI").onclick = () => $("#sparkFile").click();
+  $("#sparkFile").onchange = e => { const f = e.target.files; if (f?.length) sparkImagesRun(f); e.target.value = ""; };
   document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#modal").hidden) $("#mBtns button")?.click(); });
   if (banned()) $("#recBtn").disabled = true;
   // ---------- effects ----------
