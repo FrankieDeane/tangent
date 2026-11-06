@@ -20,7 +20,17 @@ async function violation(id, category) {
   return json(200, { status: strikes >= 2 ? "banned" : "warning", strikes });
 }
 
-function shape(r, transcript) {
+// A date only counts if the words that said it are really in the transcript, and it is a real, near date.
+function when(w, low, today) {
+  if (!w || typeof w !== "object") return null;
+  const date = String(w.date || ""), time = String(w.time || ""), said = str(w.said, 40);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !said || !low.includes(said.toLowerCase())) return null;
+  const d = Date.parse(date + "T12:00:00Z"), t0 = Date.parse((today || new Date().toISOString().slice(0, 10)) + "T12:00:00Z");
+  if (!Number.isFinite(d) || d < t0 - 864e5 || d > t0 + 400 * 864e5) return null;
+  return { date, time: /^([01]\d|2[0-3]):[0-5]\d$/.test(time) ? time : null, said };
+}
+
+function shape(r, transcript, today) {
   const low = transcript.toLowerCase();
   return (Array.isArray(r.tasks) ? r.tasks : []).slice(0, 7).map((t, i) => {
     let priority = PRIOS.includes(t?.priority) ? t.priority : null;
@@ -32,6 +42,7 @@ function shape(r, transcript) {
       id: "t" + i + Math.random().toString(36).slice(2, 7),
       title: str(t?.title, 36), summary: str(t?.summary, 200), raw: str(t?.raw_quote, 220),
       icon: ICONS.includes(t?.icon) ? t.icon : "other", priority, cue: cue || null, steps,
+      when: when(t?.when, low, today), pq: str(t?.photo_query, 50).replace(/[^a-z0-9 ]/gi, "").trim() || null,
     };
   }).filter(t => t.title && t.steps.length);
 }
@@ -56,6 +67,7 @@ export default async (req, context) => {
   if (!(await underLimit(id, "rec"))) return json(429, { status: "limit" });
 
   const lang = body.lang === "en" ? "en" : "es";
+  const day = /^\d{4}-\d{2}-\d{2}$/.test(body.today || "") ? { date: body.today, dow: str(body.dow, 12) } : null;
   const text = typeof body.text === "string" ? body.text.trim().slice(0, 4000) : "";
   const audio = typeof body.audio === "string" ? body.audio : "";
   if (!text && !audio) return json(400, { status: "empty" });
@@ -64,7 +76,7 @@ export default async (req, context) => {
 
   setBudget(23000);
   let r;
-  try { r = audio ? await tasksAudio(audio, lang) : await tasksText(text, lang); }
+  try { r = audio ? await tasksAudio(audio, lang, day) : await tasksText(text, lang, day); }
   catch (e) {
     if (e instanceof Blocked) return violation(id, "provider");
     console.error("tasks failed:", e.message);
@@ -78,7 +90,7 @@ export default async (req, context) => {
   if (r.language && !["es", "en"].includes(r.language)) return json(200, { status: "language" });
   if (!transcript) return json(200, { status: "empty" });
 
-  const tasks = shape(r, transcript);
+  const tasks = shape(r, transcript, day?.date);
   if (!tasks.length) return json(200, { status: "no_tasks", transcript });
   if (checkText(tasks.flatMap(t => [t.title, t.summary, ...t.steps]).join(" \n "))) return json(200, { status: "ai_error" });
 

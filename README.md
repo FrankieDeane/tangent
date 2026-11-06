@@ -88,3 +88,11 @@ Mercado Pago:
 - The plan is read back from Mercado Pago on each notification and written to `subscriptions` with the service key.
 
 Owner: suggestions and right-to-withdraw requests at `/api/suggest?token=STATS_TOKEN`.
+
+
+## Memoria y recordatorios (v7)
+
+- Toggle **Burbujas | Memoria**. Memoria shows each open task with a real photo (`/api/photos`, Unsplash > Pixabay > Openverse), how long ago it was said, how many times it was paused, a fading bar, and a 7-day chart (said vs done).
+- Each bubble has **¿Cuándo?**: today, tomorrow, the day the person said, or any date and time. The AI fills it only when a day was said with words (`when.said` must be in the transcript).
+- Reminders: Google Calendar link, `.ics` file (iPhone / Outlook, alarm 15 min before), and an in-app notice while Tangent is open.
+- Supabase: run `supabase/memoria.sql` once (adds `remind_at`, `remind_said`, `photo`, `pauses` to `bubbles`). Until then the app keeps working and simply does not save those four fields.
