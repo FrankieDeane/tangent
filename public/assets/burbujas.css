@@ -225,3 +225,23 @@ textarea:focus{outline:2px solid var(--accent)}
 #acctBtn{max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 [hidden]{display:none!important}
 @media (max-width:420px){.mark i{display:none}.tools{gap:6px}}
+
+/* soltar en la X = hecha */
+#drop{position:absolute;left:50%;bottom:max(34px,calc(env(safe-area-inset-bottom) + 18px));transform:translate(-50%,16px) scale(.85);z-index:11;display:flex;flex-direction:column;align-items:center;gap:8px;color:#fff;opacity:0;pointer-events:none;transition:opacity .25s,transform .3s cubic-bezier(.2,.8,.2,1)}
+#drop i{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.16);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.55);transition:transform .25s,background .25s}
+#drop span{font-size:13px;font-weight:700;text-shadow:0 1px 8px rgba(0,0,0,.4)}
+#app.dragging #drop{opacity:1;transform:translate(-50%,0) scale(1)}
+#app.dragging #dock,#app.dragging #done{opacity:0;transition:opacity .2s}
+#drop.hot i{transform:scale(1.18);background:rgba(255,255,255,.92);color:#2a2420}
+
+/* fondos: foto de Unsplash con crédito; mientras carga, un cielo suave */
+#app{background:linear-gradient(180deg,#d9b48f 0%,#efc9a0 45%,#8d8a6a 100%)}
+:root.m-night #app{background:linear-gradient(180deg,#0b1430 0%,#1b2a52 55%,#1d2a2a 100%)}
+:root.m-nord #app{background:linear-gradient(180deg,#9aa3ab 0%,#c9ced2 50%,#6f7a76 100%)}
+.art{background:transparent!important}
+.art:not([src]){display:none}
+.sw[data-mode="day"]{background-image:linear-gradient(160deg,#f2c58e,#c98a5a)}
+.sw[data-mode="night"]{background-image:linear-gradient(160deg,#28407a,#0b1430)}
+.sw[data-mode="nord"]{background-image:linear-gradient(160deg,#c9ced2,#6f7a76)}
+#credit{position:absolute;left:max(12px,env(safe-area-inset-left));bottom:max(8px,env(safe-area-inset-bottom));z-index:13;font-size:10.5px;color:rgba(255,255,255,.78);text-decoration:none;text-shadow:0 1px 6px rgba(0,0,0,.45);max-width:45vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#app.dragging #credit{opacity:0}

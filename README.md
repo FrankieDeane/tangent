@@ -88,3 +88,9 @@ Mercado Pago:
 - The plan is read back from Mercado Pago on each notification and written to `subscriptions` with the service key.
 
 Owner: suggestions and right-to-withdraw requests at `/api/suggest?token=STATS_TOKEN`.
+
+## Fondos (Unsplash) y arrastrar a la X
+
+- Backgrounds come from Unsplash via `/api/scenes` (needs `UNSPLASH_ACCESS_KEY`), with photographer credit bottom-left. Without the key a soft sky gradient shows.
+- Owner page `/fondos.html` shows the candidate photos per mode. To change one, set `SCENE_DAY`, `SCENE_NIGHT` or `SCENE_NORD` in Netlify to an Unsplash photo id, optionally with where the person stands: `VfKH-K0H2Ik@0.30,0.62`.
+- Dragging a bubble shows an X at the bottom; dropping it there marks the task done.
