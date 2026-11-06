@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tangent · Fondos</title>
+<style>
+:root{--bg:#f4efe8;--ink:#2a2420;--ink2:#6f645b;--line:rgba(42,36,32,.14);--on:#2a2420}
+@media (prefers-color-scheme:dark){:root{--bg:#121722;--ink:#eef1f7;--ink2:#a3aec4;--line:rgba(255,255,255,.14);--on:#eef1f7}}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,sans-serif;padding:20px max(16px,env(safe-area-inset-right)) 40px max(16px,env(safe-area-inset-left))}
+h1{font:400 28px/1.1 Georgia,serif;margin:0 0 6px}
+p{color:var(--ink2);margin:0 0 18px;max-width:60ch}
+h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);margin:26px 0 10px}
+.row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+figure{margin:0;border-radius:16px;overflow:hidden;box-shadow:inset 0 0 0 1px var(--line)}
+figure.on{box-shadow:0 0 0 3px var(--on)}
+figure img{display:block;width:100%;aspect-ratio:9/16;object-fit:cover;background:var(--line)}
+figcaption{padding:8px 10px;font-size:12.5px}
+figcaption b{display:block;font-size:13px;user-select:all}
+figcaption a{color:var(--ink2)}
+</style>
+</head>
+<body>
+<h1>Fondos de Tangent</h1>
+<p>Fotos de Unsplash para cada modo. La marcada es la que se usa ahora. Para cambiarla, pasame el código de la que te guste (el que está en negrita).</p>
+<div id="out"><p>Cargando…</p></div>
+<script>
+fetch("/api/scenes?all=1").then(r => r.json()).then(d => {
+  if (d.status !== "ok") { document.getElementById("out").innerHTML = "<p>Falta la clave de Unsplash en Netlify (UNSPLASH_ACCESS_KEY).</p>"; return; }
+  const name = {day: "Día", night: "Noche", nord: "Nord"}, esc = s => String(s || "").replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"})[c]);
+  document.getElementById("out").innerHTML = ["day", "night", "nord"].map(m => "<h2>" + name[m] + "</h2><div class=\"row\">" + (d[m] || []).map(p =>
+    "<figure class=\"" + (d.chosen[m] === p.id ? "on" : "") + "\"><img loading=\"lazy\" src=\"" + esc(p.src.replace("w=1080&h=1920", "w=360&h=640")) + "\" alt=\"" + esc(p.alt) + "\"><figcaption><b>" + esc(p.id) + "</b><a href=\"" + esc(p.profile) + "\" target=\"_blank\" rel=\"noopener\">" + esc(p.credit) + "</a> · <a href=\"" + esc(p.page) + "\" target=\"_blank\" rel=\"noopener\">Unsplash</a></figcaption></figure>").join("") + "</div>").join("");
+}).catch(() => { document.getElementById("out").innerHTML = "<p>No pude cargar las fotos.</p>"; });
+</script>
+</body>
+</html>

@@ -27,7 +27,7 @@ const T = {
   whyEy: "Por qué así", whyH: "Cada decisión tiene un motivo",
   why: ["Vos sos la personita de la roca. Lo que tenés en la cabeza sale y queda flotando en el cielo, afuera de vos.", "Un solo botón. Nada que configurar antes de hablar.", "El color sale de tus palabras: rojo pesa, amarillo espera, azul tranqui. Si no lo dijiste, te preguntamos. Nunca se adivina por el tono de voz.", "Paisaje quieto y pocas cosas en pantalla: menos ruido para la vista. Letra Atkinson Hyperlegible, pensada para leerse fácil.", "Cuando no podés arrancar: una acción de 10 segundos. Nada más."],
   still: "Modo quieto (sin movimiento)", terms: "Términos", privacy: "Privacidad",
-  typeT: "Escribilo como te salga", typeGo: "Ordenar", typeMore: "Escribí un poco más.", exampleToast: "Esto es un ejemplo. Tu audio gratis sigue intacto.",
+  dropL: "Soltala acá: hecha", typeT: "Escribilo como te salga", typeGo: "Ordenar", typeMore: "Escribí un poco más.", exampleToast: "Esto es un ejemplo. Tu audio gratis sigue intacto.",
   consentT: "Antes de empezar",
   consent: ["Tangent es un experimento. Puede equivocarse.", "Solo español e inglés. No compartas datos personales ni privados.", "Está prohibido hablar de sexo, violencia, guerra, política, aborto, muerte, racismo, drogas o usar malas palabras. La primera vez se corta la sesión; la segunda, este dispositivo queda bloqueado.", "Tu audio se procesa con servicios de IA externos y no se guarda."],
   consentAccept: "Acepto los <a href=\"/terms.html\" target=\"_blank\">Términos</a> y la <a href=\"/privacy.html\" target=\"_blank\">Privacidad</a>, y soy mayor de 18 o uso Tangent con un adulto.", agree: "Acepto y sigo", ok: "Entendido", close: "Cerrar",
@@ -75,7 +75,7 @@ const T = {
   whyEy: "Why it looks like this", whyH: "Every choice has a reason",
   why: ["You are the little person on the rock. What’s in your head comes out and floats in the sky, outside of you.", "One button. Nothing to set up before you talk.", "Color comes from your words: red weighs, yellow waits, blue is easy. If you didn’t say it, we ask. Never guessed from your tone of voice.", "A still landscape and few things on screen: less noise for your eyes. Atkinson Hyperlegible type, made to be easy to read.", "When you can’t start: one 10-second action. That’s all."],
   still: "Still mode (no motion)", terms: "Terms", privacy: "Privacy",
-  typeT: "Type it however it comes out", typeGo: "Sort it", typeMore: "Write a bit more.", exampleToast: "This is an example. Your free voice note is untouched.",
+  dropL: "Drop it here: done", typeT: "Type it however it comes out", typeGo: "Sort it", typeMore: "Write a bit more.", exampleToast: "This is an example. Your free voice note is untouched.",
   consentT: "Before you start",
   consent: ["Tangent is an experiment. It can be wrong.", "English and Spanish only. Don’t share personal or private information.", "Talking about sex, violence, war, politics, abortion, death, racism, drugs, or using swear words is not allowed. The first time ends your session; the second time blocks this device.", "Your audio is processed by external AI services and is not stored."],
   consentAccept: "I accept the <a href=\"/terms.html\" target=\"_blank\">Terms</a> and <a href=\"/privacy.html\" target=\"_blank\">Privacy</a>, and I’m over 18 or using Tangent with an adult.", agree: "I agree", ok: "Got it", close: "Close",
@@ -150,8 +150,27 @@ const EXAMPLE = {
  ]
 };
 
-const SCENE = {day: "/assets/scenes/dia.jpg", night: "/assets/scenes/noche.jpg", nord: "/assets/scenes/nord.jpg"};
-const PERSON = {day: [.25, .60], night: [.245, .62], nord: [.215, .61]}; // where the little person stands in each picture
+// Background photos come from Unsplash (/api/scenes), credited. Until they load, a soft sky gradient shows.
+const SCENE = {day: null, night: null, nord: null};
+const PERSON = {day: [.32, .64], night: [.32, .64], nord: [.32, .64]}; // where the person stands in each photo (bubbles rise from there)
+function showScene(m) {
+  const p = SCENE[m], img = $('.art[data-m="' + m + '"]');
+  if (p && img && !img.getAttribute("src")) { img.onerror = () => img.removeAttribute("src"); img.src = p.src; img.alt = p.alt || ""; }
+  const c = $("#credit"), cur = SCENE[S.mode];
+  if (cur) { c.hidden = false; c.href = cur.profile; c.textContent = "Foto: " + cur.credit + " · Unsplash"; } else c.hidden = true;
+}
+async function loadScenes() {
+  try {
+    const r = await (await fetch("/api/scenes")).json();
+    ["day", "night", "nord"].forEach(m => {
+      const p = r[m]; if (!p?.src || !/^https:\/\//.test(p.src)) return;
+      SCENE[m] = p; if (Array.isArray(p.focus)) PERSON[m] = p.focus;
+      const sw = $('.sw[data-mode="' + m + '"]'); if (sw && p.thumb) sw.style.backgroundImage = "url(" + JSON.stringify(p.thumb) + ")";
+    });
+    showScene(S.mode);
+    $(".art.on")?.addEventListener("load", () => ["day", "night", "nord"].forEach(showScene), {once: true});
+  } catch {}
+}
 const IMG_AR = 944 / 1680;
 const MAX_SEC = 120;
 
@@ -172,7 +191,7 @@ function setMode(m) {
   S.mode = m; const r = document.documentElement;
   r.classList.remove("m-day", "m-night", "m-nord"); r.classList.add("m-" + m);
   r.setAttribute("data-theme", m === "night" ? "dark" : "light");
-  $$(".art").forEach(i => { if (i.dataset.m === m && !i.src) i.src = SCENE[m]; i.classList.toggle("on", i.dataset.m === m); });
+  $$(".art").forEach(i => i.classList.toggle("on", i.dataset.m === m)); showScene(m);
   $$(".sw").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === m));
   save();
 }
@@ -180,6 +199,7 @@ function setStill(v) { S.still = v; document.documentElement.classList.toggle("s
 function texts() {
   const t = L(); document.documentElement.lang = S.lang;
   $("#lang").textContent = S.lang === "es" ? "EN" : "ES";
+  $("#dropL").textContent = t.dropL;
   $("[data-t=beta]").textContent = t.beta;
   const has = S.tasks.some(x => x.status !== "hecha");
   $("#lead").innerHTML = has ? t.lead1 : t.lead0;
@@ -205,13 +225,13 @@ let toastT;
 function toast(msg) { const e = $("#toast"); e.textContent = msg; e.classList.add("on"); clearTimeout(toastT); toastT = setTimeout(() => e.classList.remove("on"), 2800); }
 
 /* ---------- capas ---------- */
-function open(id) { const l = $("#" + id); l.classList.add("on"); requestAnimationFrame(() => requestAnimationFrame(() => l.classList.add("show"))); }
+function open(id) { const l = $("#" + id); l.dataset.at = Date.now(); l.classList.add("on"); requestAnimationFrame(() => requestAnimationFrame(() => l.classList.add("show"))); }
 function close(id) { const l = $("#" + id); l.classList.remove("show"); setTimeout(() => l.classList.remove("on"), 480); }
 const isOpen = id => $("#" + id).classList.contains("on");
 let msgResolve = null;
 $$(".layer").forEach(l => {
   const d = l.querySelector(".dim");
-  if (d && !["rec", "ask"].includes(l.id)) d.addEventListener("click", () => { close(l.id); if (l.id === "msg" && msgResolve) msgResolve(false); });
+  if (d && !["rec", "ask"].includes(l.id)) d.addEventListener("click", () => { if (Date.now() - (+l.dataset.at || 0) < 600) return; close(l.id); if (l.id === "msg" && msgResolve) msgResolve(false); });
   l.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => { close(l.id); if (l.id === "msg" && msgResolve) msgResolve(false); }));
 });
 function modal(title, html, buttons = [{label: L().ok, value: true}]) {
@@ -288,12 +308,28 @@ function bindDrag(b) {
   b.el.addEventListener("pointermove", e => {
     if (!b.drag) return;
     if (Math.hypot(e.clientX - sx, e.clientY - sy) > 6) b.moved = true;
-    if (b.moved) { const nx = e.clientX + ox, ny = e.clientY + oy; b.vx = (nx - b.x) * .5; b.vy = (ny - b.y) * .5; b.x = nx; b.y = ny; }
+    if (b.moved) { const nx = e.clientX + ox, ny = e.clientY + oy; b.vx = (nx - b.x) * .5; b.vy = (ny - b.y) * .5; b.x = nx; b.y = ny; DROP.move(b, e); }
   });
-  const up = () => { if (!b.drag) return; b.drag = false; if (!b.moved) return openDetail(b); b.t.hx = b.x / W; b.t.hy = b.y / H; save(); ACC.update(b.t); };
+  const up = () => {
+    if (!b.drag) return; b.drag = false;
+    if (!b.moved) return openDetail(b);
+    if (DROP.end()) { navigator.vibrate?.(25); return setStatus(b, "hecha"); }
+    b.t.hx = b.x / W; b.t.hy = b.y / H; save(); ACC.update(b.t);
+  };
   b.el.addEventListener("pointerup", up); b.el.addEventListener("pointercancel", up);
   b.el.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openDetail(b); } });
 }
+// Dragging a bubble shows an X at the bottom; dropping it there marks it done.
+const DROP = {
+  hot: false,
+  move(b, e) {
+    const z = $("#drop"), r = z.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    $("#app").classList.add("dragging");
+    DROP.hot = Math.hypot(e.clientX - cx, e.clientY - cy) < Math.max(70, b.d / 2 + 30);
+    z.classList.toggle("hot", DROP.hot);
+  },
+  end() { const h = DROP.hot; DROP.hot = false; $("#app").classList.remove("dragging"); $("#drop").classList.remove("hot"); return h; },
+};
 function layoutHomes(tasks) {
   const z = zone(), n = tasks.length, cols = W >= 860 ? (n > 4 ? 3 : 2) : 2, rows = Math.ceil(n / cols);
   tasks.forEach((t, i) => {
@@ -747,8 +783,7 @@ S.tasks.filter(t => t.status !== "hecha").forEach(t => makeBubble(t, false));
 texts();
 if (S.tasks.some(t => !t.priority && t.status !== "hecha")) setTimeout(openAsk, 700);
 addEventListener("resize", () => { W = innerWidth; H = innerHeight; B.forEach(paintEl); });
-// load the other two scenes once the first one is in
-$(".art.on")?.addEventListener("load", () => $$(".art").forEach(i => { if (!i.src) i.src = SCENE[i.dataset.m]; }), {once: true});
+loadScenes();
 ping("visit");
 const payBack = new URLSearchParams(location.search).get("pago");
 if (payBack) history.replaceState(null, "", location.pathname);
