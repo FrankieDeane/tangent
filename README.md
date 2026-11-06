@@ -26,7 +26,7 @@ Say it messy. See it clear. One button: you talk, Tangent shows a calm visual bo
 
 ## How it works
 
-- `public/` static site: `index.html`, `assets/app.js` (mic, WAV conversion, board, garden, postcard, shake), `assets/scenes.js` (built-in drawings), `assets/sounds.js` (ambient sounds).
+- `public/` static site: `index.html`, `assets/burbujas.js` and `assets/burbujas.css` (bubbles app), `assets/scenes/` (Día, Noche, Nord art).
 - `netlify/functions/analyze.mjs` → `/api/analyze`: rules, AI interpretation, safety checks, photos.
 - `netlify/functions/draw.mjs` → `/api/draw`: AI drawings for each tile.
 - `netlify/functions/stats.mjs` → `/api/stats?token=STATS_TOKEN`: usage counter for the last 14 days.

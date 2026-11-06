@@ -26,7 +26,7 @@ const T = {
   payToast: "Anotado. Las cuentas llegan muy pronto.",
   whyEy: "Por qué así", whyH: "Cada decisión tiene un motivo",
   why: ["Vos sos la personita de la roca. Lo que tenés en la cabeza sale y queda flotando en el cielo, afuera de vos.", "Un solo botón. Nada que configurar antes de hablar.", "El color sale de tus palabras: rojo pesa, amarillo espera, azul tranqui. Si no lo dijiste, te preguntamos. Nunca se adivina por el tono de voz.", "Paisaje quieto y pocas cosas en pantalla: menos ruido para la vista. Letra Atkinson Hyperlegible, pensada para leerse fácil.", "Cuando no podés arrancar: una acción de 10 segundos. Nada más."],
-  still: "Modo quieto (sin movimiento)", terms: "Términos", privacy: "Privacidad", board: "Tangent tablero",
+  still: "Modo quieto (sin movimiento)", terms: "Términos", privacy: "Privacidad",
   typeT: "Escribilo como te salga", typeGo: "Ordenar", typeMore: "Escribí un poco más.", exampleToast: "Esto es un ejemplo. Tu audio gratis sigue intacto.",
   consentT: "Antes de empezar",
   consent: ["Tangent es un experimento. Puede equivocarse.", "Solo español e inglés. No compartas datos personales ni privados.", "Está prohibido hablar de sexo, violencia, guerra, política, aborto, muerte, racismo, drogas o usar malas palabras. La primera vez se corta la sesión; la segunda, este dispositivo queda bloqueado.", "Tu audio se procesa con servicios de IA externos y no se guarda."],
@@ -74,7 +74,7 @@ const T = {
   payToast: "Noted. Accounts are coming very soon.",
   whyEy: "Why it looks like this", whyH: "Every choice has a reason",
   why: ["You are the little person on the rock. What’s in your head comes out and floats in the sky, outside of you.", "One button. Nothing to set up before you talk.", "Color comes from your words: red weighs, yellow waits, blue is easy. If you didn’t say it, we ask. Never guessed from your tone of voice.", "A still landscape and few things on screen: less noise for your eyes. Atkinson Hyperlegible type, made to be easy to read.", "When you can’t start: one 10-second action. That’s all."],
-  still: "Still mode (no motion)", terms: "Terms", privacy: "Privacy", board: "Tangent board",
+  still: "Still mode (no motion)", terms: "Terms", privacy: "Privacy",
   typeT: "Type it however it comes out", typeGo: "Sort it", typeMore: "Write a bit more.", exampleToast: "This is an example. Your free voice note is untouched.",
   consentT: "Before you start",
   consent: ["Tangent is an experiment. It can be wrong.", "English and Spanish only. Don’t share personal or private information.", "Talking about sex, violence, war, politics, abortion, death, racism, drugs, or using swear words is not allowed. The first time ends your session; the second time blocks this device.", "Your audio is processed by external AI services and is not stored."],
@@ -197,7 +197,7 @@ function texts() {
   $("#payGo").textContent = t.payGo; $("#payNo").textContent = t.payNo;
   $("#whyEy").textContent = t.whyEy; $("#whyH").textContent = t.whyH; $("#stillL").textContent = t.still;
   $("#whyList").innerHTML = t.why.map((x, i) => "<li><em>" + (i + 1) + "</em>" + esc(x) + "</li>").join("");
-  $("#fTerms").textContent = t.terms; $("#fPriv").textContent = t.privacy; $("#fBoard").textContent = t.board; $("#fIdea").textContent = t.idea; $("#fRegret").textContent = t.regret;
+  $("#fTerms").textContent = t.terms; $("#fPriv").textContent = t.privacy; $("#fIdea").textContent = t.idea;
   $("#done").textContent = S.doneN ? t.doneN(S.doneN) : ""; $("#done").classList.toggle("on", S.doneN > 0);
   B.forEach(paintEl);
 }
@@ -722,7 +722,7 @@ $("#aActivate").addEventListener("click", () => { if (!store.get("tangent.wantPa
 $("#aCancel").addEventListener("click", () => ACC.cancel());
 $("#aResend").addEventListener("click", () => ACC.resend());
 
-/* ---------- sugerencias y arrepentimiento ---------- */
+/* ---------- sugerencias ---------- */
 async function feedback(kind) {
   const t = L(), regret = kind === "regret";
   close("why");
@@ -740,7 +740,6 @@ async function feedback(kind) {
   } catch { toast(t.offline); }
 }
 $("#fIdea").addEventListener("click", () => feedback("idea"));
-$("#fRegret").addEventListener("click", () => feedback("regret"));
 
 /* ---------- inicio ---------- */
 setMode(S.mode); setStill(!!S.still);
