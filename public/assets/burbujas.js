@@ -197,7 +197,7 @@ function texts() {
   $("#payGo").textContent = t.payGo; $("#payNo").textContent = t.payNo;
   $("#whyEy").textContent = t.whyEy; $("#whyH").textContent = t.whyH; $("#stillL").textContent = t.still;
   $("#whyList").innerHTML = t.why.map((x, i) => "<li><em>" + (i + 1) + "</em>" + esc(x) + "</li>").join("");
-  $("#fTerms").textContent = t.terms; $("#fPriv").textContent = t.privacy; $("#fIdea").textContent = t.idea; $("#fRegret").textContent = t.regret;
+  $("#fTerms").textContent = t.terms; $("#fPriv").textContent = t.privacy; $("#fIdea").textContent = t.idea;
   $("#done").textContent = S.doneN ? t.doneN(S.doneN) : ""; $("#done").classList.toggle("on", S.doneN > 0);
   B.forEach(paintEl);
 }
@@ -722,7 +722,7 @@ $("#aActivate").addEventListener("click", () => { if (!store.get("tangent.wantPa
 $("#aCancel").addEventListener("click", () => ACC.cancel());
 $("#aResend").addEventListener("click", () => ACC.resend());
 
-/* ---------- sugerencias y arrepentimiento ---------- */
+/* ---------- sugerencias ---------- */
 async function feedback(kind) {
   const t = L(), regret = kind === "regret";
   close("why");
@@ -740,7 +740,6 @@ async function feedback(kind) {
   } catch { toast(t.offline); }
 }
 $("#fIdea").addEventListener("click", () => feedback("idea"));
-$("#fRegret").addEventListener("click", () => feedback("regret"));
 
 /* ---------- inicio ---------- */
 setMode(S.mode); setStill(!!S.still);
