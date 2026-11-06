@@ -129,6 +129,7 @@ People with ADHD often jump between unrelated topics in one note (for example a 
 The person may mix Spanish and English in the same note; that is normal, understand both. Write every text field in the output language given below, except transcript, subject, photo and photo_query.
 
 ${RULES}
+${day}
 
 ${source}
 
@@ -404,7 +405,8 @@ Reply with ONLY a JSON object:
 
 // ---------- Burbujas: voice note -> tasks ----------
 // Contract: /mnt/project-files/tangent/mvp/ai_contract.md. Priority only from the person's own words, never from tone.
-function tasksPrompt(source, lang) {
+function tasksPrompt(source, lang, today) {
+  const day = today && /^\d{4}-\d{2}-\d{2}$/.test(today.date) ? `Today is ${today.dow || ""} ${today.date} for the person.` : "";
   const out = lang === "en" ? "English" : "Spanish from Argentina (natural voseo)";
   return `You help a person with ADHD. They recorded a messy voice note with things they have to do. Split it into separate tasks.
 Everything must come from what they actually said. Never invent tasks, people, places or dates.
@@ -421,40 +423,42 @@ Rules:
 - priority: "alta", "media" or "baja" ONLY if the person said it with words (e.g. "urgente", "hoy sí o sí", "me pesa", "es importante" = alta; "esta semana", "en algún momento pronto" = media; "tranqui", "cuando pueda", "no hay apuro" = baja; same in English). If they did not say it, null. NEVER infer it from tone of voice, emotions, volume or how often they repeat it.
 - priority_cue: the exact word(s) that justified the priority, copied from the transcript, or null.
 - icon: one of send|shirt|phone|bolt|run|cart|home|mail|calendar|money|doc|heart|car|book|food|work|clean|plant|pet|health|other.
+- when: ONLY if the person said a day or time for this task with words ("el jueves", "mañana a las 10", "vence el viernes", "hoy a la tarde", "on Monday"), turn it into {"date": "YYYY-MM-DD", "time": "HH:MM" or null, "said": exact words copied from the transcript}, counting from today's date above. "hoy" = today, "mañana" = tomorrow, a weekday = the next one (today if it is today). If they did not say a day, null. Never invent one.
+- photo_query: 2 to 4 plain English words for a calm stock photo of the object or place of the task (e.g. "washing machine laundry", "electricity bill paper", "running shoes door"). No names of people or brands.
 - emergency_steps: two tiny physical actions of under 10 seconds that need no decision. Each starts with a verb in the imperative (voseo in Spanish: "Abrí", "Tocá", "Escribí solo"). The second one is even easier than the first.
 
 Reply with ONLY a JSON object:
 {"transcript": "exact transcript of what the person said",
  "language": "es|en|other",
  "safety": {"ok": true or false, "topic": "none|sexual|minors|violence|war|hate|politics|abortion|death|selfharm|drugs|profanity|other"},
- "tasks": [{"title": "", "summary": "", "raw_quote": "", "icon": "", "priority": "alta|media|baja|null", "priority_cue": "or null", "emergency_steps": ["", ""]}]}
+ "tasks": [{"title": "", "summary": "", "raw_quote": "", "icon": "", "priority": "alta|media|baja|null", "priority_cue": "or null", "when": null, "photo_query": "", "emergency_steps": ["", ""]}]}
 If safety.ok is false or language is "other", still return the JSON with an empty tasks array.`;
 }
 
-export async function tasksAudio(wavBase64, lang) {
-  const prompt = tasksPrompt("The voice note is attached as audio. Transcribe it word for word in the language actually spoken, then split it.", lang);
+export async function tasksAudio(wavBase64, lang, today) {
+  const prompt = tasksPrompt("The voice note is attached as audio. Transcribe it word for word in the language actually spoken, then split it.", lang, today);
   try {
     return { ...parseJSON(await gemini([{ inline_data: { mime_type: "audio/wav", data: wavBase64 } }, { text: prompt }], { temperature: 0.2 })), provider: "gemini" };
   } catch (e) {
     if (e instanceof Blocked) throw e;
     console.error("gemini tasks audio failed, trying groq:", e.message);
     const transcript = await groqTranscribe(wavBase64);
-    return tasksTextGroq(transcript, lang);
+    return tasksTextGroq(transcript, lang, today);
   }
 }
 
-export async function tasksText(text, lang) {
-  const prompt = tasksPrompt(`Voice note transcript: """${String(text).slice(0, 4000)}"""`, lang);
+export async function tasksText(text, lang, today) {
+  const prompt = tasksPrompt(`Voice note transcript: """${String(text).slice(0, 4000)}"""`, lang, today);
   try { return { ...parseJSON(await gemini([{ text: prompt }], { temperature: 0.2 })), provider: "gemini" }; }
   catch (e) {
     if (e instanceof Blocked) throw e;
     console.error("gemini tasks text failed, trying groq:", e.message);
-    return tasksTextGroq(text, lang);
+    return tasksTextGroq(text, lang, today);
   }
 }
 
-async function tasksTextGroq(text, lang) {
-  const out = parseJSON(await groqChat(tasksPrompt(`Voice note transcript: """${String(text).slice(0, 4000)}"""`, lang), { temperature: 0.2 }));
+async function tasksTextGroq(text, lang, today) {
+  const out = parseJSON(await groqChat(tasksPrompt(`Voice note transcript: """${String(text).slice(0, 4000)}"""`, lang, today), { temperature: 0.2 }));
   if (!out.transcript) out.transcript = text;
   return { ...out, provider: "groq" };
 }

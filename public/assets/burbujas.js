@@ -27,6 +27,15 @@ const T = {
   whyEy: "Por qué así", whyH: "Cada decisión tiene un motivo",
   why: ["Vos sos la personita de la roca. Lo que tenés en la cabeza sale y queda flotando en el cielo, afuera de vos.", "Un solo botón. Nada que configurar antes de hablar.", "El color sale de tus palabras: rojo pesa, amarillo espera, azul tranqui. Si no lo dijiste, te preguntamos. Nunca se adivina por el tono de voz.", "Paisaje quieto y pocas cosas en pantalla: menos ruido para la vista. Letra Atkinson Hyperlegible, pensada para leerse fácil.", "Cuando no podés arrancar: una acción de 10 segundos. Nada más."],
   still: "Modo quieto (sin movimiento)", terms: "Términos", privacy: "Privacidad",
+  vBub: "Burbujas", vMem: "Memoria", mEy: "Memoria", mH: "Lo que se te puede colgar", mSub: "Cada tarea con su foto, para recordarla de un vistazo. Arriba, las que se te están borrando.",
+  wkT: "Últimos 7 días", lgA: "Dichas", lgB: "Hechas", dShort: ["D", "L", "M", "X", "J", "V", "S"], todayW: "hoy", k1: "con fecha", k2: "pausadas", k3: "hechas", mSect: "Ordenadas por olvido",
+  memEmpty: "Cuando grabes, acá vas a ver cada tarea con su foto y cuánto hace que la dijiste.",
+  ago: n => n <= 0 ? "La dijiste hoy" : n === 1 ? "La dijiste ayer" : "La dijiste hace " + n + " días", paus: n => !n ? "" : n === 1 ? " · 1 pausa" : " · " + n + " pausas",
+  f0: "Fresca", f1: "Se está borrando", f2: "Casi olvidada", fLate: "Ya pasó el día", noDate: "Sin fecha", photoBy: "Foto",
+  lWhen: "¿Cuándo?", wToday: "Hoy", wTom: "Mañana", wNone: "Sin fecha", wSaid: w => "Lo dijiste: «" + w + "».", wPick: "Elegí día y hora y agregalo a tu calendario: así te avisa aunque Tangent esté cerrado.",
+  wSet: d => "Para el " + d + ".", gcal: "Google Calendar", ics: "iPhone / Outlook", notifyL: "Avisarme acá (con Tangent abierto)",
+  notifyNo: "Tu navegador no deja mandar avisos. Usá el calendario.", notifyOn: "Listo. Si Tangent está abierto a esa hora, te aviso.", due: t => "Ahora: " + t,
+  wd: ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"], wds: ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"], at: " a las ",
   typeT: "Escribilo como te salga", typeGo: "Ordenar", typeMore: "Escribí un poco más.", exampleToast: "Esto es un ejemplo. Tu audio gratis sigue intacto.",
   consentT: "Antes de empezar",
   consent: ["Tangent es un experimento. Puede equivocarse.", "Solo español e inglés. No compartas datos personales ni privados.", "Está prohibido hablar de sexo, violencia, guerra, política, aborto, muerte, racismo, drogas o usar malas palabras. La primera vez se corta la sesión; la segunda, este dispositivo queda bloqueado.", "Tu audio se procesa con servicios de IA externos y no se guarda."],
@@ -75,6 +84,15 @@ const T = {
   whyEy: "Why it looks like this", whyH: "Every choice has a reason",
   why: ["You are the little person on the rock. What’s in your head comes out and floats in the sky, outside of you.", "One button. Nothing to set up before you talk.", "Color comes from your words: red weighs, yellow waits, blue is easy. If you didn’t say it, we ask. Never guessed from your tone of voice.", "A still landscape and few things on screen: less noise for your eyes. Atkinson Hyperlegible type, made to be easy to read.", "When you can’t start: one 10-second action. That’s all."],
   still: "Still mode (no motion)", terms: "Terms", privacy: "Privacy",
+  vBub: "Bubbles", vMem: "Memory", mEy: "Memory", mH: "What might slip your mind", mSub: "Each task with its photo, so you recall it at a glance. On top, the ones fading away.",
+  wkT: "Last 7 days", lgA: "Said", lgB: "Done", dShort: ["S", "M", "T", "W", "T", "F", "S"], todayW: "today", k1: "with a date", k2: "paused", k3: "done", mSect: "Sorted by fading",
+  memEmpty: "Once you record, each task shows up here with its photo and how long ago you said it.",
+  ago: n => n <= 0 ? "You said it today" : n === 1 ? "You said it yesterday" : "You said it " + n + " days ago", paus: n => !n ? "" : n === 1 ? " · paused once" : " · paused " + n + " times",
+  f0: "Fresh", f1: "Fading", f2: "Almost forgotten", fLate: "The day passed", noDate: "No date", photoBy: "Photo",
+  lWhen: "When?", wToday: "Today", wTom: "Tomorrow", wNone: "No date", wSaid: w => "You said “" + w + "”.", wPick: "Pick a day and time and add it to your calendar, so it reminds you even with Tangent closed.",
+  wSet: d => "Set for " + d + ".", gcal: "Google Calendar", ics: "iPhone / Outlook", notifyL: "Remind me here (with Tangent open)",
+  notifyNo: "Your browser does not allow notifications. Use the calendar.", notifyOn: "Done. If Tangent is open at that time, I’ll remind you.", due: t => "Now: " + t,
+  wd: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"], wds: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"], at: " at ",
   typeT: "Type it however it comes out", typeGo: "Sort it", typeMore: "Write a bit more.", exampleToast: "This is an example. Your free voice note is untouched.",
   consentT: "Before you start",
   consent: ["Tangent is an experiment. It can be wrong.", "English and Spanish only. Don’t share personal or private information.", "Talking about sex, violence, war, politics, abortion, death, racism, drugs, or using swear words is not allowed. The first time ends your session; the second time blocks this device.", "Your audio is processed by external AI services and is not stored."],
@@ -157,6 +175,7 @@ const MAX_SEC = 120;
 
 /* ---------- estado ---------- */
 let S = Object.assign({lang: null, mode: null, uses: 0, still: false, tasks: [], doneN: 0}, store.get("tangent.burbujas", {}));
+(S.tasks || []).forEach(t => { delete t._ph; delete t._sync; });
 if (!S.lang) S.lang = /^en/i.test(navigator.language || "") ? "en" : "es";
 if (!S.mode) S.mode = matchMedia("(prefers-color-scheme: dark)").matches ? "night" : "day";
 const save = () => store.set("tangent.burbujas", S);
@@ -180,6 +199,7 @@ function setStill(v) { S.still = v; document.documentElement.classList.toggle("s
 function texts() {
   const t = L(); document.documentElement.lang = S.lang;
   $("#lang").textContent = S.lang === "es" ? "EN" : "ES";
+  $("#vBub").textContent = t.vBub; $("#vMem").textContent = t.vMem; if (isOpen("mem")) MEM.render();
   $("[data-t=beta]").textContent = t.beta;
   const has = S.tasks.some(x => x.status !== "hecha");
   $("#lead").innerHTML = has ? t.lead1 : t.lead0;
@@ -436,7 +456,7 @@ async function openType() {
 async function send(payload) {
   let data;
   try {
-    const res = await fetch("/api/tasks", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({deviceId, lang: S.lang, owner: owner || undefined, accessToken: ACC.token() || undefined, ...payload})});
+    const res = await fetch("/api/tasks", {method: "POST", headers: {"content-type": "application/json"}, body: JSON.stringify({deviceId, lang: S.lang, today: ymd(new Date()), dow: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()], owner: owner || undefined, accessToken: ACC.token() || undefined, ...payload})});
     data = await res.json().catch(() => ({status: "ai_error"}));
   } catch { thinking(false); return toast(L().offline); }
   thinking(false);
@@ -457,7 +477,12 @@ async function send(payload) {
 function addTasks(list, example) {
   // a new voice note replaces what was there (one sky at a time)
   B.forEach(b => b.el.remove()); B = [];
-  S.tasks = list.map(t => ({...t, status: "planificacion", source: t.priority ? "dicha" : null, example: !!example}));
+  const now = Date.now();
+  S.tasks = list.map(t => ({...t, status: "planificacion", source: t.priority ? "dicha" : null, example: !!example, at: now, pauses: 0,
+    rem: t.when ? {d: t.when.date, h: t.when.time || null, said: t.when.said} : null}));
+  S.tasks.forEach(t => delete t.when);
+  if (!example) MEM.bump(0, S.tasks.length);
+  MEM.photos(S.tasks);
   layoutHomes(S.tasks); save(); texts();
   S.tasks.forEach((t, i) => setTimeout(() => makeBubble(t, true), i * 420));
   setTimeout(() => { if (S.tasks.some(t => !t.priority)) openAsk(); }, S.tasks.length * 420 + 900);
@@ -500,9 +525,12 @@ function openDetail(b) {
   $("#dPrio").innerHTML = prioButtons(t.priority);
   $$("#dPrio button").forEach(btn => btn.addEventListener("click", () => { t.priority = btn.dataset.p; t.source = "manual"; paintEl(b); save(); ACC.update(t); openDetail(b); }));
   $("#sosBtn").hidden = !(t.steps && t.steps.length);
+  WHEN.render(t);
   if (!isOpen("det")) open("det");
 }
 function setStatus(b, s) {
+  if (s === "en_pausa" && b.t.status !== "en_pausa") b.t.pauses = (b.t.pauses || 0) + 1;
+  if (s === "hecha" && b.t.status !== "hecha" && !b.t.example) MEM.bump(1, 1);
   b.t.status = s; paintEl(b); save(); ACC.update(b.t);
   if (s !== "hecha") return openDetail(b);
   close("det"); S.doneN++; save();
@@ -511,6 +539,172 @@ function setStatus(b, s) {
     setTimeout(() => { b.el.remove(); B = B.filter(x => x !== b); B.forEach(paintEl); texts(); }, 1400);
   }, 420);
 }
+
+/* ---------- fechas ---------- */
+function p2(n) { return String(n).padStart(2, "0"); }
+function ymd(d) { return d.getFullYear() + "-" + p2(d.getMonth() + 1) + "-" + p2(d.getDate()); }
+function remDate(r) { return new Date(r.d + "T" + (r.h || "09:00")); }
+function fromIso(iso, said) { const d = new Date(iso); return isNaN(d) ? null : {d: ymd(d), h: p2(d.getHours()) + ":" + p2(d.getMinutes()), said: said || null}; }
+function extras(t) {
+  return {remind_at: t.rem ? remDate(t.rem).toISOString() : null, remind_said: t.rem?.said || null, photo: t.photo || null, pauses: t.pauses || 0};
+}
+const PQ = {send: "laptop email desk", shirt: "laundry folded clothes", phone: "phone on table", bolt: "light bulb", run: "running shoes", cart: "grocery basket", home: "cozy home interior",
+  mail: "letters envelope", calendar: "paper calendar", money: "coins wallet", doc: "paper documents desk", heart: "warm coffee cup", car: "car on road", book: "open book",
+  food: "fresh vegetables kitchen", work: "tidy desk notebook", clean: "clean bright room", plant: "green plant pot", pet: "dog resting", health: "glass of water", other: "calm morning light"};
+
+/* ---------- memoria ---------- */
+const MEM = {
+  bump(k, n) {
+    const h = S.hist || {}, key = ymd(new Date());
+    (h[key] = h[key] || [0, 0])[k] += n;
+    const keep = ymd(new Date(Date.now() - 14 * 864e5));
+    Object.keys(h).forEach(x => { if (x < keep) delete h[x]; });
+    S.hist = h; save();
+  },
+  async photos(list) {
+    const need = list.filter(t => !t.photo && !t._ph && t.status !== "hecha");
+    for (let i = 0; i < need.length; i += 5) {
+      const part = need.slice(i, i + 5); part.forEach(t => { t._ph = 1; });
+      try {
+        const r = await (await fetch("/api/photos", {method: "POST", headers: {"content-type": "application/json"},
+          body: JSON.stringify({deviceId, queries: part.map(t => t.pq || PQ[t.icon] || PQ.other)})})).json();
+        (r.photos || []).forEach((p, j) => {
+          if (!p?.src || !/^https:\/\//.test(p.src)) return;
+          part[j].photo = {src: p.src, alt: p.alt || "", credit: p.credit || "", profile: p.profile || "", source: p.source || "", sourceUrl: p.sourceUrl || ""};
+          ACC.update(part[j]);
+        });
+        save(); if (isOpen("mem")) MEM.render();
+      } catch { part.forEach(t => { delete t._ph; }); }
+    }
+  },
+  fade(t) {
+    if (t.rem) { const d = remDate(t.rem); return d < new Date() ? 1.01 : .02; }
+    const days = Math.floor((Date.now() - (t.at || Date.now())) / 864e5);
+    return Math.min(1, .08 + days * .07 + (t.pauses || 0) * .14 + (t.status === "en_pausa" ? .1 : 0));
+  },
+  chart() {
+    const t = L(), h = S.hist || {}, days = [];
+    for (let i = 6; i >= 0; i--) { const d = new Date(Date.now() - i * 864e5), v = h[ymd(d)] || [0, 0]; days.push({d, said: v[0], done: v[1]}); }
+    const top = Math.max(3, ...days.map(x => Math.max(x.said, x.done)));
+    const max = Math.ceil(top / 3) * 3, x0 = 26, x1 = 336, y0 = 12, y1 = 124, bw = (x1 - x0) / 7, y = v => y1 - (v / max) * (y1 - y0);
+    let s = "";
+    [0, max / 3, 2 * max / 3, max].forEach(v => { s += '<line class="grid" x1="' + x0 + '" x2="' + x1 + '" y1="' + y(v) + '" y2="' + y(v) + '"/><text x="' + (x0 - 7) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + v + "</text>"; });
+    days.forEach((x, i) => {
+      const cx = x0 + bw * i + bw / 2, w = bw * .46;
+      if (x.said) s += '<rect class="said" x="' + (cx - w / 2) + '" y="' + y(x.said) + '" width="' + w + '" height="' + (y1 - y(x.said)) + '" rx="4"/>';
+      if (x.done) s += '<rect class="done" x="' + (cx - w / 2 + 3) + '" y="' + y(x.done) + '" width="' + (w - 6) + '" height="' + (y1 - y(x.done)) + '" rx="3"/>';
+      s += '<text x="' + cx + '" y="143" text-anchor="middle"' + (i === 6 ? ' class="today"' : "") + ">" + (i === 6 ? t.todayW : t.dShort[x.d.getDay()]) + "</text>";
+    });
+    $("#wkChart").innerHTML = s;
+    $("#wkChart").setAttribute("aria-label", t.wkT + ": " + days.map(x => x.said + "/" + x.done).join(", "));
+    return days.reduce((a, x) => a + x.done, 0);
+  },
+  render() {
+    const t = L();
+    ["mEy", "mH", "mSub", "wkT", "lgA", "lgB", "mSect"].forEach(k => { $("#" + k).textContent = t[k]; });
+    const doneWeek = MEM.chart();
+    const open_ = S.tasks.filter(x => x.status !== "hecha").sort((a, b) => MEM.fade(b) - MEM.fade(a));
+    const dated = open_.filter(x => x.rem).length, paused = open_.filter(x => x.pauses || x.status === "en_pausa").length;
+    $("#kpis").innerHTML = '<div><b>' + dated + "/" + open_.length + "</b><span>" + t.k1 + '</span></div><div><b>' + paused + "</b><span>" + t.k2 + '</span></div><div><b>' + doneWeek + "</b><span>" + t.k3 + "</span></div>";
+    $("#mSect").hidden = !open_.length;
+    if (!open_.length) { $("#memList").innerHTML = '<p class="sub">' + esc(t.memEmpty) + "</p>"; return; }
+    $("#memList").innerHTML = open_.map((x, i) => {
+      const f = MEM.fade(x), days = Math.floor((Date.now() - (x.at || Date.now())) / 864e5);
+      const fl = f > 1 ? t.fLate : f < .35 ? t.f0 : f < .7 ? t.f1 : t.f2, c = x.priority ? "var(--" + x.priority + ")" : "var(--ink2)";
+      const ph = x.photo ? '<img src="' + esc(x.photo.src) + '" alt="' + esc(x.photo.alt) + '" loading="lazy" referrerpolicy="no-referrer">' : "";
+      const cr = x.photo && x.photo.credit ? '<a class="cr" href="' + esc(x.photo.profile || x.photo.sourceUrl || "#") + '" target="_blank" rel="noopener">' + esc(t.photoBy + ": " + x.photo.credit + (x.photo.source ? " · " + x.photo.source : "")) + "</a>" : "";
+      return '<div class="mc" style="--c:' + c + '"><button class="ph" data-i="' + i + '" aria-label="' + esc(x.title) + '"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">' + (ICON[x.icon] || ICON.other) + "</svg>" + ph + "</button>" +
+        '<div class="mb"><button class="mt" data-i="' + i + '">' + esc(x.title) + '</button><div class="mm">' + esc(t.ago(days) + t.paus(x.pauses)) + '</div><div class="fade"><i style="width:' + Math.round(Math.min(1, f) * 100) + '%"></i></div><div class="fl">' + esc(fl) + "</div>" +
+        '<button class="chip' + (x.rem ? " set" : "") + '" data-i="' + i + '"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>' + esc(x.rem ? WHEN.short(x.rem) : t.noDate) + "</button>" + cr + "</div></div>";
+    }).join("");
+    $$("#memList img").forEach(im => im.addEventListener("error", () => im.remove()));
+    $$("#memList [data-i]").forEach(el => el.addEventListener("click", () => {
+      const task = open_[+el.dataset.i], b = B.find(z => z.t === task);
+      MEM.view("bub"); if (b) setTimeout(() => openDetail(b), 320);
+    }));
+  },
+  view(v) {
+    $("#vBub").setAttribute("aria-pressed", v === "bub"); $("#vMem").setAttribute("aria-pressed", v === "mem");
+    if (v === "mem") { MEM.render(); if (!isOpen("mem")) open("mem"); MEM.photos(S.tasks); }
+    else if (isOpen("mem")) close("mem");
+  },
+};
+$("#vBub").addEventListener("click", () => MEM.view("bub"));
+$("#vMem").addEventListener("click", () => MEM.view("mem"));
+$("#mem .dim").addEventListener("click", () => MEM.view("bub"));
+
+/* ---------- ¿cuándo? recordatorios ---------- */
+const WHEN = {
+  short(r) { const d = remDate(r), l = L(); return l.wds[d.getDay()] + " " + d.getDate() + (r.h ? " · " + r.h : ""); },
+  long(r) { const d = remDate(r), l = L(); return l.wd[d.getDay()] + " " + d.getDate() + (r.h ? l.at + r.h : ""); },
+  set(t, r) { t.rem = r; save(); ACC.update(t); WHEN.render(t); if (isOpen("mem")) MEM.render(); },
+  render(t) {
+    const l = L(), r = t.rem, today = ymd(new Date()), tom = ymd(new Date(Date.now() + 864e5));
+    $("#lWhen").textContent = l.lWhen;
+    const opts = [["d", l.wToday, today], ["d", l.wTom, tom]];
+    if (r && r.d !== today && r.d !== tom) opts.push(["d", WHEN.short({d: r.d}), r.d]);
+    opts.push(["n", l.wNone, ""]);
+    $("#dWhen").innerHTML = opts.map(o => '<button data-d="' + o[2] + '" aria-pressed="' + (o[2] ? !!r && r.d === o[2] : !r) + '">' + esc(o[1]) + "</button>").join("");
+    $$("#dWhen button").forEach(btn => btn.addEventListener("click", () => {
+      const d = btn.dataset.d;
+      WHEN.set(t, d ? {d, h: (r && r.h) || null, said: r && r.d === d ? r.said : null, notify: r?.notify} : null);
+    }));
+    $("#dDate").value = r ? r.d : ""; $("#dTime").value = r && r.h ? r.h : "";
+    $("#dWNote").textContent = r ? (r.said ? l.wSaid(r.said) + " " : "") + l.wSet(WHEN.long(r)) : l.wPick;
+    $("#dWAct").hidden = !r; $("#dNotifyRow").hidden = !r;
+    $("#dGcal").textContent = l.gcal; $("#dIcs").textContent = l.ics; $("#dNotifyL").textContent = l.notifyL;
+    $("#dNotify").setAttribute("aria-pressed", !!(r && r.notify));
+    if (r) {
+      const st = remDate(r), en = new Date(st.getTime() + 30 * 6e4);
+      const f = d => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+      $("#dGcal").href = "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(t.title) + "&dates=" + f(st) + "/" + f(en) + "&details=" + encodeURIComponent((t.summary || "") + " · Tangent");
+    }
+  },
+  ics(t) {
+    const st = remDate(t.rem), en = new Date(st.getTime() + 30 * 6e4);
+    const f = d => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+    const e = s => String(s || "").replace(/\\/g, "\\\\").replace(/([,;])/g, "\\$1").replace(/\n/g, "\\n");
+    const body = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Tangent//Burbujas//ES", "BEGIN:VEVENT", "UID:" + (t.dbId || t.id) + "@tangent", "DTSTAMP:" + f(new Date()),
+      "DTSTART:" + f(st), "DTEND:" + f(en), "SUMMARY:" + e(t.title), "DESCRIPTION:" + e(t.summary), "BEGIN:VALARM", "TRIGGER:-PT15M", "ACTION:DISPLAY", "DESCRIPTION:" + e(t.title), "END:VALARM",
+      "END:VEVENT", "END:VCALENDAR"].join("\r\n");
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([body], {type: "text/calendar"})); a.download = "tangent.ics";
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+  },
+  tick() {
+    const now = new Date();
+    S.tasks.forEach(t => {
+      if (!t.rem || t.rem.fired || t.status === "hecha" || !t.rem.h) return;
+      const d = remDate(t.rem);
+      if (d > now || now - d > 6 * 36e5) return;
+      t.rem.fired = true; save();
+      toast(L().due(t.title));
+      const b = B.find(z => z.t === t); if (b) { b.el.classList.add("ring"); setTimeout(() => b.el.classList.remove("ring"), 8000); }
+      if (t.rem.notify && "Notification" in window && Notification.permission === "granted") {
+        try { new Notification(t.title, {body: t.summary || "", icon: "/assets/icon.png", tag: "tangent-" + t.id}); } catch {}
+      }
+    });
+  },
+};
+["dDate", "dTime"].forEach(id => $("#" + id).addEventListener("change", () => {
+  if (!cur) return; const d = $("#dDate").value; if (!d) return;
+  const r = cur.t.rem || {};
+  WHEN.set(cur.t, {d, h: $("#dTime").value || null, said: r.d === d ? r.said : null, notify: r.notify});
+}));
+$("#dIcs").addEventListener("click", () => { if (cur?.t.rem) WHEN.ics(cur.t); });
+$("#dNotify").addEventListener("click", async () => {
+  if (!cur?.t.rem) return;
+  const on = !cur.t.rem.notify;
+  if (on) {
+    if (!("Notification" in window)) return toast(L().notifyNo);
+    let p = Notification.permission;
+    if (p === "default") { try { p = await Notification.requestPermission(); } catch { p = "denied"; } }
+    if (p !== "granted") return toast(L().notifyNo);
+    toast(L().notifyOn);
+  }
+  cur.t.rem = {...cur.t.rem, notify: on, fired: false}; save(); WHEN.render(cur.t);
+});
+setInterval(WHEN.tick, 30000); setTimeout(WHEN.tick, 4000);
 
 /* ---------- modo emergencia ---------- */
 let sosT = null, stepI = 0;
@@ -542,7 +736,7 @@ $("#whyBtn").addEventListener("click", () => open("why"));
 $("#still").addEventListener("click", () => setStill(!S.still));
 $$(".sw").forEach(b => b.addEventListener("click", () => setMode(b.dataset.mode)));
 $("#lang").addEventListener("click", () => { S.lang = S.lang === "es" ? "en" : "es"; save(); texts(); if (isOpen("det") && cur) openDetail(cur); });
-document.addEventListener("keydown", e => { if (e.key === "Escape") ["det", "pay", "why", "acct"].forEach(id => isOpen(id) && close(id)); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") ["det", "pay", "why", "acct"].forEach(id => isOpen(id) && close(id)); if (isOpen("mem")) MEM.view("bub"); });
 
 /* ---------- cuenta (Supabase) ---------- */
 // Loaded only when the site has Supabase settings. Bubbles of a signed-in person are saved with row level security:
@@ -579,7 +773,9 @@ const ACC = {ready: false, sb: null, user: null, session: null, plan: "free", mo
     const {data, error} = await this.sb.from("bubbles").select("*").neq("status", "hecha").order("created_at", {ascending: true}).limit(12);
     if (error || !data) return;
     B.forEach(b => b.el.remove()); B = [];
-    S.tasks = data.map(r => ({id: "db" + r.id, dbId: r.id, title: r.title, summary: r.summary, raw: r.raw_quote, icon: r.icon || "other", priority: r.priority, cue: r.priority_cue, source: r.priority_source, status: r.status, steps: r.emergency_steps || [], hx: r.pos_x, hy: r.pos_y}));
+    S.tasks = data.map(r => ({id: "db" + r.id, dbId: r.id, title: r.title, summary: r.summary, raw: r.raw_quote, icon: r.icon || "other", priority: r.priority, cue: r.priority_cue, source: r.priority_source, status: r.status, steps: r.emergency_steps || [], hx: r.pos_x, hy: r.pos_y,
+      at: Date.parse(r.created_at) || Date.now(), pauses: r.pauses || 0, photo: r.photo || null, rem: r.remind_at ? fromIso(r.remind_at, r.remind_said) : null}));
+    this.history(); MEM.photos(S.tasks);
     const free = S.tasks.filter(t => t.hx == null || t.hy == null);
     if (free.length) layoutHomes(S.tasks);
     save(); S.tasks.forEach(t => makeBubble(t, false));
@@ -591,7 +787,9 @@ const ACC = {ready: false, sb: null, user: null, session: null, plan: "free", mo
       const {data: rec} = await this.sb.from("recordings").insert({user_id: this.user.id, transcript: transcript || null, lang: S.lang, priority_found: tasks.every(t => t.priority)}).select("id").single();
       const rows = tasks.map(t => ({user_id: this.user.id, recording_id: rec?.id || null, title: String(t.title).slice(0, 40), summary: t.summary || t.title, raw_quote: t.raw || null, icon: t.icon || null,
         priority: t.priority || null, priority_source: t.priority ? (t.source || "dicha") : null, priority_cue: t.cue || null, status: t.priority ? t.status : "planificacion", emergency_steps: t.steps || [], pos_x: t.hx ?? null, pos_y: t.hy ?? null}));
-      const {data} = await this.sb.from("bubbles").insert(rows).select("id");
+      const full = rows.map((r, i) => ({...r, ...extras(tasks[i])}));
+      let {data, error} = await this.sb.from("bubbles").insert(this.noMem ? rows : full).select("id");
+      if (error && !this.noMem) { this.noMem = true; ({data} = await this.sb.from("bubbles").insert(rows).select("id")); }
       (data || []).forEach((r, i) => { tasks[i].dbId = r.id; });
       save();
     } catch {}
@@ -600,8 +798,24 @@ const ACC = {ready: false, sb: null, user: null, session: null, plan: "free", mo
     if (!this.user || !t.dbId) return;
     clearTimeout(t._sync);
     t._sync = setTimeout(() => {
-      this.sb.from("bubbles").update({priority: t.priority || null, priority_source: t.priority ? (t.source || "manual") : null, status: t.priority ? t.status : "planificacion", pos_x: t.hx ?? null, pos_y: t.hy ?? null}).eq("id", t.dbId).then(() => {}, () => {});
+      const base = {priority: t.priority || null, priority_source: t.priority ? (t.source || "manual") : null, status: t.priority ? t.status : "planificacion", pos_x: t.hx ?? null, pos_y: t.hy ?? null};
+      const run = o => this.sb.from("bubbles").update(o).eq("id", t.dbId);
+      run(this.noMem ? base : {...base, ...extras(t)}).then(r => { if (r?.error && !this.noMem) { this.noMem = true; run(base).then(() => {}, () => {}); } }, () => {});
     }, 400);
+  },
+  async history() {
+    // last 7 days, from the account: what was said (created) and what was finished (done_at)
+    try {
+      const since = new Date(Date.now() - 7 * 864e5).toISOString();
+      const [a, b] = await Promise.all([
+        this.sb.from("bubbles").select("created_at").gte("created_at", since).limit(500),
+        this.sb.from("bubbles").select("done_at").gte("done_at", since).limit(500)]);
+      if (a.error || b.error) return;
+      const h = {};
+      (a.data || []).forEach(r => { const k = ymd(new Date(r.created_at)); (h[k] = h[k] || [0, 0])[0]++; });
+      (b.data || []).forEach(r => { if (!r.done_at) return; const k = ymd(new Date(r.done_at)); (h[k] = h[k] || [0, 0])[1]++; });
+      S.hist = h; save(); if (isOpen("mem")) MEM.render();
+    } catch {}
   },
   emergency(t, step) {
     if (!this.user || !t.dbId) return;
