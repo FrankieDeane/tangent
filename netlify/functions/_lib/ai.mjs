@@ -458,3 +458,51 @@ async function tasksTextGroq(text, lang) {
   if (!out.transcript) out.transcript = text;
   return { ...out, provider: "groq" };
 }
+
+// ---------- Tangent Study: read a topic aloud -> plain explanation in ES and EN ----------
+// The person must cite the source first. We only explain what they said (and the sheet photo); we never add facts from nowhere.
+export async function studyTranscribe(wavBase64) {
+  const prompt = `Transcribe this audio word for word, in the language actually spoken (Spanish or English, maybe mixed). Do not summarise, do not fix content. Reply with ONLY a JSON object: {"text": "the transcript"}. If nobody speaks, {"text": ""}.`;
+  try {
+    const out = parseJSON(await gemini([{ inline_data: { mime_type: "audio/wav", data: wavBase64 } }, { text: prompt }], { temperature: 0 }));
+    return { text: String(out.text || ""), provider: "gemini" };
+  } catch (e) {
+    if (e instanceof Blocked) throw e;
+    console.error("gemini study transcribe failed, trying groq:", e.message);
+    return { text: await groqTranscribe(wavBase64), provider: "groq" };
+  }
+}
+
+function studyPrompt({ transcript, source, topic, hasImage }) {
+  const src = `Title: ${source.title}${source.author ? ` | Author: ${source.author}` : ""}${source.page ? ` | Pages/chapter: ${source.page}` : ""}`;
+  return `You help a student with ADHD (any age from 6 to university) understand a topic. They read or explained it aloud from a source they cited${hasImage ? ", and they also sent a photo of the sheet" : ""}. Explain it "for dummies": short sentences, everyday words, one idea per sentence, warm, never childish for older students, never clinical.
+Use ONLY what the student said${hasImage ? " and what is written in the photo" : ""}. Do not add facts, dates or names that are not there. If something they said looks wrong or unclear, do not correct it silently: say it in "review" so they check it in their source.
+School topics like history, wars, biology, the human body, religions or politics as a school subject are fine; explain them neutrally.
+Safety: set safety.ok false only for sexual content beyond a school biology level, anything sexual involving minors, hate, insults or swear words, or signs of suicide or self-harm (topic "selfharm"). Only Spanish and English: "language" is "other" for anything else.
+
+Cited source: ${src}
+Topic they named: ${topic || "(not given)"}
+What they said: """${String(transcript || "").slice(0, 12000)}"""
+
+Reply with ONLY a JSON object, every field in BOTH languages (es = Spanish from Argentina with natural voseo, en = English):
+{"language": "es|en|other",
+ "safety": {"ok": true, "topic": "none|sexual|minors|hate|profanity|selfharm|other"},
+ "title": {"es": "max 6 words", "en": "max 6 words"},
+ "plain": {"es": "the explanation, 60 to 130 words", "en": "same in English"},
+ "points": {"es": ["3 to 5 key ideas, max 14 words each"], "en": ["same"]},
+ "concepts": [3 objects: {"es": "1 to 3 words", "en": "1 to 3 words", "photo": "2 or 3 English words for a real stock photo that shows it"}],
+ "check": {"es": ["2 short questions to test yourself"], "en": ["same"]},
+ "review": {"es": "one sentence on what to double-check in the source, or empty", "en": "same or empty"}}`;
+}
+
+export async function studyExplain({ transcript, source, topic, image }) {
+  const prompt = studyPrompt({ transcript, source, topic, hasImage: Boolean(image) });
+  const parts = image ? [{ inline_data: { mime_type: "image/jpeg", data: image } }, { text: prompt }] : [{ text: prompt }];
+  try { return { ...parseJSON(await gemini(parts, { temperature: 0.3 })), provider: "gemini" }; }
+  catch (e) {
+    if (e instanceof Blocked) throw e;
+    if (!String(transcript || "").trim()) throw e; // photo only: Groq cannot read images
+    console.error("gemini study failed, trying groq:", e.message);
+    return { ...parseJSON(await groqChat(studyPrompt({ transcript, source, topic, hasImage: false }), { temperature: 0.3 })), provider: "groq" };
+  }
+}
