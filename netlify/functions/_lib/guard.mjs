@@ -83,6 +83,16 @@ export function checkText(text) {
   return null;
 }
 
+// Study mode: school topics (history, biology, wars) are allowed. Only these block.
+export function checkStudyText(text) {
+  if (!text) return null;
+  for (const cat of ["selfharm", "minors", "hate", "profanity"]) {
+    const term = hits(text, LISTS[cat]);
+    if (term) return { category: cat, term };
+  }
+  return null;
+}
+
 // ---------- identity (anonymous) ----------
 export function hashId(value) {
   const salt = process.env.TANGENT_SALT || "tangent-default-salt-change-me";
