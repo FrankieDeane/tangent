@@ -462,7 +462,7 @@ async function tasksTextGroq(text, lang) {
 // ---------- Tangent Study: read a topic aloud -> plain explanation in ES and EN ----------
 // The person must cite the source first. We only explain what they said (and the sheet photo); we never add facts from nowhere.
 export async function studyTranscribe(wavBase64) {
-  const prompt = `Transcribe this audio word for word, in the language actually spoken (Spanish or English, maybe mixed). Do not summarise, do not fix content. Reply with ONLY a JSON object: {"text": "the transcript"}. If nobody speaks, {"text": ""}.`;
+  const prompt = `Transcribe this audio word for word, in the language actually spoken (Spanish or English, maybe mixed). Do not summarise, do not fix content. Never guess: when a word or phrase is not clearly audible, write [?] in its place. Reply with ONLY a JSON object: {"text": "the transcript"}. If nobody speaks, {"text": ""}.`;
   try {
     const out = parseJSON(await gemini([{ inline_data: { mime_type: "audio/wav", data: wavBase64 } }, { text: prompt }], { temperature: 0 }));
     return { text: String(out.text || ""), provider: "gemini" };
@@ -477,6 +477,8 @@ function studyPrompt({ transcript, source, topic, hasImage }) {
   const src = `Title: ${source.title}${source.author ? ` | Author: ${source.author}` : ""}${source.page ? ` | Pages/chapter: ${source.page}` : ""}`;
   return `You help a student with ADHD (any age from 6 to university) understand a topic. They read or explained it aloud from a source they cited${hasImage ? ", and they also sent a photo of the sheet" : ""}. Explain it "for dummies": short sentences, everyday words, one idea per sentence, warm, never childish for older students, never clinical.
 Use ONLY what the student said${hasImage ? " and what is written in the photo" : ""}. Do not add facts, dates or names that are not there. If something they said looks wrong or unclear, do not correct it silently: say it in "review" so they check it in their source.
+Speech recognition can fail. Set "clarity" to "low" when the text is fragmented, has many [?], reads like random words, or does not match the cited source or topic at all; in that case do NOT invent an explanation (leave plain and points empty). Never fill gaps with guesses.
+Concepts are for pictures: pick only things the student clearly and literally talked about, concrete enough to photograph. If you are not sure, return fewer concepts (zero is fine).
 School topics like history, wars, biology, the human body, religions or politics as a school subject are fine; explain them neutrally.
 Safety: set safety.ok false only for sexual content beyond a school biology level, anything sexual involving minors, hate, insults or swear words, or signs of suicide or self-harm (topic "selfharm"). Only Spanish and English: "language" is "other" for anything else.
 
@@ -487,10 +489,11 @@ What they said: """${String(transcript || "").slice(0, 12000)}"""
 Reply with ONLY a JSON object, every field in BOTH languages (es = Spanish from Argentina with natural voseo, en = English):
 {"language": "es|en|other",
  "safety": {"ok": true, "topic": "none|sexual|minors|hate|profanity|selfharm|other"},
+ "clarity": "good|low",
  "title": {"es": "max 6 words", "en": "max 6 words"},
  "plain": {"es": "the explanation, 60 to 130 words", "en": "same in English"},
  "points": {"es": ["3 to 5 key ideas, max 14 words each"], "en": ["same"]},
- "concepts": [3 objects: {"es": "1 to 3 words", "en": "1 to 3 words", "photo": "2 or 3 English words for a real stock photo that shows it"}],
+ "concepts": [0 to 3 objects: {"es": "1 to 3 words", "en": "1 to 3 words", "photo": "2 or 3 English words for a real stock photo that shows it"}],
  "check": {"es": ["2 short questions to test yourself"], "en": ["same"]},
  "review": {"es": "one sentence on what to double-check in the source, or empty", "en": "same or empty"}}`;
 }

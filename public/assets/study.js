@@ -10,7 +10,7 @@ const LS = {
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
 const K = { lang: "tangent.study.lang", folder: "tangent.study.folder", board: "tangent.study.board", agenda: "tangent.study.agenda", scale: "tangent.study.scale",
-  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test" };
+  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup" };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = n => String(n).padStart(2, "0");
@@ -25,7 +25,8 @@ const S = {
   home: ["Inicio", "Home"], study: ["Study", "Study"], folder: ["Carpeta", "Folder"], board: ["Tablero", "Board"], agenda: ["Agenda", "Planner"],
   progress: ["Cómo me fue", "How it went"], test: ["Tu cabeza", "Your brain"], kit: ["Kit de papel", "Paper kit"], ideas: ["Ideas", "Ideas"],
   account: ["Cuenta", "Account"], terms: ["Tus datos", "Your data"],
-  heroT: ["Decí un tema en voz alta. Te lo explico fácil.", "Say a topic out loud. I'll explain it simply."],
+  heroT1: ["Decí un tema en voz alta.", "Say a topic out loud."], heroT2: ["Te lo explico fácil.", "I'll explain it simply."],
+  heroNote: ["¡empezá acá!", "start here!"], more: ["Más", "More"],
   heroP: ["Citás tu libro, hablás hasta 10 minutos y te queda un resumen en español y en inglés, con imágenes, para imprimir.", "Cite your book, talk for up to 10 minutes and get a summary in Spanish and English, with pictures, ready to print."],
   start: ["Empezar un tema", "Start a topic"],
   tStudy: ["Hablá, sacale foto a la hoja o escribí.", "Talk, snap the sheet or type."], tFolder: ["Tus resúmenes. Bajalos en PDF.", "Your summaries. Download as PDF."],
@@ -43,6 +44,15 @@ const S = {
   howLong: ["¿Cuánto vas a hablar como máximo?", "How long will you talk at most?"], min: ["min", "min"], next: ["Seguir", "Next"], back: ["Volver", "Back"],
   needSource: ["Escribí el nombre de tu fuente para seguir.", "Write your source's name to continue."],
   s2: ["Contalo como te salga", "Say it however it comes out"],
+  tipT: ["Para que te entienda bien", "So I understand you well"],
+  tips: [["Buscá un lugar sin ruido (tele, música, gente hablando).", "Poné el celu a un palmo de la boca.", "Hablá despacio y claro, como si dictaras.", "Las palabras raras o nombres, decilos dos veces o deletrealos.", "Mirá la barrita: si está verde, te escucho bien."],
+         ["Find a quiet place (no TV, music or people talking).", "Hold the phone a hand's width from your mouth.", "Speak slowly and clearly, as if dictating.", "Say unusual words or names twice, or spell them.", "Watch the bar: if it's green, I hear you well."]],
+  louder: ["más cerca o más fuerte", "closer or louder"], hearOk: ["¡te escucho bien!", "I hear you well!"],
+  unclear: ["No te entendí bien y no quiero inventar. Grabá de nuevo más despacio y en un lugar con menos ruido, o corregí el texto (las partes marcadas con [?]).", "I didn't understand you well and I don't want to make things up. Record again more slowly in a quieter place, or fix the text (the parts marked [?])."],
+  manyQ: ["Hay varias partes que no se entendieron [?]. Corregilas antes de seguir.", "Several parts weren't understood [?]. Fix them before going on."],
+  recAgain: ["Grabar de nuevo", "Record again"],
+  photoTake: ["Sacar o elegir foto", "Take or choose photo"], photoAgain: ["Otra foto", "Another photo"],
+  photoWarn: ["Sacale foto solo a la hoja, sin caras ni datos personales.", "Only photograph the sheet: no faces or personal details."],
   s2p: ["Leé en voz alta o explicalo con tus palabras. Podés trabarte, repetir o ir y volver: no pasa nada.", "Read aloud or explain it in your own words. Stumbling, repeating or going back and forth is fine."],
   tapRec: ["Tocá para grabar", "Tap to record"], tapStop: ["Terminar", "Finish"], recording: ["Grabando…", "Recording…"],
   pieces: ["partes pasadas a texto", "pieces turned into text"], working: ["Pasando a texto…", "Turning into text…"],
@@ -87,7 +97,8 @@ const S = {
   before10: ["10 min antes", "10 min before"], before60: ["1 hora antes", "1 hour before"], before1d: ["1 día antes", "1 day before"],
   add: ["Agregar", "Add"], gcal: ["Google Calendar", "Google Calendar"], ics: ["Otro calendario (.ics)", "Other calendar (.ics)"],
   notif: ["Avisarme en este dispositivo", "Remind me on this device"], notifOn: ["Avisos activados mientras Tangent esté abierto.", "Reminders on while Tangent is open."],
-  printWeek: ["Imprimir semana", "Print week"], upcoming: ["Lo que viene", "Coming up"], past: ["Ya pasó", "Past"],
+  printWeek: ["Imprimir semana", "Print week"], printMonth: ["Imprimir mes", "Print month"], tag: ["Etiqueta", "Label"],
+  tagsEdit: ["Etiqueta nueva", "New label"], tagName: ["Nombre (ej.: Mate, Inglés, Fútbol)", "Name (e.g. Maths, English, Football)"], upcoming: ["Lo que viene", "Coming up"], past: ["Ya pasó", "Past"],
   // progress
   progressP: ["Una vez por día: ¿cómo te fue estudiando? Sin culpa, solo para ver cómo vas.", "Once a day: how did studying go? No guilt, just to see how you're doing."],
   today: ["Hoy", "Today"], scaleL: [["Muy difícil", "Difícil", "Más o menos", "Bien", "Muy bien"], ["Very hard", "Hard", "So-so", "Good", "Great"]],
@@ -148,6 +159,9 @@ const S = {
   optOut: ["Podés sacar los permisos opcionales cuando quieras.", "You can withdraw optional permissions any time."],
   saveProfile: ["Guardar en este dispositivo", "Save on this device"], profSaved: ["Guardado en este dispositivo (sin la contraseña).", "Saved on this device (without the password)."],
   verifyT: ["Verificación y recuperación", "Verification and recovery"],
+  signupT: ["Crear cuenta", "Create account"], whoUses: ["¿Quién va a usar Tangent?", "Who is going to use Tangent?"],
+  sendReq: ["Enviar solicitud", "Send request"], reqSaved: ["Solicitud lista (vista previa). Cuando conectemos las cuentas, se envía de verdad.", "Request ready (preview). Once accounts are connected, it gets sent for real."],
+  tKids: ["<b>Protección de chicos.</b> No hay chat ni mensajes entre usuarios, ni perfiles públicos, ni publicidad. Los menores de 13 no tienen usuario propio: entran desde la cuenta de un adulto, con PIN. De 13 a 17, un adulto aprueba la cuenta y puede ver todo. Filtramos contenido en lo que se dice y en lo que responde la IA. Las fotos son solo de hojas, sin caras.", "<b>Child protection.</b> No chat or messages between users, no public profiles, no ads. Under-13s have no login of their own: they use an adult's account, with a PIN. From 13 to 17, an adult approves the account and can see everything. We filter content in what's said and in what the AI answers. Photos are only of sheets, no faces."],
   verifyP: ["Cuando se active: te llega un código de 6 dígitos al mail, y al crear la cuenta te damos un código de recuperación para anotar en papel. Si olvidás la contraseña: mail, código, contraseña nueva.", "Once active: you get a 6-digit code by email, and when you create the account you get a recovery code to write on paper. Forgot your password: email, code, new password."],
   needGuardian: ["Si sos menor, falta el mail de un adulto.", "If you're under 18, an adult's email is missing."], needTerms: ["Tenés que aceptar los Términos.", "You need to accept the Terms."],
   // terms
@@ -203,21 +217,40 @@ async function printHTML(html, paper = "A4") {
 }
 const printHdr = () => `<div class="hdr"><img src="/assets/logo-skater.png" alt="">Tangent</div>`;
 
+/* ---------------- hand-drawn icons ---------------- */
+const IC = {
+  home: '<path d="M3 11.5 12 4l9 7.5M5.5 10v10h13V10M10 20v-5.5h4V20"/>',
+  study: '<path d="M12 3.2c-1.7 0-3 1.3-3 3V12a3 3 0 0 0 6 0V6.2c0-1.7-1.3-3-3-3zM5.2 11.3a6.8 6.8 0 0 0 13.6 0M12 18.3v3"/>',
+  folder: '<path d="M3 6.3h6.2l2 2.1H21v10.8H3z"/>',
+  board: '<path d="M3.2 4h5v16h-5zM10 4h5v10.5h-5zM16.8 4H21v7h-4.2z"/>',
+  agenda: '<path d="M4 5.2h16V20H4zM4 10h16M8.2 3v4M15.8 3v4M8 14h2M14 14h2M8 17h2"/>',
+  progress: '<path d="M4 20V4.2M4 20h16.2M7.5 15.5l4.2-5 3.1 3 5-6.6"/>',
+  test: '<path d="M9.5 20.5v-3.1C6.5 16 5 13.6 5 11a7 7 0 0 1 14 0c0 .9-.2 1.7-.5 2.4l1.5 2.4h-2v2.7h-3.2v2"/><path d="M10 9.5c.4-1.2 2.6-1.5 3.2-.2.5 1.1-.6 1.6-1.2 2.1v.9"/>',
+  kit: '<circle cx="6" cy="7" r="2.6"/><circle cx="6" cy="17" r="2.6"/><path d="M8.2 8.4 20 17.5M8.2 15.6 20 6.5"/>',
+  ideas: '<path d="M9.2 18.2h5.6M10.2 21h3.6M12 3a6 6 0 0 0-4 10.4c.8.8 1.1 1.6 1.2 2.6h5.6c.1-1 .4-1.8 1.2-2.6A6 6 0 0 0 12 3z"/>',
+  account: '<circle cx="12" cy="8" r="4"/><path d="M4.2 21c1-4.2 4-6.2 7.8-6.2s6.8 2 7.8 6.2"/>',
+  terms: '<path d="M5 11h14v10H5zM8 11V7.3a4 4 0 0 1 8 0V11M12 15v2.5"/>',
+  more: '<path d="M4 7h16M4 12h16M4 17h11"/>',
+};
+const ic = (k, cls = "") => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><g>${IC[k] || IC.more}</g></svg>`;
+const squiggle = () => `<svg class="squiggle" viewBox="0 0 120 10" aria-hidden="true"><path d="M2 6c8-5 14 4 22 0s14-5 22 0 14 4 22 0 14-5 22 0 14 4 22 0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>`;
+
 /* ---------------- router ---------------- */
-const NAV = [["inicio", "⌂", "home"], ["study", "🎙️", "study"], ["carpeta", "📁", "folder"], ["tablero", "▦", "board"], ["agenda", "🗓️", "agenda"],
-  ["progreso", "📈", "progress"], ["test", "🧠", "test"], ["kit", "✂️", "kit"], ["ideas", "💡", "ideas"], ["cuenta", "👤", "account"], ["terminos", "🔒", "terms"]];
-const TABS = ["inicio", "study", "carpeta", "tablero", "agenda"];
+const NAV = [["inicio", "home"], ["study", "study"], ["carpeta", "folder"], ["tablero", "board"], ["agenda", "agenda"],
+  ["progreso", "progress"], ["test", "test"], ["kit", "kit"], ["ideas", "ideas"], ["cuenta", "account"], ["terminos", "terms"]];
+const TABS = ["inicio", "study", "tablero", "agenda", "mas"];
 let route = "inicio", arg = "";
 const V = {}; // views: name -> {html(), mount?()}
 function render() {
   document.documentElement.lang = L;
   $("#langBtn").textContent = L === "en" ? "ES" : "EN";
-  $("#side").innerHTML = NAV.map(([r, i, k]) => `<a href="#${r}" class="${r === route ? "on" : ""}"><span>${i}</span>${esc(t(k))}</a>`).join("");
-  $("#tabs").innerHTML = NAV.filter(n => TABS.includes(n[0])).map(([r, i, k]) => `<a href="#${r}" class="${r === route ? "on" : ""}"><b>${i}</b>${esc(t(k))}</a>`).join("");
+  $("#side").innerHTML = NAV.map(([r, k]) => `<a href="#${r}" class="${r === route ? "on" : ""}">${ic(k)}${esc(t(k))}</a>`).join("");
+  const inMore = !["inicio", "study", "tablero", "agenda"].includes(route);
+  $("#tabs").innerHTML = [...NAV.filter(n => TABS.includes(n[0])), ["mas", "more"]].map(([r, k]) => `<a href="#${r}" class="${r === route || (r === "mas" && inMore) ? "on" : ""}">${ic(k)}${esc(t(k))}</a>`).join("");
   const v = V[route] || V.inicio;
   $("#view").innerHTML = v.html();
   v.mount?.();
-  document.title = `Tangent · ${t((NAV.find(n => n[0] === route) || NAV[0])[2])}`;
+  document.title = `Tangent · ${t((NAV.find(n => n[0] === route) || ["", "home"])[1])}`;
 }
 function go() {
   let h = decodeURIComponent(location.hash.slice(1));
@@ -242,18 +275,25 @@ async function tryCode(code) {
 }
 
 /* ---------------- home ---------------- */
+const TILES = [["study", "tStudy"], ["carpeta", "tFolder"], ["tablero", "tBoard"], ["agenda", "tAgenda"], ["progreso", "tProgress"], ["test", "tTest"], ["kit", "tKit"], ["ideas", "tIdeas"], ["cuenta", "tAccount"], ["terminos", "tTerms"]];
+const navKey = r => NAV.find(n => n[0] === r)[1];
 V.inicio = {
   html: () => `
-  <div class="iri" style="padding:20px">
-    <h1>${esc(t("heroT"))}</h1>
+  <div class="iri hero">
+    <img class="skater" src="/assets/logo-skater.png" alt="">
+    <h1>${esc(t("heroT1"))} <span class="mk">${esc(t("heroT2"))}</span></h1>
+    ${squiggle()}
     <p class="lead">${esc(t("heroP"))}</p>
+    <span class="note hand" aria-hidden="true">${esc(t("heroNote"))} ↓</span>
     <a class="btn" href="#study">${esc(t("start"))}</a>
-    <div class="small">${esc(LS.get(K.code, "") ? t("codeOn") : t("codeOff"))} ${LS.get(K.code, "") ? "" : `<a href="#cuenta">${esc(t("haveCode"))}</a>`}</div>
+    <div class="small" style="position:relative">${esc(LS.get(K.code, "") ? t("codeOn") : t("codeOff"))} ${LS.get(K.code, "") ? "" : `<a href="#cuenta">${esc(t("haveCode"))}</a>`}</div>
   </div>
   <div class="grid">
-    ${[["study", "🎙️", "tStudy"], ["carpeta", "📁", "tFolder"], ["tablero", "▦", "tBoard"], ["agenda", "🗓️", "tAgenda"], ["progreso", "📈", "tProgress"], ["test", "🧠", "tTest"], ["kit", "✂️", "tKit"], ["ideas", "💡", "tIdeas"], ["cuenta", "👤", "tAccount"], ["terminos", "🔒", "tTerms"]]
-      .map(([r, i, d]) => `<a class="tile" href="#${r}"><i>${i}</i><b>${esc(t(NAV.find(n => n[0] === r)[2]))}</b><span>${esc(t(d))}</span></a>`).join("")}
+    ${TILES.map(([r, d]) => `<a class="tile" href="#${r}">${ic(navKey(r))}<b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></a>`).join("")}
   </div>`,
+};
+V.mas = {
+  html: () => `<h1>${esc(t("more"))}</h1><div class="menu">${TILES.filter(([r]) => !["study", "tablero", "agenda"].includes(r)).map(([r, d]) => `<a href="#${r}">${ic(navKey(r))}<div><b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></div></a>`).join("")}</div>`,
 };
 
 /* ---------------- Study ---------------- */
@@ -287,16 +327,20 @@ V.study = {
       <h1>${esc(t("s2"))}</h1>${stepsBar(2)}
       ${srcLine(st.source)}
       <p class="lead" style="margin-top:10px">${esc(t("s2p"))}</p>
+      ${on ? "" : `<div class="tip"><span class="hand">${esc(t("tipT"))}</span><ol>${tl("tips", L).map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>`}
       <div class="rec">
         <button class="recbtn ${on ? "on" : ""}" id="recBtn" type="button">${esc(on ? t("tapStop") : t("tapRec"))}</button>
         <div class="clock" id="clock">${on ? "0:00" : `${st.minutes}:00`}</div>
         <div class="bar"><i id="recBar"></i></div>
+        ${on ? `<div class="lvl" aria-hidden="true"><i id="lvl"></i></div><div class="lvlhint hand" id="lvlHint"></div>` : ""}
         <div class="small" id="recInfo">${on ? esc(t("recording")) : done ? `${done} ${esc(t("pieces"))}` : ""}</div>
       </div>
       ${on ? "" : `
       <div class="two">
         <div class="card"><b>📷 ${esc(t("orPhoto"))}</b>
-          <input type="file" id="photo" accept="image/*" capture="environment" style="display:block;margin-top:10px;max-width:100%">
+          <div class="small" style="margin-top:6px">${esc(t("photoWarn"))}</div>
+          <input type="file" id="photo" accept="image/*" capture="environment" class="vh">
+          <label for="photo" class="btn small ghost" style="margin-top:10px;cursor:pointer">📷 ${esc(t(st.imageUrl ? "photoAgain" : "photoTake"))}</label>
           ${st.imageUrl ? `<img src="${st.imageUrl}" alt="" style="width:100%;border-radius:12px;margin-top:10px"><div class="small">${esc(t("photoOk"))}</div><button class="btn small ghost" id="noPhoto" type="button">${esc(t("removePhoto"))}</button>` : ""}
         </div>
         <div class="card"><b>⌨️ ${esc(t("orType"))}</b><textarea class="t" id="typed" maxlength="12000" style="margin-top:10px">${esc(st.transcript)}</textarea></div>
@@ -311,8 +355,9 @@ V.study = {
       ${st.imageUrl ? `<img src="${st.imageUrl}" alt="" style="max-width:220px;border-radius:12px">` : ""}
       <textarea class="t" id="tr" maxlength="12000" style="min-height:200px">${esc(st.transcript)}</textarea>
       ${st.error ? `<div class="warn" style="margin-top:10px">${st.error}</div>` : ""}
+      ${!st.error && (st.transcript.match(/\[\?\]/g) || []).length >= 3 ? `<div class="warn" style="margin-top:10px">${esc(t("manyQ"))}</div>` : ""}
       <button class="btn" id="make" type="button" ${st.busy ? "disabled" : ""}>${esc(st.busy ? t("making") : t("make"))}</button>
-      <button class="btn ghost" id="back2" type="button" ${st.busy ? "disabled" : ""}>${esc(t("back"))}</button>`;
+      <button class="btn ghost" id="back2" type="button" ${st.busy ? "disabled" : ""}>🎙️ ${esc(t("recAgain"))}</button>`;
     const it = st.item;
     if (!it) { st.step = 1; return V.study.html(); }
     return `${stepsBar(4)}${resultHTML(it)}
@@ -369,7 +414,7 @@ function resultHTML(it, view = LS.get("tangent.study.view", L)) {
     <div class="${langs.length > 1 ? "two" : ""}">${langs.map(block).join("")}</div>
     ${r.concepts?.length ? `<b>${esc(t("images"))}</b><div class="concepts" style="margin:8px 0">${r.concepts.map((c, i) => {
       const p = it.photos?.[i];
-      return `<div class="concept"><div class="ph">${p ? `<img src="${esc(p.src)}" alt="${esc(p.alt || c.en)}" loading="lazy">` : "💡"}</div><div class="c">${esc(c[L] || c.es)}<small>${esc(c[L === "en" ? "es" : "en"])}</small></div>${p ? `<div class="credit lic"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.credit)} · ${esc(p.source)}</a></div>` : ""}</div>`;
+      return `<div class="concept"><div class="ph">${p ? `<img src="${esc(p.src)}" alt="${esc(p.alt || c.en)}" loading="lazy">` : `<span class="hand" style="font-size:54px;color:var(--blue)">${esc((c[L] || c.es || "?").slice(0, 1).toUpperCase())}</span>`}</div><div class="c">${esc(c[L] || c.es)}<small>${esc(c[L === "en" ? "es" : "en"])}</small></div>${p ? `<div class="credit lic"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.credit)} · ${esc(p.source)}</a></div>` : ""}</div>`;
     }).join("")}</div>` : ""}`;
 }
 function mountResult() {
@@ -391,7 +436,11 @@ async function recStart() {
   let stream;
   try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
   catch { return toast(t("micDenied"), 5000); }
-  rec = { stream, start: Date.now(), limit: st.minutes * 60, idx: 0, pending: 0, stopping: false, queue: Promise.resolve(), errors: 0, paywall: false, mr: null, seg: null, tick: null };
+  rec = { stream, start: Date.now(), limit: st.minutes * 60, idx: 0, pending: 0, stopping: false, queue: Promise.resolve(), errors: 0, paywall: false, mr: null, seg: null, tick: null, quiet: 0 };
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext; rec.ac = new AC();
+    rec.an = rec.ac.createAnalyser(); rec.an.fftSize = 1024; rec.ac.createMediaStreamSource(stream).connect(rec.an); rec.buf = new Float32Array(rec.an.fftSize);
+  } catch {}
   st.parts = []; st.transcript = "";
   render();
   segment();
@@ -431,6 +480,15 @@ function tickRec() {
   const c = $("#clock"), b = $("#recBar");
   if (c) c.textContent = `${Math.floor(left / 60)}:${pad(Math.floor(left % 60))}`;
   if (b) b.style.width = `${Math.min(100, (sec / rec.limit) * 100)}%`;
+  if (rec.an) {
+    rec.an.getFloatTimeDomainData(rec.buf);
+    let sum = 0; for (const v of rec.buf) sum += v * v;
+    const level = Math.min(1, Math.sqrt(sum / rec.buf.length) * 7);
+    const l = $("#lvl"), h = $("#lvlHint");
+    if (l) l.style.width = `${Math.round(level * 100)}%`;
+    rec.quiet = level < 0.12 ? rec.quiet + 1 : Math.max(0, rec.quiet - 2);
+    if (h) h.textContent = rec.quiet > 12 ? `↑ ${t("louder")}` : level > 0.2 ? t("hearOk") : "";
+  }
   if (left <= 0) recStop();
 }
 function updateRecInfo() {
@@ -447,6 +505,7 @@ function recStop() {
 }
 async function finishRec(r) {
   r.stream.getTracks().forEach(tr => tr.stop());
+  try { r.ac?.close(); } catch {}
   await r.queue;
   rec = null;
   st.transcript = st.parts.filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
@@ -493,6 +552,7 @@ async function makeSummary() {
   try { d = await api("/api/study", { source: st.source, topic: st.topic, transcript: st.transcript, image: st.image || undefined }); }
   catch { d = { status: "ai_error" }; }
   st.busy = false;
+  if (d.status === "unclear") { st.error = esc(t("unclear")); if (d.transcript) st.transcript = d.transcript; return render(); }
   const msg = { paywall: `${esc(t("paywall"))} <a href="#cuenta">${esc(t("seePlans"))}</a>`, blocked: esc(t("blocked")), support: esc(t("support")), language: esc(t("langOnly")), no_source: esc(t("needSource")) }[d.status];
   if (d.status !== "ok") { st.error = msg || esc(t("errAI")); return render(); }
   const item = { id: uid(), at: new Date().toISOString(), source: { ...st.source }, topic: st.topic, transcript: st.transcript, result: d.result, photos: [] };
@@ -580,10 +640,13 @@ const saveBoard = b => LS.set(K.board, b);
 V.tablero = {
   html() {
     const b = board();
+    let sel = LS.get("tangent.study.boardCol", b.cols[0]?.id);
+    if (!b.cols.some(c => c.id === sel)) sel = b.cols[0]?.id;
     return `<h1>${esc(t("board"))}</h1><p class="lead">${esc(t("boardP"))}</p>
       <div class="row" style="margin-bottom:8px"><button class="btn small" data-act="addcol" type="button">${esc(t("addCol"))}</button></div>
+      <div class="colchips" role="tablist">${b.cols.map(c => `<button type="button" role="tab" data-chip="${c.id}" class="${c.id === sel ? "on" : ""}" style="--c:${c.color}">${esc(c.name)} <small>${c.tasks.length}</small></button>`).join("")}</div>
       <div class="board" id="board">${b.cols.map((c, ci) => `
-        <section class="col" data-col="${c.id}" style="--c:${c.color}">
+        <section class="col ${c.id === sel ? "" : "hide-m"}" data-col="${c.id}" style="--c:${c.color}">
           <div class="colh"><h3 data-act="editcol" title="${esc(t("colName"))}">${esc(c.name)}</h3><span class="n">${c.tasks.length}</span>
             <button type="button" data-act="colL" ${ci === 0 ? "disabled" : ""} aria-label="◀">◀</button><button type="button" data-act="colR" ${ci === b.cols.length - 1 ? "disabled" : ""} aria-label="▶">▶</button>
             <button type="button" data-act="editcol" aria-label="✎">✎</button><button type="button" data-act="delcol" aria-label="${esc(t("del"))}">🗑</button></div>
@@ -614,6 +677,8 @@ V.tablero = {
   },
 };
 async function boardAct(e, dbl) {
+  const chip = !dbl && e.target.closest("[data-chip]");
+  if (chip) { LS.set("tangent.study.boardCol", chip.dataset.chip); return render(); }
   const el = e.target.closest("[data-act]"); if (!el) return;
   const act = el.dataset.act;
   // Buttons work with one tap; the column name and task text open the editor with a double tap/click.
@@ -623,7 +688,7 @@ async function boardAct(e, dbl) {
   const swap = (arr, i, j) => { [arr[i], arr[j]] = [arr[j], arr[i]]; };
   if (act === "addcol") {
     const v = await sheet(t("addCol"), `<label class="f">${esc(t("colName"))}</label><input class="t" name="name" maxlength="40" required><label class="f">${esc(t("color"))}</label>${dots("color", COLORS[b.cols.length % COLORS.length])}`);
-    if (v?.name?.trim()) { b.cols.push({ id: uid(), name: v.name.trim(), color: v.color || COLORS[0], tasks: [] }); saveBoard(b); render(); }
+    if (v?.name?.trim()) { const id = uid(); b.cols.push({ id, name: v.name.trim(), color: v.color || COLORS[0], tasks: [] }); saveBoard(b); LS.set("tangent.study.boardCol", id); render(); }
   } else if (act === "editcol" && col) {
     const v = await sheet(t("colName"), `<input class="t" name="name" maxlength="40" required value="${esc(col.name)}"><label class="f">${esc(t("color"))}</label>${dots("color", col.color)}`);
     if (v?.name?.trim()) { col.name = v.name.trim(); col.color = v.color || col.color; saveBoard(b); render(); }
@@ -637,7 +702,7 @@ async function boardAct(e, dbl) {
   } else if (act === "deltask") { if (await confirmIt(t("sure"))) { col.tasks.splice(ti, 1); saveBoard(b); render(); } }
   else if (act === "tU" && ti > 0) { swap(col.tasks, ti, ti - 1); saveBoard(b); render(); }
   else if (act === "tD" && ti < col.tasks.length - 1) { swap(col.tasks, ti, ti + 1); saveBoard(b); render(); }
-  else if ((act === "tL" && ci > 0) || (act === "tR" && ci < b.cols.length - 1)) { col.tasks.splice(ti, 1); b.cols[ci + (act === "tL" ? -1 : 1)].tasks.push(task); saveBoard(b); render(); }
+  else if ((act === "tL" && ci > 0) || (act === "tR" && ci < b.cols.length - 1)) { const to = b.cols[ci + (act === "tL" ? -1 : 1)]; col.tasks.splice(ti, 1); to.tasks.push(task); saveBoard(b); render(); toast(`→ ${to.name}`, 1500); }
 }
 // Drag with finger or mouse (pointer events work on phones too).
 function dragStart(e) {
@@ -646,20 +711,20 @@ function dragStart(e) {
   const ghost = card.cloneNode(true); ghost.classList.add("dragghost"); document.body.appendChild(ghost);
   card.style.opacity = ".35";
   let target = null, index = 0;
-  const boardEl = $("#board");
   const move = ev => {
     ghost.style.left = ev.clientX - 30 + "px"; ghost.style.top = ev.clientY - 20 + "px";
-    const under = document.elementFromPoint(ev.clientX, ev.clientY)?.closest(".col");
-    $$(".tasks.drop").forEach(x => x.classList.remove("drop"));
+    const hit = document.elementFromPoint(ev.clientX, ev.clientY);
+    const under = hit?.closest(".col"), chip = hit?.closest("[data-chip]");
+    $$(".drop").forEach(x => x.classList.remove("drop"));
     target = under ? $(".tasks", under) : null;
-    if (target) {
+    if (chip) { chip.classList.add("drop"); target = { dataset: { col: chip.dataset.chip } }; index = 1e9; }
+    else if (target) {
       target.classList.add("drop");
       const kids = $$(".task", target).filter(k => k !== card);
       index = kids.findIndex(k => { const r = k.getBoundingClientRect(); return ev.clientY < r.top + r.height / 2; });
       if (index < 0) index = kids.length;
     }
-    const br = boardEl.getBoundingClientRect();
-    if (ev.clientX > br.right - 40) boardEl.scrollLeft += 12; else if (ev.clientX < br.left + 40) boardEl.scrollLeft -= 12;
+    if (ev.clientY < 70) window.scrollBy(0, -12); else if (ev.clientY > innerHeight - 90) window.scrollBy(0, 12);
   };
   const up = () => {
     document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up); document.removeEventListener("pointercancel", up);
@@ -691,32 +756,67 @@ function ics(ev) {
   lines.push("END:VEVENT", "END:VCALENDAR");
   download(`tangent-${ev.date}.ics`, lines.join("\r\n"), "text/calendar");
 }
+const TAG_DEFAULTS = [["prueba", "#E2363B", ["Prueba", "Test"]], ["entrega", "#F59E0B", ["Entrega", "Deadline"]], ["estudio", "#2B44E8", ["Estudiar", "Study"]], ["personal", "#16A34A", ["Personal", "Personal"]]];
+const tags = () => LS.get(K.tags, TAG_DEFAULTS.map(([id, color]) => ({ id, color })));
+const tagName = tg => { const d = TAG_DEFAULTS.find(x => x[0] === tg.id); return tg.name || (d ? d[2][L === "en" ? 1 : 0] : "?"); };
+const tagOf = ev => tags().find(x => x.id === ev.tag) || { id: "", color: "#6B7280", name: "—" };
+const agState = { month: null, sel: dayKey(), hide: [] };
+const monthTitle = (y, m, loc) => { const x = new Date(y, m, 1).toLocaleDateString(loc, { month: "long", year: "numeric" }); return x.charAt(0).toUpperCase() + x.slice(1); };
+function monthDays(y, m) {
+  const first = new Date(y, m, 1), shift = (first.getDay() + 6) % 7; // weeks start on Monday
+  return [...Array(42)].map((_, i) => new Date(y, m, 1 - shift + i));
+}
 V.agenda = {
   html() {
-    const all = agenda().sort((a, b) => evStart(a) - evStart(b)), now = Date.now() - 3600e3;
-    const up = all.filter(e => evStart(e) >= now), past = all.filter(e => evStart(e) < now).reverse();
-    const row = ev => `<div class="item"><div class="grow"><b>${esc(ev.title)}</b><div class="small">${esc(fmtDate(ev.date, { weekday: "long", day: "numeric", month: "long" }))} · ${esc(ev.time || "")}${ev.remind ? ` · ⏰ ${esc(t(ev.remind === 10 ? "before10" : ev.remind === 60 ? "before60" : "before1d"))}` : ""}</div>
+    if (!agState.month) { const n = new Date(); agState.month = [n.getFullYear(), n.getMonth()]; }
+    const [y, m] = agState.month, evs = agenda(), tg = tags();
+    const visible = evs.filter(e => !agState.hide.includes(e.tag || ""));
+    const byDay = d => visible.filter(e => e.date === d).sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+    const loc = L === "en" ? "en-US" : "es-AR";
+    const wds = [...Array(7)].map((_, i) => new Date(2024, 0, 1 + i).toLocaleDateString(loc, { weekday: "short" }).replace(".", ""));
+    const sel = agState.sel, selEvs = byDay(sel);
+    const row = ev => { const g = tagOf(ev); return `<div class="item evrow" style="--c:${g.color}"><div class="grow"><b>${esc(ev.title)}</b><div class="small">${esc(ev.time || "")} · ${esc(tagName(g))}${ev.remind ? ` · ⏰ ${esc(t(ev.remind === 10 ? "before10" : ev.remind === 60 ? "before60" : "before1d"))}` : ""}</div>
       <div class="row" style="margin-top:4px"><a href="${esc(gcalUrl(ev))}" target="_blank" rel="noopener" class="small">${esc(t("gcal"))}</a> · <a href="#" data-ics="${ev.id}" class="small">${esc(t("ics"))}</a></div></div>
-      <button class="x" data-delev="${ev.id}" aria-label="${esc(t("del"))}">🗑</button></div>`;
+      <button class="x" data-delev="${ev.id}" aria-label="${esc(t("del"))}">🗑</button></div>`; };
     return `<h1>${esc(t("agenda"))}</h1><p class="lead">${esc(t("agendaP"))}</p>
+      <div class="calhead"><button type="button" data-mon="-1" aria-label="◀">◀</button><b>${esc(monthTitle(y, m, loc))}</b><button type="button" data-mon="1" aria-label="▶">▶</button></div>
+      <div class="tags">${tg.map(g => `<button type="button" data-tag="${g.id}" class="${agState.hide.includes(g.id) ? "off" : ""}" style="--c:${g.color}"><i></i>${esc(tagName(g))}</button>`).join("")}<button type="button" data-tagedit style="--c:#999">＋ ${esc(t("tagsEdit"))}</button></div>
+      <div class="cal">${wds.map(w => `<div class="wd">${esc(w)}</div>`).join("")}
+        ${monthDays(y, m).map(d => { const k = dayKey(d), list = byDay(k);
+          return `<button type="button" class="d ${d.getMonth() !== m ? "out" : ""} ${k === dayKey() ? "today" : ""} ${k === sel ? "sel" : ""}" data-day="${k}" aria-label="${esc(fmtDate(k, { day: "numeric", month: "long" }))}${list.length ? ` · ${list.length}` : ""}">${d.getDate()}<span class="evs">${list.slice(0, 3).map(e => `<i style="--c:${tagOf(e).color}"></i><em style="--c:${tagOf(e).color}">${esc(e.title)}</em>`).join("")}${list.length > 3 ? `<em style="--c:#555">+${list.length - 3}</em>` : ""}</span></button>`; }).join("")}
+      </div>
+      <h2>${esc(fmtDate(sel, { weekday: "long", day: "numeric", month: "long" }))}</h2>
+      ${selEvs.length ? selEvs.map(row).join("") : `<div class="small">${esc(t("empty"))}</div>`}
       <form class="card" id="evForm">
         <label class="f" for="evT">${esc(t("what"))}</label><input class="t" id="evT" name="title" maxlength="120" required placeholder="${L === "en" ? "Maths test" : "Prueba de mate"}">
-        <div class="two"><div><label class="f" for="evD">${esc(t("when"))}</label><input class="t" id="evD" type="date" name="date" required value="${dayKey()}"></div>
+        <div class="two"><div><label class="f" for="evD">${esc(t("when"))}</label><input class="t" id="evD" type="date" name="date" required value="${sel}"></div>
         <div><label class="f" for="evH">${esc(t("hour"))}</label><input class="t" id="evH" type="time" name="time" value="${pad((new Date().getHours() + 1) % 24)}:00"></div></div>
+        <label class="f">${esc(t("tag"))}</label>
+        <div class="tags" id="evTag"><input type="hidden" name="tag" value="${tg[0]?.id || ""}">${tg.map((g, i) => `<button type="button" data-pt="${g.id}" class="${i ? "off" : ""}" style="--c:${g.color}"><i></i>${esc(tagName(g))}</button>`).join("")}</div>
         <label class="f" for="evR">${esc(t("remind"))}</label><select class="t" id="evR" name="remind"><option value="0">${esc(t("none"))}</option><option value="10">${esc(t("before10"))}</option><option value="60" selected>${esc(t("before60"))}</option><option value="1440">${esc(t("before1d"))}</option></select>
         <button class="btn" type="submit">${esc(t("add"))}</button>
       </form>
-      <div class="row"><button class="btn small ghost" id="notif" type="button">🔔 ${esc(t("notif"))}</button><button class="btn small ghost" id="printWeek" type="button">🖨️ ${esc(t("printWeek"))}</button></div>
-      <h2>${esc(t("upcoming"))}</h2>${up.length ? up.map(row).join("") : `<div class="small">${esc(t("empty"))}</div>`}
-      ${past.length ? `<details><summary class="small">${esc(t("past"))} (${past.length})</summary>${past.map(row).join("")}</details>` : ""}`;
+      <div class="row"><button class="btn small ghost" id="notif" type="button">🔔 ${esc(t("notif"))}</button><button class="btn small ghost" id="printMonth" type="button">🖨️ ${esc(t("printMonth"))}</button></div>`;
   },
   mount() {
     $("#evForm").addEventListener("submit", e => {
       e.preventDefault(); const f = Object.fromEntries(new FormData(e.target));
-      saveAgenda([...agenda(), { id: uid(), title: f.title.trim(), date: f.date, time: f.time || "09:00", remind: Number(f.remind) || 0 }]); render(); scheduleNotifs();
+      saveAgenda([...agenda(), { id: uid(), title: f.title.trim(), date: f.date, time: f.time || "09:00", remind: Number(f.remind) || 0, tag: f.tag || "" }]);
+      agState.sel = f.date; const [yy, mm] = f.date.split("-").map(Number); agState.month = [yy, mm - 1];
+      render(); scheduleNotifs();
     });
+    $("#evTag").addEventListener("click", e => { const b = e.target.closest("[data-pt]"); if (!b) return; $$("#evTag [data-pt]").forEach(x => x.classList.toggle("off", x !== b)); $("#evTag input").value = b.dataset.pt; });
     $("#view").onclick = async e => {
       if (route !== "agenda") return;
+      const mon = e.target.closest("[data-mon]"); if (mon) { let [y, m] = agState.month; m += Number(mon.dataset.mon); if (m < 0) { m = 11; y--; } if (m > 11) { m = 0; y++; } agState.month = [y, m]; return render(); }
+      const day = e.target.closest("[data-day]"); if (day) { agState.sel = day.dataset.day; render(); return; }
+      const tg = e.target.closest("[data-tag]"); if (tg) { const id = tg.dataset.tag; agState.hide = agState.hide.includes(id) ? agState.hide.filter(x => x !== id) : [...agState.hide, id]; return render(); }
+      if (e.target.closest("[data-tagedit]")) {
+        const v = await sheet(t("tagsEdit"), `<label class="f">${esc(t("tagName"))}</label><input class="t" name="name" maxlength="24" required><label class="f">${esc(t("color"))}</label>${dots("color", COLORS[tags().length % COLORS.length])}
+          <p class="small" style="margin-top:10px">${tags().map(g => `<span style="color:${g.color}">●</span> ${esc(tagName(g))}`).join(" · ")}</p>`);
+        if (v?.name?.trim()) { LS.set(K.tags, [...tags(), { id: uid(), name: v.name.trim(), color: v.color || COLORS[0] }]); render(); }
+        return;
+      }
       const i = e.target.closest("[data-ics]"); if (i) { e.preventDefault(); const ev = agenda().find(x => x.id === i.dataset.ics); if (ev) ics(ev); return; }
       const d = e.target.closest("[data-delev]"); if (d && await confirmIt(t("sure"))) { saveAgenda(agenda().filter(x => x.id !== d.dataset.delev)); render(); }
     };
@@ -724,10 +824,14 @@ V.agenda = {
       if (!("Notification" in window)) return toast(t("gcal"));
       if ((await Notification.requestPermission()) === "granted") { toast(t("notifOn"), 3500); scheduleNotifs(); }
     });
-    $("#printWeek").addEventListener("click", () => {
-      const days = [...Array(7)].map((_, i) => { const d = new Date(); d.setDate(d.getDate() + i); return dayKey(d); });
-      const evs = agenda();
-      printHTML(`<section class="pg">${printHdr()}<h1>${esc(t("k2"))}</h1><table>${days.map(d => `<tr><th style="width:28%;text-align:left">${esc(fmtDate(d, { weekday: "long", day: "numeric", month: "short" }))}</th><td style="height:62pt">${evs.filter(e => e.date === d).map(e => `• ${esc(e.time)} ${esc(e.title)}`).join("<br>")}</td></tr>`).join("")}</table></section>`, "A4");
+    $("#printMonth").addEventListener("click", () => {
+      const [y, m] = agState.month, evs = agenda(), loc = L === "en" ? "en-US" : "es-AR";
+      const wds = [...Array(7)].map((_, i) => new Date(2024, 0, 1 + i).toLocaleDateString(loc, { weekday: "short" }));
+      const days = monthDays(y, m);
+      const weeks = [...Array(6)].map((_, w) => days.slice(w * 7, w * 7 + 7)).filter(w => w.some(d => d.getMonth() === m));
+      printHTML(`<section class="pg">${printHdr()}<h1>${esc(monthTitle(y, m, loc))}</h1>
+        <table><tr>${wds.map(w => `<th>${esc(w)}</th>`).join("")}</tr>${weeks.map(w => `<tr>${w.map(d => `<td style="height:78pt;width:14.2%;${d.getMonth() !== m ? "color:#aaa" : ""}"><b>${d.getDate()}</b><br>${evs.filter(e => e.date === dayKey(d)).map(e => `<span style="font-size:8pt;color:${tagOf(e).color}">■</span> <span style="font-size:8pt">${esc(e.title)}</span>`).join("<br>")}</td>`).join("")}</tr>`).join("")}</table>
+        <p class="foot">${tags().map(g => `<span style="color:${g.color}">■</span> ${esc(tagName(g))}`).join(" &nbsp; ")}</p></section>`, LS.get("tangent.study.print", { paper: "A4" }).paper);
     });
   },
 };
@@ -838,48 +942,103 @@ V.ideas = {
 };
 
 /* ---------------- account (preview) ---------------- */
+const ROLES = {
+  kid: { t: ["Un chico o chica de 6 a 12", "A child aged 6 to 12"], d: ["Lo registra mamá, papá o tutor. Siempre con supervisión de un adulto.", "Registered by a parent or guardian. Always supervised by an adult."] },
+  teen: { t: ["Tengo de 13 a 17 años", "I'm 13 to 17"], d: ["Usás tu cuenta, pero un adulto con DNI tiene que aprobarla.", "You use your own account, but an adult with ID must approve it."] },
+  adult: { t: ["Tengo 18 o más", "I'm 18 or older"], d: ["Te registrás vos, con tu DNI.", "You sign up yourself, with your ID."] },
+  uni: { t: ["Estudio en la universidad", "I'm a university student"], d: ["Te registrás vos y nos decís en qué facultad estudiás.", "You sign up yourself and tell us your faculty."] },
+  inst: { t: ["Escuela pública u ONG", "Public school or NGO"], d: ["Lo pide la dirección o quien representa a la ONG. Después reparte códigos.", "Requested by the head teacher or the NGO's representative, who then hands out codes."] },
+};
+const F = (name, label, type = "text", extra = "") => `<label class="f" for="su_${name}">${esc(label)}</label><input class="t" id="su_${name}" name="${name}" type="${type}" ${extra}>`;
+const CHK = (name, label) => `<label class="row" style="flex-wrap:nowrap;align-items:flex-start;font-size:13px;line-height:1.35;margin-top:10px"><input type="checkbox" name="${name}" required style="width:20px;height:20px;flex-shrink:0"><span>${esc(label)}</span></label>`;
+function roleFields(role) {
+  const en = L === "en", adultBlock = (who) => `
+    <h2>${esc(who)}</h2>
+    ${F("aname", en ? "Full name" : "Nombre y apellido", "text", 'required maxlength="80" autocomplete="name"')}
+    ${F("adni", en ? "ID number (DNI)" : "Número de DNI", "text", 'required inputmode="numeric" pattern="[0-9.]{7,11}" maxlength="11"')}
+    ${F("aemail", en ? "Email" : "Mail", "email", 'required maxlength="120" autocomplete="email"')}`;
+  const school = `<label class="f" for="su_stype">${esc(en ? "School" : "Escuela")}</label><select class="t" id="su_stype" name="stype"><option value="private">${esc(en ? "Private school" : "Colegio privado")}</option><option value="public">${esc(en ? "Public school (with code)" : "Escuela pública (con código)")}</option></select>
+    ${F("school", en ? "School name" : "Nombre del colegio", "text", 'required maxlength="100"')}`;
+  const pass = F("pass", t("pass"), "password", 'required minlength="8" autocomplete="new-password"');
+  if (role === "kid") return `${adultBlock(en ? "Parent or guardian" : "Mamá, papá o tutor")}
+    <label class="f" for="su_rel">${esc(en ? "Relationship" : "Vínculo")}</label><select class="t" id="su_rel" name="rel"><option>${en ? "Mother" : "Madre"}</option><option>${en ? "Father" : "Padre"}</option><option>${en ? "Guardian" : "Tutor/a"}</option></select>
+    ${pass}
+    <h2>${esc(en ? "The child" : "El chico o la chica")}</h2>
+    ${F("kname", en ? "Nickname (no surname)" : "Apodo (sin apellido)", "text", 'required maxlength="30"')}
+    <label class="f" for="su_kage">${esc(t("age"))}</label><select class="t" id="su_kage" name="kage">${[6, 7, 8, 9, 10, 11, 12].map(n => `<option>${n}</option>`).join("")}</select>
+    ${school}
+    ${F("pin", en ? "Parent PIN (4 digits) to open and close child mode" : "PIN de adulto (4 números) para abrir y cerrar el modo chico", "password", 'required inputmode="numeric" pattern="[0-9]{4}" maxlength="4"')}
+    ${CHK("resp", en ? "I'm of age and responsible for this child." : "Soy mayor de edad y responsable de este chico o chica.")}
+    ${CHK("sup", en ? "I'll supervise their use. They never use Tangent alone without me knowing." : "Voy a supervisar su uso. Nunca usa Tangent solo sin que yo lo sepa.")}`;
+  if (role === "teen") return `<h2>${esc(en ? "You" : "Vos")}</h2>
+    ${F("kname", en ? "Nickname" : "Apodo", "text", 'required maxlength="30"')}
+    ${F("email", t("email"), "email", 'required maxlength="120"')}
+    <label class="f" for="su_kage">${esc(t("age"))}</label><select class="t" id="su_kage" name="kage">${[13, 14, 15, 16, 17].map(n => `<option>${n}</option>`).join("")}</select>
+    ${school}${pass}
+    ${adultBlock(en ? "Your parent or guardian (approves the account)" : "Tu mamá, papá o tutor (aprueba la cuenta)")}
+    ${CHK("resp", en ? "An adult will approve this account and can see what I do." : "Un adulto va a aprobar esta cuenta y puede ver lo que hago.")}`;
+  if (role === "adult" || role === "uni") return `${adultBlock(en ? "Your details" : "Tus datos")}${pass}
+    ${role === "uni" ? `${F("univ", en ? "University" : "Universidad", "text", 'required maxlength="100"')}${F("faculty", en ? "Faculty" : "Facultad", "text", 'required maxlength="100"')}${F("career", en ? "Degree" : "Carrera", "text", 'maxlength="100"')}
+      ${F("uemail", en ? "University email (e.g. name@uba.ar), if you have one" : "Mail de la facultad (ej.: nombre@uba.ar), si tenés", "email", 'maxlength="120"')}
+      <label class="f" for="su_card">${esc(en ? "Or a photo of your student card" : "O foto de tu libreta o credencial universitaria")}</label><input class="t" id="su_card" name="card" type="file" accept="image/*">
+      <p class="small">${esc(en ? "We only check it to approve access and then delete it." : "Solo la miramos para aprobar el acceso y después la borramos.")}</p>` : ""}
+    ${CHK("adultok", en ? "I'm 18 or older." : "Tengo 18 años o más.")}`;
+  return `<label class="f" for="su_itype">${esc(en ? "Type" : "Tipo")}</label><select class="t" id="su_itype" name="itype"><option value="school">${esc(en ? "Public school" : "Escuela pública")}</option><option value="ngo">${esc(en ? "NGO" : "ONG")}</option></select>
+    ${F("iname", en ? "Name of the school or NGO" : "Nombre de la escuela u ONG", "text", 'required maxlength="120"')}
+    ${F("icode", en ? "School code (CUE) or NGO tax ID (CUIT)" : "CUE de la escuela o CUIT de la ONG", "text", 'required maxlength="20"')}
+    ${F("istudents", en ? "How many students, roughly" : "Cuántos alumnos, más o menos", "number", 'min="1" max="5000"')}
+    ${adultBlock(en ? "Head teacher or NGO representative" : "Director/a o responsable de la ONG")}
+    ${F("iphone", en ? "Phone" : "Teléfono", "tel", 'required maxlength="30"')}
+    <label class="f" for="su_letter">${esc(en ? "Signed authorisation letter (photo or PDF)" : "Nota de autorización firmada (foto o PDF)")}</label><input class="t" id="su_letter" name="letter" type="file" accept="image/*,application/pdf" required>
+    ${CHK("resp", en ? "I represent this institution and the families' consent is handled by it." : "Represento a esta institución y el permiso de las familias lo gestiona la institución.")}`;
+}
+const VERIFY = {
+  kid: ["Verificamos que el adulto es mayor de edad con su pago por Mercado Pago (cuenta con DNI validado) o, si viene por la escuela, con la escuela. El chico no tiene usuario propio: entra desde la cuenta del adulto, con PIN.", "We check the adult is of age through their Mercado Pago payment (account with verified ID) or, if it comes through the school, through the school. The child has no login of their own: they use the adult's account, with a PIN."],
+  teen: ["La cuenta queda en pausa hasta que el adulto la aprueba desde su mail y valida su DNI (pago por Mercado Pago o escuela).", "The account stays paused until the adult approves it from their email and validates their ID (Mercado Pago payment or school)."],
+  adult: ["Tu DNI se valida con tu cuenta de Mercado Pago al pagar.", "Your ID is validated through your Mercado Pago account when you pay."],
+  uni: ["Con el mail de la facultad se aprueba al toque. Con la foto de la credencial, una persona la revisa.", "A university email is approved right away. A student card photo is checked by a person."],
+  inst: ["Revisamos la nota y llamamos a la institución antes de activar los códigos.", "We check the letter and call the institution before turning on the codes."],
+};
 V.cuenta = {
+  role: null,
   html() {
-    const code = LS.get(K.code, ""), p = LS.get(K.profile, {});
+    const code = LS.get(K.code, ""), role = V.cuenta.role;
     return `<h1>${esc(t("account"))}</h1><div class="warn">${esc(t("preview"))}</div>
       <div class="card"><b>${esc(t("haveCode"))}</b>
         ${code ? `<p class="small" style="margin-top:6px">✅ ${esc(t("codeOn"))}</p><button class="btn small ghost" id="rmCode" type="button">${esc(t("removeCode"))}</button>`
         : `<form id="codeForm" class="row" style="margin-top:8px;flex-wrap:nowrap"><input class="t" name="code" autocomplete="off" autocapitalize="characters" placeholder="${esc(t("code"))}" aria-label="${esc(t("code"))}"><button class="btn small" type="submit" style="margin:0">${esc(t("useCode"))}</button></form>`}
       </div>
-      <div class="two">
+      <h2>${esc(t("signupT"))}</h2>${squiggle()}
+      <p class="lead">${esc(t("whoUses"))}</p>
+      <div class="who" id="who">${Object.entries(ROLES).map(([k, r]) => `<button type="button" data-role="${k}" class="${role === k ? "on" : ""}">${esc(r.t[L === "en" ? 1 : 0])}<span>${esc(r.d[L === "en" ? 1 : 0])}</span></button>`).join("")}</div>
+      ${role ? `<form class="card" id="suForm" style="margin-top:12px">
+        ${roleFields(role)}
+        <div class="shield" style="margin-top:12px">🛡️ ${esc(VERIFY[role][L === "en" ? 1 : 0])}</div>
+        ${CHK("terms", t("must"))}
+        <label class="row" style="flex-wrap:nowrap;align-items:flex-start;font-size:13px;margin-top:10px"><input type="checkbox" name="news" style="width:20px;height:20px;flex-shrink:0"><span>${esc(t("optNews"))}</span></label>
+        <p class="small" style="margin-top:8px">${esc(t("optOut"))}</p>
+        <button class="btn" type="submit">${esc(t("sendReq"))}</button>
+      </form>` : ""}
+      <div class="two" style="margin-top:14px">
         <div class="iri"><b style="font-size:18px">${esc(t("planT"))}</b>
           <div style="font-size:34px;font-weight:800;letter-spacing:-1px">US$ 1 <span style="font-size:15px;font-weight:600;color:var(--soft)">${esc(t("perMonth"))}</span></div>
           <p style="font-size:14px;line-height:1.5">${t("planL")}</p><p class="small">${esc(t("arsNote"))}</p>
           <button class="btn" type="button" disabled>${esc(t("payMP"))}</button><p class="small" style="text-align:center">${esc(t("soon"))}</p></div>
         <div class="card"><b>${esc(t("schools"))}</b><p class="small" style="margin-top:6px">${esc(t("schoolsP"))}</p>
           <b>${esc(t("verifyT"))}</b><p class="small" style="margin-top:6px">${esc(t("verifyP"))}</p></div>
-      </div>
-      <h2>${esc(t("profile"))}</h2>
-      <form class="card" id="profForm">
-        <label class="f" for="pn">${esc(t("name"))}</label><input class="t" id="pn" name="name" maxlength="60" value="${esc(p.name || "")}">
-        <label class="f" for="pm">${esc(t("email"))}</label><input class="t" id="pm" type="email" name="email" maxlength="120" value="${esc(p.email || "")}">
-        <label class="f" for="pp">${esc(t("pass"))}</label><input class="t" id="pp" type="password" name="pass" minlength="8" autocomplete="new-password">
-        <label class="f" for="pa">${esc(t("age"))}</label><select class="t" id="pa" name="age"><option value="adult">${esc(t("adult"))}</option><option value="minor" ${p.age === "minor" ? "selected" : ""}>${esc(t("minor"))}</option></select>
-        <label class="f" for="pg">${esc(t("guardian"))}</label><input class="t" id="pg" type="email" name="guardian" maxlength="120" value="${esc(p.guardian || "")}">
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;font-size:13px;line-height:1.35">
-          <label class="row" style="flex-wrap:nowrap;align-items:flex-start"><input type="checkbox" name="terms" ${p.terms ? "checked" : ""} style="width:20px;height:20px;flex-shrink:0"><span>${esc(t("must"))} <a href="#terminos">→</a></span></label>
-          <label class="row" style="flex-wrap:nowrap;align-items:flex-start"><input type="checkbox" name="news" ${p.news ? "checked" : ""} style="width:20px;height:20px;flex-shrink:0"><span>${esc(t("optNews"))}</span></label>
-          <label class="row" style="flex-wrap:nowrap;align-items:flex-start"><input type="checkbox" name="cookies" ${LS.get(K.cookies, { measure: false }).measure ? "checked" : ""} style="width:20px;height:20px;flex-shrink:0"><span>${esc(t("optCookies"))}</span></label>
-        </div>
-        <p class="small" style="margin-top:8px">${esc(t("optOut"))}</p>
-        <button class="btn" type="submit">${esc(t("saveProfile"))}</button>
-      </form>`;
+      </div>`;
   },
   mount() {
     $("#codeForm")?.addEventListener("submit", async e => { e.preventDefault(); if (await tryCode(e.target.code.value)) render(); });
     $("#rmCode")?.addEventListener("click", () => { LS.del(K.code); render(); });
-    $("#profForm").addEventListener("submit", e => {
-      e.preventDefault(); const f = new FormData(e.target);
-      if (!f.get("terms")) return toast(t("needTerms"));
-      if (f.get("age") === "minor" && !String(f.get("guardian") || "").includes("@")) return toast(t("needGuardian"));
-      LS.set(K.profile, { name: f.get("name"), email: f.get("email"), age: f.get("age"), guardian: f.get("guardian"), terms: true, news: Boolean(f.get("news")) });
-      LS.set(K.cookies, { measure: Boolean(f.get("cookies")) });
-      e.target.pass.value = ""; toast(t("profSaved"), 3500);
+    $("#who").addEventListener("click", e => { const b = e.target.closest("[data-role]"); if (!b) return; V.cuenta.role = b.dataset.role; render(); $("#suForm")?.scrollIntoView({ behavior: "smooth", block: "start" }); });
+    $("#suForm")?.addEventListener("submit", e => {
+      e.preventDefault();
+      const f = new FormData(e.target), out = { role: V.cuenta.role, at: new Date().toISOString() };
+      // Passwords, PINs, DNI numbers and files never stay on the device: this is only a preview of the form.
+      for (const [k, v] of f.entries()) if (!["pass", "pin", "adni", "card", "letter"].includes(k) && typeof v === "string") out[k] = v;
+      LS.set(K.signup, out);
+      e.target.reset(); toast(t("reqSaved"), 4500);
     });
   },
 };
@@ -889,7 +1048,7 @@ V.terminos = {
   html() {
     const c = LS.get(K.cookies, { measure: false });
     return `<h1>${esc(t("terms"))}</h1>
-      ${["tVoice", "tKeep", "tMinors", "tSource", "tAI", "tRights"].map(k => `<div class="card" style="font-size:14px;line-height:1.45">${t(k)}</div>`).join("")}
+      ${["tKids", "tVoice", "tKeep", "tMinors", "tSource", "tAI", "tRights"].map(k => `<div class="card" style="font-size:14px;line-height:1.45">${t(k)}</div>`).join("")}
       <div class="iri"><b>${esc(t("cookiesT"))}</b><p class="small" style="margin-top:6px">${esc(t("cookiesP"))}</p>
         <label class="row" style="justify-content:space-between;font-weight:600;font-size:14px">${esc(t("cNeeded"))}<input type="checkbox" checked disabled style="width:22px;height:22px"></label>
         <label class="row" style="justify-content:space-between;font-weight:600;font-size:14px;margin-top:8px">${esc(t("cMeasure"))}<input type="checkbox" id="cm" ${c.measure ? "checked" : ""} style="width:22px;height:22px"></label></div>
