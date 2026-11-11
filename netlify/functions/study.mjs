@@ -30,6 +30,10 @@ export default async (req, context) => {
   const said = checkStudyText([source.title, topic, transcript].join(" \n "));
   if (said) return json(200, { status: said.category === "selfharm" ? "support" : "blocked" });
 
+  // Too many inaudible parts: ask to record again instead of guessing.
+  const words = transcript.split(/\s+/).filter(Boolean).length, unknown = (transcript.match(/\[\?\]/g) || []).length;
+  if (!image && words && unknown / words > 0.15) return json(200, { status: "unclear", transcript });
+
   setBudget(24000);
   let r;
   try { r = await studyExplain({ transcript, source, topic, image }); }
@@ -40,6 +44,7 @@ export default async (req, context) => {
   }
   if (r.safety && r.safety.ok === false) return json(200, { status: r.safety.topic === "selfharm" ? "support" : "blocked" });
   if (r.language === "other") return json(200, { status: "language" });
+  if (r.clarity === "low") return json(200, { status: "unclear", transcript });
 
   const result = {
     title: pair(r.title, 60), plain: pair(r.plain, 1400), points: list(r.points, 160, 5), check: list(r.check, 160, 3), review: pair(r.review, 300),
