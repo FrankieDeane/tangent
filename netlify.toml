@@ -16,6 +16,19 @@
 
 [[redirects]]
   from = "/tablero.html"
+  to = "/organizer/"
+  status = 301
+  force = true
+
+# Tangent Study is the main app at "/". The voice-to-bubbles organizer lives at /organizer/.
+[[redirects]]
+  from = "/study"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/study/*"
   to = "/"
   status = 301
   force = true

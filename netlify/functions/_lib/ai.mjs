@@ -478,6 +478,8 @@ function studyPrompt({ transcript, source, topic, hasImage }) {
   return `You help a student with ADHD (any age from 6 to university) understand a topic. They read or explained it aloud from a source they cited${hasImage ? ", and they also sent a photo of the sheet" : ""}. Explain it "for dummies": short sentences, everyday words, one idea per sentence, warm, never childish for older students, never clinical.
 Use ONLY what the student said${hasImage ? " and what is written in the photo" : ""}. Do not add facts, dates or names that are not there. If something they said looks wrong or unclear, do not correct it silently: say it in "review" so they check it in their source.
 Speech recognition can fail. Set "clarity" to "low" when the text is fragmented, has many [?], reads like random words, or does not match the cited source or topic at all; in that case do NOT invent an explanation (leave plain and points empty). Never fill gaps with guesses.
+Students often mix subjects without noticing (for example a maths topic with a history fact). Put anything that clearly belongs to a different subject than the cited source and topic in "mixed", quoting it briefly, and keep it OUT of plain and points.
+Tangent teaches how to study, it does not hand out cheat-sheets: the plain text orders what the student said; "go_back" tells them which details to look for again in their source (examples, dates, causes, steps, definitions they skipped), because the detail is what gives context.
 Concepts are for pictures: pick only things the student clearly and literally talked about, concrete enough to photograph. If you are not sure, return fewer concepts (zero is fine).
 School topics like history, wars, biology, the human body, religions or politics as a school subject are fine; explain them neutrally.
 Safety: set safety.ok false only for sexual content beyond a school biology level, anything sexual involving minors, hate, insults or swear words, or signs of suicide or self-harm (topic "selfharm"). Only Spanish and English: "language" is "other" for anything else.
@@ -495,6 +497,9 @@ Reply with ONLY a JSON object, every field in BOTH languages (es = Spanish from 
  "points": {"es": ["3 to 5 key ideas, max 14 words each"], "en": ["same"]},
  "concepts": [0 to 3 objects: {"es": "1 to 3 words", "en": "1 to 3 words", "photo": "2 or 3 English words for a real stock photo that shows it"}],
  "check": {"es": ["2 short questions to test yourself"], "en": ["same"]},
+ "mixed": {"es": ["0 to 3 short quotes or ideas that belong to another subject, each with which subject"], "en": ["same"]},
+ "quiz": [3 multiple-choice questions to check the student really understood, ONLY about what they said (and the photo), simple words: {"q": {"es": "", "en": ""}, "options": {"es": ["3 short options"], "en": ["same order"]}, "answer": index 0-2 of the correct option}],
+ "go_back": {"es": ["2 or 3 concrete things to look for again in the source, e.g. 'Buscá en la página 13 qué ejemplo da el libro'"], "en": ["same"]},
  "review": {"es": "one sentence on what to double-check in the source, or empty", "en": "same or empty"}}`;
 }
 
@@ -508,4 +513,34 @@ export async function studyExplain({ transcript, source, topic, image }) {
     console.error("gemini study failed, trying groq:", e.message);
     return { ...parseJSON(await groqChat(studyPrompt({ transcript, source, topic, hasImage: false }), { temperature: 0.3 })), provider: "groq" };
   }
+}
+
+// Fact check with Google Search grounding: finds statements that are wrong or contradict each other.
+// Grounded answers come back as text (no JSON mode), so we parse the JSON from the text.
+export async function studyFactCheck({ transcript, source, topic }) {
+  const key = (process.env.GEMINI_API_KEY || "").trim();
+  if (!key) throw new Error("gemini_not_configured");
+  const prompt = `A student studied aloud from this source: "${source.title}"${topic ? `, topic "${topic}"` : ""}. Here is what they said:
+"""${String(transcript).slice(0, 8000)}"""
+Use Google Search to check the factual statements against reliable sources (encyclopedias, universities, official or educational sites). Ignore style, grammar and opinions. Only report statements that are clearly wrong, or that contradict each other. If everything is fine, return an empty list. Never invent problems.
+Reply with ONLY a JSON object: {"issues": [up to 4 objects: {"said": "short quote of what the student said", "fix": {"es": "the correct idea in one simple sentence, Spanish from Argentina", "en": "same in English"}}]}`;
+  let last;
+  for (const model of [...new Set([process.env.GEMINI_SEARCH_MODEL, "gemini-2.5-flash", "gemini-flash-latest"].filter(Boolean))]) {
+    if (left() < 6000) break;
+    const to = withTimeout(cap(left() - 1000));
+    try {
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+        method: "POST", signal: to.signal, headers: { "content-type": "application/json", "x-goog-api-key": key },
+        body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], tools: [{ google_search: {} }], generationConfig: { temperature: 0.1 }, safetySettings: SAFETY }),
+      });
+      if (!r.ok) { last = new Error(`gemini_search_http_${r.status} ${model}`); continue; }
+      const d = await r.json(), c = d.candidates?.[0];
+      if (!c) { last = new Error("gemini_search_empty"); continue; }
+      const text = (c.content?.parts || []).map(p => p.text || "").join("");
+      const out = parseJSON(text);
+      const sources = (c.groundingMetadata?.groundingChunks || []).map(g => g.web).filter(w => w?.uri).slice(0, 5).map(w => ({ title: String(w.title || "").slice(0, 80), uri: w.uri }));
+      return { issues: Array.isArray(out.issues) ? out.issues : [], sources };
+    } catch (e) { last = e; } finally { to.done(); }
+  }
+  throw last || new Error("gemini_search_failed");
 }

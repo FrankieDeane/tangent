@@ -233,3 +233,7 @@ ul.pts{margin:0;padding-left:20px;line-height:1.5}
   .hero .skater{width:104px;right:-10px;top:8px;opacity:.85}
   .hero .note{display:none}
 }
+.q .opts button.right{background:#16A34A;color:#fff;border-color:#16A34A}
+.q .opts button.wrong{background:#FFE1DC;border-color:#E2363B;color:#9B1C1F}
+.q .opts button[disabled]{cursor:default}
+details.card summary::-webkit-details-marker{color:var(--blue)}

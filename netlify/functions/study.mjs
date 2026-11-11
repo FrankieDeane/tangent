@@ -47,7 +47,11 @@ export default async (req, context) => {
   if (r.clarity === "low") return json(200, { status: "unclear", transcript });
 
   const result = {
-    title: pair(r.title, 60), plain: pair(r.plain, 1400), points: list(r.points, 160, 5), check: list(r.check, 160, 3), review: pair(r.review, 300),
+    title: pair(r.title, 60), plain: pair(r.plain, 1400), mixed: list(r.mixed, 200, 3), goBack: list(r.go_back, 200, 3), points: list(r.points, 160, 5), check: list(r.check, 160, 3), review: pair(r.review, 300),
+    quiz: (Array.isArray(r.quiz) ? r.quiz : []).slice(0, 3).map(q => {
+      const o = { es: (Array.isArray(q?.options?.es) ? q.options.es : []).slice(0, 3).map(x => s(x, 120)), en: (Array.isArray(q?.options?.en) ? q.options.en : []).slice(0, 3).map(x => s(x, 120)) };
+      return { q: pair(q?.q, 200), options: o, answer: Number.isInteger(q?.answer) ? q.answer : -1 };
+    }).filter(q => q.q.es && q.options.es.length === 3 && q.answer >= 0 && q.answer < 3),
     concepts: (Array.isArray(r.concepts) ? r.concepts : []).slice(0, 3).map(c => ({ es: s(c?.es, 40), en: s(c?.en, 40), photo: s(c?.photo, 50) })).filter(c => c.es || c.en),
   };
   if (!result.plain.es && !result.plain.en) return json(502, { status: "ai_error" });

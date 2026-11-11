@@ -26,7 +26,7 @@ const S = {
   progress: ["Cómo me fue", "How it went"], test: ["Tu cabeza", "Your brain"], kit: ["Kit de papel", "Paper kit"], ideas: ["Ideas", "Ideas"],
   account: ["Cuenta", "Account"], terms: ["Tus datos", "Your data"],
   heroT1: ["Decí un tema en voz alta.", "Say a topic out loud."], heroT2: ["Te lo explico fácil.", "I'll explain it simply."],
-  heroNote: ["¡empezá acá!", "start here!"], more: ["Más", "More"],
+  heroNote: ["¡empezá acá!", "start here!"], organizer: ["Organizador", "Organizer"], organizerP: ["Contá todo lo que tenés que hacer y te lo ordeno en burbujas.", "Say everything you have to do and I'll sort it into bubbles."], more: ["Más", "More"],
   heroP: ["Citás tu libro, hablás hasta 10 minutos y te queda un resumen en español y en inglés, con imágenes, para imprimir.", "Cite your book, talk for up to 10 minutes and get a summary in Spanish and English, with pictures, ready to print."],
   start: ["Empezar un tema", "Start a topic"],
   tStudy: ["Hablá, sacale foto a la hoja o escribí.", "Talk, snap the sheet or type."], tFolder: ["Tus resúmenes. Bajalos en PDF.", "Your summaries. Download as PDF."],
@@ -53,7 +53,21 @@ const S = {
   recAgain: ["Grabar de nuevo", "Record again"],
   photoTake: ["Sacar o elegir foto", "Take or choose photo"], photoAgain: ["Otra foto", "Another photo"],
   photoWarn: ["Sacale foto solo a la hoja, sin caras ni datos personales.", "Only photograph the sheet: no faces or personal details."],
-  s2p: ["Leé en voz alta o explicalo con tus palabras. Podés trabarte, repetir o ir y volver: no pasa nada.", "Read aloud or explain it in your own words. Stumbling, repeating or going back and forth is fine."],
+  s2p: ["La idea es que estudies en voz alta: leé tu fuente y explicala con tus palabras, como si se la enseñaras a alguien. Podés trabarte o ir y volver: no pasa nada.", "The idea is to study out loud: read your source and explain it in your own words, as if teaching someone. Stumbling or going back and forth is fine."],
+  listenT: ["Escuchá tu grabación", "Listen to your recording"], part: ["Parte", "Part"],
+  audioGone: ["Cuando des OK, tu audio desaparece y queda solo el texto.", "Once you press OK, your audio disappears and only the text stays."], okGo: ["OK, seguir", "OK, continue"],
+  mixedT: ["Esto parece de otro tema", "This seems to be from another subject"], goBackT: ["Volvé a tu fuente a buscar", "Go back to your source and look for"],
+  checkT: ["Revisión con fuentes de internet", "Check against web sources"], checking: ["Revisando lo que dijiste con fuentes de internet…", "Checking what you said against web sources…"],
+  checkOk: ["No encontré errores ni contradicciones. Igual, confirmalo con tu fuente.", "I found no mistakes or contradictions. Still, confirm it with your source."],
+  checkSaid: ["Dijiste", "You said"], checkFix: ["Lo correcto sería", "It should be"], checkWarn: ["La IA también se equivoca: confirmalo con tu libro o con tu profe.", "AI makes mistakes too: confirm it with your book or teacher."],
+  checkFail: ["No pude revisar ahora.", "I couldn't check right now."], retry: ["Reintentar", "Retry"],
+  quizT: ["Mini examen (opcional)", "Mini quiz (optional)"], quizP: ["3 preguntas simples sobre lo que explicaste. Si lo entendiste, deberías poder responderlas.", "3 simple questions about what you explained. If you understood it, you should be able to answer them."],
+  quizRight: ["¡Bien!", "Right!"], quizWrong: ["Casi. La correcta está marcada: volvé a tu fuente a mirarlo.", "Almost. The right one is marked: go back to your source to check it."],
+  quizScore: ["Acertaste", "You got"], quizOf: ["de", "of"], quizAgain: ["Hacerlo de nuevo", "Try again"],
+  mineT: ["Ahora vos: tu resumen", "Now you: your summary"], mineP: ["Tangent ordenó lo que dijiste. El resumen que sirve para estudiar es el tuyo: escribilo con tus palabras después de volver a la fuente.", "Tangent ordered what you said. The summary that helps you study is yours: write it in your own words after going back to the source."],
+  mineSaved: ["Guardado", "Saved"], mineTitle: ["Mi resumen", "My summary"],
+  guide: ["Cómo usar", "How to use"], tGuide: ["Cómo estudiar con Tangent (y por qué no machetes).", "How to study with Tangent (and why not cheat-sheets)."],
+  guideLink: ["¿Primera vez? Mirá cómo se usa", "First time? See how it works"],
   tapRec: ["Tocá para grabar", "Tap to record"], tapStop: ["Terminar", "Finish"], recording: ["Grabando…", "Recording…"],
   pieces: ["partes pasadas a texto", "pieces turned into text"], working: ["Pasando a texto…", "Turning into text…"],
   orPhoto: ["O sacale una foto a la hoja", "Or snap a photo of the sheet"], orType: ["O escribilo", "Or type it"],
@@ -63,7 +77,7 @@ const S = {
   needText: ["Grabá, escribí o sacá una foto primero.", "Record, type or take a photo first."],
   basedOn: ["Basado en la fuente que citaste", "Based on the source you cited"],
   notMagic: ["Tangent resume lo que dijiste. No reemplaza tu libro: revisalo con tu fuente.", "Tangent summarises what you said. It doesn't replace your book: check it against your source."],
-  plain: ["Explicado fácil", "Explained simply"], keyIdeas: ["Ideas clave", "Key ideas"], images: ["Para acordarte", "To remember it"],
+  plain: ["Lo que explicaste, ordenado", "What you explained, in order"], keyIdeas: ["Ideas clave", "Key ideas"], images: ["Para acordarte", "To remember it"],
   checkYou: ["Probate", "Test yourself"], review: ["Revisá en tu fuente", "Check in your source"],
   listen: ["Escuchar", "Listen"], stop: ["Parar", "Stop"], printThis: ["Imprimir / PDF", "Print / PDF"], toFolder: ["Ver carpeta", "Open folder"], newTopic: ["Nuevo tema", "New topic"],
   saved: ["Guardado en tu carpeta.", "Saved in your folder."],
@@ -231,12 +245,13 @@ const IC = {
   account: '<circle cx="12" cy="8" r="4"/><path d="M4.2 21c1-4.2 4-6.2 7.8-6.2s6.8 2 7.8 6.2"/>',
   terms: '<path d="M5 11h14v10H5zM8 11V7.3a4 4 0 0 1 8 0V11M12 15v2.5"/>',
   more: '<path d="M4 7h16M4 12h16M4 17h11"/>',
+  guide: '<path d="M4 5.5c2.7-1 5.3-1 8 .8 2.7-1.8 5.3-1.8 8-.8V19c-2.7-1-5.3-1-8 .8-2.7-1.8-5.3-1.8-8-.8zM12 6.3v13.5"/>',
 };
 const ic = (k, cls = "") => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><g>${IC[k] || IC.more}</g></svg>`;
 const squiggle = () => `<svg class="squiggle" viewBox="0 0 120 10" aria-hidden="true"><path d="M2 6c8-5 14 4 22 0s14-5 22 0 14 4 22 0 14-5 22 0 14 4 22 0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>`;
 
 /* ---------------- router ---------------- */
-const NAV = [["inicio", "home"], ["study", "study"], ["carpeta", "folder"], ["tablero", "board"], ["agenda", "agenda"],
+const NAV = [["inicio", "home"], ["guia", "guide"], ["study", "study"], ["carpeta", "folder"], ["tablero", "board"], ["agenda", "agenda"],
   ["progreso", "progress"], ["test", "test"], ["kit", "kit"], ["ideas", "ideas"], ["cuenta", "account"], ["terminos", "terms"]];
 const TABS = ["inicio", "study", "tablero", "agenda", "mas"];
 let route = "inicio", arg = "";
@@ -275,7 +290,7 @@ async function tryCode(code) {
 }
 
 /* ---------------- home ---------------- */
-const TILES = [["study", "tStudy"], ["carpeta", "tFolder"], ["tablero", "tBoard"], ["agenda", "tAgenda"], ["progreso", "tProgress"], ["test", "tTest"], ["kit", "tKit"], ["ideas", "tIdeas"], ["cuenta", "tAccount"], ["terminos", "tTerms"]];
+const TILES = [["guia", "tGuide"], ["study", "tStudy"], ["carpeta", "tFolder"], ["tablero", "tBoard"], ["agenda", "tAgenda"], ["progreso", "tProgress"], ["test", "tTest"], ["kit", "tKit"], ["ideas", "tIdeas"], ["cuenta", "tAccount"], ["terminos", "tTerms"]];
 const navKey = r => NAV.find(n => n[0] === r)[1];
 V.inicio = {
   html: () => `
@@ -286,19 +301,50 @@ V.inicio = {
     <p class="lead">${esc(t("heroP"))}</p>
     <span class="note hand" aria-hidden="true">${esc(t("heroNote"))} ↓</span>
     <a class="btn" href="#study">${esc(t("start"))}</a>
+    <p style="position:relative;margin:0 0 8px"><a href="#guia">📖 ${esc(t("guideLink"))}</a></p>
     <div class="small" style="position:relative">${esc(LS.get(K.code, "") ? t("codeOn") : t("codeOff"))} ${LS.get(K.code, "") ? "" : `<a href="#cuenta">${esc(t("haveCode"))}</a>`}</div>
   </div>
   <div class="grid">
     ${TILES.map(([r, d]) => `<a class="tile" href="#${r}">${ic(navKey(r))}<b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></a>`).join("")}
   </div>`,
 };
+V.guia = {
+  html: () => L === "en" ? `
+  <h1>How to study with <span class="mk">Tangent</span></h1>${squiggle()}
+  <p class="lead">Any AI can give you a summary of a book. Studying from summaries doesn't work: you lose the context and the details, and the details are what let you really explain a topic. Tangent is not a cheat-sheet machine. It teaches you to study.</p>
+  <div class="card"><ol class="pts" style="line-height:1.7">
+    <li><b>Read your source.</b> The whole part, not a summary. Write down the book and pages in Tangent.</li>
+    <li><b>Study out loud.</b> Explain it in your own words, as if teaching someone. Up to 5 or 10 minutes.</li>
+    <li><b>Listen to yourself</b> if you want, then press OK: the audio is deleted and only the text stays.</li>
+    <li><b>Tangent orders what you said</b>, flags what belongs to another subject and checks it against web sources to spot mistakes or contradictions.</li>
+    <li><b>Go back to the source</b> to look for the details Tangent points out (examples, dates, causes, steps).</li>
+    <li><b>Write your own summary</b> in Tangent, in your words. That is the summary that helps you learn.</li>
+    <li><b>Test yourself</b> with the questions and review on another day. Print it if paper works better for you.</li>
+  </ol></div>
+  <div class="iri"><b>Why it works</b><p class="small" style="margin-top:6px">Explaining out loud, testing yourself and spacing your reviews are among the best-supported study techniques (Dunlosky et al., 2013). Writing your own summary after re-reading forces you to choose what matters, which is learning.</p></div>
+  <a class="btn" href="#study">Start a topic</a>` : `
+  <h1>Cómo estudiar con <span class="mk">Tangent</span></h1>${squiggle()}
+  <p class="lead">Cualquier IA te hace un resumen de un libro. Pero estudiar de resúmenes (machetes) no sirve: perdés el contexto y los detalles, y los detalles son los que te dejan contar bien un tema. Tangent no hace machetes: te enseña a estudiar.</p>
+  <div class="card"><ol class="pts" style="line-height:1.7">
+    <li><b>Leé tu fuente.</b> La parte completa, no un resumen. Anotá en Tangent el libro y las páginas.</li>
+    <li><b>Estudiá en voz alta.</b> Explicalo con tus palabras, como si se lo enseñaras a alguien. Hasta 5 o 10 minutos.</li>
+    <li><b>Escuchate</b> si querés, y dale OK: el audio se borra y queda solo el texto.</li>
+    <li><b>Tangent ordena lo que dijiste</b>, te marca lo que es de otro tema y lo revisa con fuentes de internet para encontrar errores o contradicciones.</li>
+    <li><b>Volvé a la fuente</b> a buscar los detalles que te marca (ejemplos, fechas, causas, pasos).</li>
+    <li><b>Escribí tu propio resumen</b> en Tangent, con tus palabras. Ese es el resumen que te sirve para aprender.</li>
+    <li><b>Probate</b> con las preguntas y repasá otro día. Si te sirve el papel, imprimilo.</li>
+  </ol></div>
+  <div class="iri"><b>Por qué funciona</b><p class="small" style="margin-top:6px">Explicar en voz alta, probarse con preguntas y repasar en días distintos están entre las técnicas de estudio con más evidencia (Dunlosky y otros, 2013). Escribir tu resumen después de releer te obliga a elegir lo importante, y eso es aprender.</p></div>
+  <a class="btn" href="#study">Empezar un tema</a>`,
+};
 V.mas = {
-  html: () => `<h1>${esc(t("more"))}</h1><div class="menu">${TILES.filter(([r]) => !["study", "tablero", "agenda"].includes(r)).map(([r, d]) => `<a href="#${r}">${ic(navKey(r))}<div><b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></div></a>`).join("")}</div>`,
+  html: () => `<h1>${esc(t("more"))}</h1><div class="menu">${TILES.filter(([r]) => !["study", "tablero", "agenda"].includes(r)).map(([r, d]) => `<a href="#${r}">${ic(navKey(r))}<div><b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></div></a>`).join("")}
+    <a href="/organizer/">${ic("ideas")}<div><b>${esc(t("organizer"))}</b><span>${esc(t("organizerP"))}</span></div></a></div>`,
 };
 
 /* ---------------- Study ---------------- */
 const SEG_MS = 60000;
-const st = { step: 1, source: LS.get(K.source, { title: "", author: "", page: "" }), topic: "", minutes: 5, parts: [], image: null, imageUrl: null, transcript: "", busy: false, item: null, error: "" };
+const st = { audio: [], step: 1, source: LS.get(K.source, { title: "", author: "", page: "" }), topic: "", minutes: 5, parts: [], image: null, imageUrl: null, transcript: "", busy: false, item: null, error: "" };
 let rec = null;
 
 function stepsBar(n) { return `<div class="steps">${[1, 2, 3, 4].map(i => `<i class="${i <= n ? "on" : ""}"></i>`).join("")}</div>`; }
@@ -353,6 +399,7 @@ V.study = {
       ${srcLine(st.source)}
       <p class="lead" style="margin-top:10px">${esc(t("s3p"))}</p>
       ${st.imageUrl ? `<img src="${st.imageUrl}" alt="" style="max-width:220px;border-radius:12px">` : ""}
+      ${st.audio.some(Boolean) ? `<div class="card"><b>🎧 ${esc(t("listenT"))}</b>${st.audio.map((u, i) => u ? `<div style="margin-top:8px"><div class="small">${esc(t("part"))} ${i + 1}</div><audio controls preload="metadata" src="${u}" style="width:100%"></audio></div>` : "").join("")}<p class="small" style="margin-top:8px">${esc(t("audioGone"))}</p></div>` : ""}
       <textarea class="t" id="tr" maxlength="12000" style="min-height:200px">${esc(st.transcript)}</textarea>
       ${st.error ? `<div class="warn" style="margin-top:10px">${st.error}</div>` : ""}
       ${!st.error && (st.transcript.match(/\[\?\]/g) || []).length >= 3 ? `<div class="warn" style="margin-top:10px">${esc(t("manyQ"))}</div>` : ""}
@@ -388,7 +435,7 @@ V.study = {
       st.step = 3; st.error = ""; render();
     });
     $("#back1")?.addEventListener("click", () => { st.step = 1; render(); });
-    $("#back2")?.addEventListener("click", () => { st.step = 2; render(); });
+    $("#back2")?.addEventListener("click", () => { dropAudio(); st.step = 2; render(); });
     $("#tr")?.addEventListener("input", e => { st.transcript = e.target.value; });
     $("#make")?.addEventListener("click", makeSummary);
     $("#speak")?.addEventListener("click", () => speak(st.item));
@@ -407,7 +454,27 @@ function resultHTML(it, view = LS.get("tangent.study.view", L)) {
       ${r.points[lang]?.length ? `<b>${esc(tl("keyIdeas", lang))}</b><ul class="pts">${r.points[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
       ${r.check[lang]?.length ? `<p style="margin-top:10px"><b>${esc(tl("checkYou", lang))}</b></p><ul class="pts">${r.check[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
       ${r.review[lang] ? `<div class="warn" style="margin-top:10px"><b>${esc(tl("review", lang))}:</b> ${esc(r.review[lang])}</div>` : ""}
+      ${r.mixed?.[lang]?.length ? `<div class="warn" style="margin-top:10px;background:#FFE9E3"><b>🔀 ${esc(tl("mixedT", lang))}:</b><ul class="pts">${r.mixed[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>` : ""}
+      ${r.goBack?.[lang]?.length ? `<div class="tip" style="margin-top:10px"><span class="hand">📖 ${esc(tl("goBackT", lang))}</span><ul class="pts">${r.goBack[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>` : ""}
     </div>`;
+  const ck = it.check;
+  const checkBox = !it.transcript ? "" : `<div class="card" id="checkBox"><b>🔎 ${esc(t("checkT"))}</b>
+    ${!ck || ck.pending ? `<p class="small" style="margin-top:6px">${esc(t("checking"))}</p>`
+      : ck.failed ? `<p class="small" style="margin-top:6px">${esc(t("checkFail"))} <button class="btn small ghost" id="reCheck" type="button">${esc(t("retry"))}</button></p>`
+      : ck.issues.length ? `<ul class="pts" style="margin-top:6px">${ck.issues.map(i => `<li><span class="small">${esc(t("checkSaid"))}: «${esc(i.said)}»</span><br><b>${esc(t("checkFix"))}:</b> ${esc(i.fix[L] || i.fix.es)}</li>`).join("")}</ul>`
+      : `<p class="small ok" style="margin-top:6px;padding:8px;border-radius:10px">✅ ${esc(t("checkOk"))}</p>`}
+    ${ck?.sources?.length ? `<p class="small lic">${esc(t("sources"))}: ${ck.sources.map(x => `<a href="${esc(x.uri)}" target="_blank" rel="noopener">${esc(x.title || "web")}</a>`).join(" · ")}</p>` : ""}
+    <p class="small">${esc(t("checkWarn"))}</p></div>`;
+  const qz = r.quiz || [], ans = it.quizAns || [];
+  const quiz = !qz.length ? "" : `<details class="card" id="quiz" ${ans.length ? "open" : ""}><summary style="cursor:pointer"><b>🧩 ${esc(t("quizT"))}</b></summary><p class="small" style="margin-top:6px">${esc(t("quizP"))}</p>
+    ${qz.map((q, qi) => { const a = ans[qi]; return `<div class="q"><p>${qi + 1}. ${esc(q.q[L] || q.q.es)}</p><div class="opts">${(q.options[L]?.length === 3 ? q.options[L] : q.options.es).map((o, oi) => {
+      const cls = a == null ? "" : oi === q.answer ? "right" : oi === a ? "wrong" : "";
+      return `<button type="button" data-qq="${qi}" data-qo="${oi}" class="${cls}" ${a != null ? "disabled" : ""}>${esc(o)}</button>`; }).join("")}</div>
+      ${a != null ? `<div class="small" style="margin-top:6px">${a === q.answer ? "✅ " + esc(t("quizRight")) : "↩️ " + esc(t("quizWrong"))}</div>` : ""}</div>`; }).join("")}
+    ${ans.filter(x => x != null).length === qz.length ? `<p><b>${esc(t("quizScore"))} ${qz.filter((q, i) => ans[i] === q.answer).length} ${esc(t("quizOf"))} ${qz.length}</b> <button class="btn small ghost" id="quizReset" type="button">${esc(t("quizAgain"))}</button></p>` : ""}
+  </details>`;
+  const mine = `<div class="iri"><span class="hand" style="font-size:28px">✍️ ${esc(t("mineT"))}</span><p class="small" style="margin:4px 0 8px">${esc(t("mineP"))}</p>
+    <textarea class="t" id="mine" maxlength="6000" data-id="${it.id}">${esc(it.mine || "")}</textarea><div class="small" id="mineSaved" style="min-height:16px"></div></div>`;
   return `
     <div class="seg" id="viewSeg" style="max-width:320px;margin:4px 0 10px">${[["es", "ES"], ["en", "EN"], ["both", "ES + EN"]].map(([k, l]) => `<button type="button" data-v="${k}" class="${view === k ? "on" : ""}">${l}</button>`).join("")}</div>
     ${srcLine(it.source)}
@@ -415,10 +482,37 @@ function resultHTML(it, view = LS.get("tangent.study.view", L)) {
     ${r.concepts?.length ? `<b>${esc(t("images"))}</b><div class="concepts" style="margin:8px 0">${r.concepts.map((c, i) => {
       const p = it.photos?.[i];
       return `<div class="concept"><div class="ph">${p ? `<img src="${esc(p.src)}" alt="${esc(p.alt || c.en)}" loading="lazy">` : `<span class="hand" style="font-size:54px;color:var(--blue)">${esc((c[L] || c.es || "?").slice(0, 1).toUpperCase())}</span>`}</div><div class="c">${esc(c[L] || c.es)}<small>${esc(c[L === "en" ? "es" : "en"])}</small></div>${p ? `<div class="credit lic"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.credit)} · ${esc(p.source)}</a></div>` : ""}</div>`;
-    }).join("")}</div>` : ""}`;
+    }).join("")}</div>` : ""}
+    ${checkBox}${quiz}${mine}`;
 }
 function mountResult() {
   $("#viewSeg")?.addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (!b) return; LS.set("tangent.study.view", b.dataset.v); render(); });
+  const m = $("#mine");
+  m?.addEventListener("input", () => { clearTimeout(m.t); m.t = setTimeout(() => { patchItem(m.dataset.id, { mine: m.value }); const el = $("#mineSaved"); if (el) el.textContent = "✓ " + t("mineSaved"); }, 500); });
+  $("#quiz")?.addEventListener("click", e => {
+    const id = m?.dataset.id, cur = folder().find(x => x.id === id); if (!cur) return;
+    if (e.target.closest("#quizReset")) { patchItem(id, { quizAns: [] }); return render(); }
+    const b = e.target.closest("[data-qq]"); if (!b) return;
+    const ans = [...(cur.quizAns || [])]; ans[Number(b.dataset.qq)] = Number(b.dataset.qo);
+    const keep = m.value; patchItem(id, { quizAns: ans }); render(); const mm = $("#mine"); if (mm) mm.value = keep;
+  });
+  $("#reCheck")?.addEventListener("click", () => { const it = folder().find(x => x.id === m?.dataset.id); if (it) runCheck(it, true); });
+  const it = m && folder().find(x => x.id === m.dataset.id);
+  if (it && it.transcript && (!it.check || (it.check.pending && !checking.has(it.id)))) runCheck(it);
+}
+function patchItem(id, patch) {
+  saveFolder(folder().map(x => (x.id === id ? { ...x, ...patch } : x)));
+  if (st.item?.id === id) Object.assign(st.item, patch);
+}
+const checking = new Set();
+async function runCheck(it, force = false) {
+  if (checking.has(it.id) && !force) return;
+  checking.add(it.id);
+  patchItem(it.id, { check: { pending: true } }); if (force) render();
+  let d; try { d = await api("/api/study-check", { source: it.source, topic: it.topic, transcript: it.transcript }); } catch { d = {}; }
+  checking.delete(it.id);
+  patchItem(it.id, { check: d.status === "ok" ? { issues: d.issues || [], sources: d.sources || [] } : { failed: true } });
+  if ((route === "study" || route === "carpeta") && $("#mine")?.dataset.id === it.id) { const keep = $("#mine").value; render(); const m = $("#mine"); if (m) m.value = keep; }
 }
 function speak(it) {
   if (!("speechSynthesis" in window)) return;
@@ -441,7 +535,7 @@ async function recStart() {
     const AC = window.AudioContext || window.webkitAudioContext; rec.ac = new AC();
     rec.an = rec.ac.createAnalyser(); rec.an.fftSize = 1024; rec.ac.createMediaStreamSource(stream).connect(rec.an); rec.buf = new Float32Array(rec.an.fftSize);
   } catch {}
-  st.parts = []; st.transcript = "";
+  dropAudio(); st.parts = []; st.transcript = "";
   render();
   segment();
   rec.tick = setInterval(tickRec, 250);
@@ -452,7 +546,7 @@ function segment() {
   r.mr = mr;
   mr.ondataavailable = e => { if (e.data?.size) chunks.push(e.data); };
   mr.onstop = () => {
-    if (chunks.length) enqueue(new Blob(chunks, { type: mr.mimeType || "audio/webm" }), i);
+    if (chunks.length) { const blob = new Blob(chunks, { type: mr.mimeType || "audio/webm" }); st.audio[i] = URL.createObjectURL(blob); enqueue(blob, i); }
     if (r.stopping) finishRec(r); else segment();
   };
   mr.start();
@@ -503,6 +597,7 @@ function recStop() {
   updateRecInfo();
   if (r.mr && r.mr.state === "recording") r.mr.stop(); else finishRec(r);
 }
+function dropAudio() { st.audio.forEach(u => u && URL.revokeObjectURL(u)); st.audio = []; }
 async function finishRec(r) {
   r.stream.getTracks().forEach(tr => tr.stop());
   try { r.ac?.close(); } catch {}
@@ -547,6 +642,10 @@ async function pickPhoto(file) {
 async function makeSummary() {
   st.transcript = ($("#tr")?.value ?? st.transcript).trim();
   if (!st.transcript && !st.image) return toast(t("needText"));
+  if (st.audio.some(Boolean)) {
+    if ((await sheet(t("audioGone"), "", { ok: t("okGo") })) === null) return;
+    dropAudio();
+  }
   st.busy = true; st.error = ""; render();
   let d;
   try { d = await api("/api/study", { source: st.source, topic: st.topic, transcript: st.transcript, image: st.image || undefined }); }
@@ -623,6 +722,9 @@ function printItems(items, paper, view, withText) {
       ${it.photos?.some(Boolean) ? `<div class="imgs">${r.concepts.map((c, i) => it.photos[i] ? `<figure><img src="${esc(it.photos[i].src)}" alt=""><figcaption><b>${esc(c[lang])}</b><br>${esc(it.photos[i].credit)} · ${esc(it.photos[i].source)}</figcaption></figure>` : "").join("")}</div>` : ""}
       ${r.check[lang]?.length ? `<h2>${esc(tl("checkYou", lang))}</h2><ol>${r.check[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ol>` : ""}
       ${r.review[lang] ? `<p><b>${esc(tl("review", lang))}:</b> ${esc(r.review[lang])}</p>` : ""}
+      ${r.goBack?.[lang]?.length ? `<h2>${esc(tl("goBackT", lang))}</h2><ul>${r.goBack[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
+      ${it.check?.issues?.length ? `<h2>${esc(tl("checkT", lang))}</h2><ul>${it.check.issues.map(i => `<li>«${esc(i.said)}» → ${esc(i.fix[lang] || i.fix.es)}</li>`).join("")}</ul>` : ""}
+      ${it.mine ? `<h2>${esc(tl("mineTitle", lang))}</h2><p>${esc(it.mine)}</p>` : ""}
       ${withText && it.transcript ? `<h2>${lang === "en" ? "What I said" : "Lo que dije"}</h2><p style="font-size:9.5pt">${esc(it.transcript)}</p>` : ""}
       <h2>${esc(tl("notes", lang))}</h2><div class="lines"><div></div><div></div><div></div><div></div></div>
       <div class="foot">Tangent Study · ${esc(new Date(it.at).toLocaleDateString(lang === "en" ? "en-US" : "es-AR"))}</div></section>`).join("");
