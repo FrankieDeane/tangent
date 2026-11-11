@@ -320,7 +320,7 @@ function go() {
   const changed = r !== route;
   route = V[r] ? r : "inicio"; arg = a;
   render();
-  if (changed) window.scrollTo(0, 0);
+  if (changed) { window.scrollTo(0, 0); const v = $("#view"); v.classList.add("enter"); clearTimeout(go.t); go.t = setTimeout(() => v.classList.remove("enter"), 600); }
 }
 window.addEventListener("hashchange", go);
 $("#readBtn").addEventListener("click", readSheet);
