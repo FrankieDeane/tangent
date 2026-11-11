@@ -10,7 +10,7 @@ const LS = {
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
 const K = { lang: "tangent.study.lang", folder: "tangent.study.folder", board: "tangent.study.board", agenda: "tangent.study.agenda", scale: "tangent.study.scale",
-  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read" };
+  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read", drafts: "tangent.study.drafts" };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = n => String(n).padStart(2, "0");
@@ -81,6 +81,9 @@ const S = {
   checkYou: ["Probate", "Test yourself"], review: ["Revisá en tu fuente", "Check in your source"],
   listen: ["Escuchar", "Listen"], stop: ["Parar", "Stop"], printThis: ["Imprimir / PDF", "Print / PDF"], toFolder: ["Ver carpeta", "Open folder"], newTopic: ["Nuevo tema", "New topic"],
   saved: ["Guardado en tu carpeta.", "Saved in your folder."],
+  draftsT: ["Sin terminar", "Unfinished"], draftsP: ["Lo que grabaste o escribiste queda guardado acá aunque todavía no tenga explicación.", "What you recorded or typed stays here even before it has an explanation."],
+  draftKept: ["Tu texto quedó guardado en Carpeta, en «Sin terminar». Podés intentarlo de nuevo cuando quieras.", "Your text was saved in Folder, under “Unfinished”. You can try again whenever you want."],
+  draftGo: ["Seguir", "Continue"], draftHome: ["Tenés un estudio sin terminar", "You have an unfinished study"], draftSaved: ["Texto guardado.", "Text saved."], noTitle: ["Sin título", "Untitled"],
   noMic: ["Este navegador no puede grabar. Probá con Chrome o Safari, o escribilo.", "This browser can't record. Try Chrome or Safari, or type it."],
   micDenied: ["Necesito permiso para el micrófono. Activalo en el candado de la barra de direcciones.", "I need microphone permission. Turn it on from the lock in the address bar."],
   errAI: ["No pude armarlo ahora. Probá de nuevo en un minuto.", "I couldn't make it right now. Try again in a minute."],
@@ -351,6 +354,7 @@ V.inicio = {
     <p style="position:relative;margin:0 0 8px"><a href="#guia">📖 ${esc(t("guideLink"))}</a></p>
     <div class="small" style="position:relative">${esc(LS.get(K.code, "") ? t("codeOn") : t("codeOff"))} ${LS.get(K.code, "") ? "" : `<a href="#cuenta">${esc(t("haveCode"))}</a>`}</div>
   </div>
+  ${drafts().length ? `<a class="card" href="#carpeta" style="display:flex;gap:10px;align-items:center;margin-top:14px;text-decoration:none;color:inherit">✏️ <b class="grow">${esc(t("draftHome"))}</b> →</a>` : ""}
   ${homeDue()}
   <div class="grid">
     ${TILES.map(([r, d]) => `<a class="tile" href="#${r}">${ic(navKey(r))}<b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></a>`).join("")}
@@ -392,7 +396,7 @@ V.mas = {
 
 /* ---------------- Study ---------------- */
 const SEG_MS = 60000;
-const st = { audio: [], step: 1, source: LS.get(K.source, { title: "", author: "", page: "" }), topic: "", minutes: 5, parts: [], image: null, imageUrl: null, transcript: "", busy: false, item: null, error: "", goal: "", before: "", review: null };
+const st = { draftId: null, audio: [], step: 1, source: LS.get(K.source, { title: "", author: "", page: "" }), topic: "", minutes: 5, parts: [], image: null, imageUrl: null, transcript: "", busy: false, item: null, error: "", goal: "", before: "", review: null };
 let rec = null;
 
 function stepsBar(n) { return `<div class="steps">${[1, 2, 3, 4].map(i => `<i class="${i <= n ? "on" : ""}"></i>`).join("")}</div>`; }
@@ -485,6 +489,7 @@ V.study = {
       const typed = ($("#typed")?.value || "").trim();
       if (typed) st.transcript = typed;
       if (!st.transcript.trim() && !st.image) return toast(t("needText"));
+      keepDraft();
       st.step = 3; st.error = ""; render();
     });
     $("#back1")?.addEventListener("click", () => { st.step = 1; render(); });
@@ -493,11 +498,11 @@ V.study = {
     $("#blkStop")?.addEventListener("click", () => { clearInterval(blk.iv); blk.iv = null; blk.end = 0; render(); });
     if (blk.end) blkTick();
     $("#back2")?.addEventListener("click", () => { dropAudio(); st.step = 2; render(); });
-    $("#tr")?.addEventListener("input", e => { st.transcript = e.target.value; });
+    $("#tr")?.addEventListener("input", e => { st.transcript = e.target.value; clearTimeout(st.dt); st.dt = setTimeout(keepDraft, 800); });
     $("#make")?.addEventListener("click", makeSummary);
     $("#speak")?.addEventListener("click", () => speak(st.item));
     $("#printOne")?.addEventListener("click", () => printItems([st.item], "A4", L, false));
-    $("#again")?.addEventListener("click", () => { Object.assign(st, { step: 1, topic: "", goal: "", before: "", review: null, parts: [], image: null, imageUrl: null, transcript: "", item: null, error: "" }); location.hash = "study"; render(); });
+    $("#again")?.addEventListener("click", () => { Object.assign(st, { draftId: null, step: 1, topic: "", goal: "", before: "", review: null, parts: [], image: null, imageUrl: null, transcript: "", item: null, error: "" }); location.hash = "study"; render(); });
     mountResult();
   },
 };
@@ -679,7 +684,8 @@ async function finishRec(r) {
   await r.queue;
   rec = null;
   st.transcript = st.parts.filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
-  if (r.paywall) { st.step = 3; st.error = `${esc(t("paywall"))} <a href="#cuenta">${esc(t("seePlans"))}</a>`; return render(); }
+  keepDraft();
+  if (r.paywall) { st.step = 3; st.error = `${esc(t("paywall"))} <a href="#cuenta">${esc(t("seePlans"))}</a>${st.draftId ? ` <b>${esc(t("draftKept"))}</b>` : ""}`; return render(); }
   if (r.blocked) toast(t("blocked"), 4000);
   else if (r.errors) toast(t("errChunk"), 4000);
   st.step = 3; st.error = ""; render();
@@ -721,16 +727,19 @@ async function makeSummary() {
     if ((await sheet(t("audioGone"), "", { ok: t("okGo") })) === null) return;
     dropAudio();
   }
+  keepDraft();
   st.busy = true; st.error = ""; render();
   let d;
   try { d = await api("/api/study", { source: st.source, topic: st.topic, transcript: st.transcript, image: st.image || undefined }); }
   catch { d = { status: "ai_error" }; }
   st.busy = false;
-  if (d.status === "unclear") { st.error = esc(t("unclear")); if (d.transcript) st.transcript = d.transcript; return render(); }
+  const kept = st.draftId ? ` <b>${esc(t("draftKept"))}</b>` : "";
+  if (d.status === "unclear") { st.error = esc(t("unclear")) + kept; return render(); }
   const msg = { paywall: `${esc(t("paywall"))} <a href="#cuenta">${esc(t("seePlans"))}</a>`, blocked: esc(t("blocked")), support: esc(t("support")), language: esc(t("langOnly")), no_source: esc(t("needSource")) }[d.status];
-  if (d.status !== "ok") { st.error = msg || esc(t("errAI")); return render(); }
+  if (d.status !== "ok") { st.error = (msg || esc(t("errAI"))) + kept; return render(); }
   const item = { id: uid(), at: new Date().toISOString(), source: { ...st.source }, topic: st.topic, transcript: st.transcript, result: d.result, photos: [], goal: st.goal, before: st.before };
   saveFolder([item, ...folder()]);
+  if (st.draftId) { saveDrafts(drafts().filter(x => x.id !== st.draftId)); st.draftId = null; }
   if (paid()) { addSpaced(item); setTimeout(() => toast(t("spacedOn"), 3500), 2700); }
   st.goal = ""; st.before = "";
   st.item = item; st.step = 4; st.image = st.imageUrl = null;
@@ -870,6 +879,7 @@ function homeDue() {
 }
 document.addEventListener("click", e => {
   const r = e.target.closest("[data-rev]"); if (r) { e.preventDefault(); return startReview(r.dataset.rev); }
+  const dg = e.target.closest("[data-draft]"); if (dg) { e.preventDefault(); return openDraft(dg.dataset.draft); }
   const p = e.target.closest("[data-printit]");
   if (p) { e.preventDefault(); const it = folder().find(x => x.id === p.dataset.printit); if (it) printItems([it], LS.get("tangent.study.print", { paper: "A4" }).paper, LS.get("tangent.study.view", L), false); else toast(t("topicGone")); }
 });
@@ -959,12 +969,32 @@ function mountAvatar() {
 /* ---------------- folder + PDF ---------------- */
 const folder = () => LS.get(K.folder, []);
 const saveFolder = v => LS.set(K.folder, v.slice(0, 300));
+// Drafts: everything recorded or typed is kept on the device right away, even if the explanation fails.
+const drafts = () => LS.get(K.drafts, []);
+const saveDrafts = v => LS.set(K.drafts, v.slice(0, 30));
+function keepDraft() {
+  const text = String(st.transcript || "").trim();
+  if (!text) return;
+  const d = { id: st.draftId || uid(), at: new Date().toISOString(), source: { ...st.source }, topic: st.topic, goal: st.goal, before: st.before, transcript: text };
+  st.draftId = d.id;
+  saveDrafts([d, ...drafts().filter(x => x.id !== d.id)]);
+}
+function openDraft(id) {
+  const d = drafts().find(x => x.id === id); if (!d) return;
+  dropAudio();
+  Object.assign(st, { draftId: d.id, step: 3, source: { title: "", author: "", page: "", ...d.source }, topic: d.topic || "", goal: d.goal || "", before: d.before || "", transcript: d.transcript, image: null, imageUrl: null, item: null, error: "", busy: false });
+  if (location.hash === "#study") render(); else location.hash = "study";
+}
+const draftsHTML = () => { const ds = drafts(); return !ds.length ? "" : `<div class="card"><b>✏️ ${esc(t("draftsT"))}</b><p class="small" style="margin:4px 0 0">${esc(t("draftsP"))}</p>
+  ${ds.map(d => `<div class="item" style="margin-top:8px"><div class="grow"><b>${esc(d.topic || d.source?.title || t("noTitle"))}</b><div class="small">${esc(d.source?.title || "")} · ${esc(new Date(d.at).toLocaleDateString(L === "en" ? "en-US" : "es-AR"))}</div><div class="small" style="opacity:.8">${esc(d.transcript.slice(0, 90))}${d.transcript.length > 90 ? "…" : ""}</div></div>
+  <button class="btn small" data-draft="${d.id}" type="button" style="margin:0">${esc(t("draftGo"))}</button><button class="x" data-deldraft="${d.id}" aria-label="${esc(t("del"))}">🗑</button></div>`).join("")}</div>`; };
 V.carpeta = {
   html() {
     const items = folder();
     if (arg) { const it = items.find(x => x.id === arg); if (it) return `<a href="#carpeta">← ${esc(t("folder"))}</a>${resultHTML(it)}<div class="row"><button class="btn small" id="printOne" type="button">🖨️ ${esc(t("printThis"))}</button></div>`; }
     const pf = LS.get("tangent.study.print", { paper: "A4", lang: L, text: false });
     return `<h1>${esc(t("folder"))}</h1><p class="lead">${esc(t("folderP"))}</p>
+      ${draftsHTML()}
       ${items.length ? `
       <div class="card two">
         <div><label class="f" for="paper">${esc(t("paper"))}</label><select class="t" id="paper">${[["A4", "A4"], ["Letter", L === "en" ? "Letter" : "Carta"], ["Legal", L === "en" ? "Legal" : "Oficio"], ["A5", "A5"]].map(([k, l]) => `<option value="${k}" ${pf.paper === k ? "selected" : ""}>${l}</option>`).join("")}</select></div>
@@ -975,7 +1005,7 @@ V.carpeta = {
         <div class="grow"><a href="#carpeta/${it.id}"><b>${esc(it.result.title[L] || it.result.title.es)}</b></a><div class="small">${esc(it.source.title)} · ${esc(new Date(it.at).toLocaleDateString(L === "en" ? "en-US" : "es-AR"))}${(() => { const x = agenda().filter(e => e.item === it.id && e.kind === "exam" && e.date >= dayKey()).sort((a, b) => a.date.localeCompare(b.date))[0]; return x ? ` · 📝 ${esc(fmtDate(x.date))}` : ""; })()}</div></div>
         <button class="x" data-del="${it.id}" aria-label="${esc(t("del"))}">🗑</button></div>`).join("")}
       <button class="btn" id="pdf" type="button">⬇ ${esc(t("download"))}</button><div class="small" style="text-align:center">${esc(t("pdfHint"))}</div>`
-      : `<div class="card">${esc(t("empty"))} <a href="#study">${esc(t("start"))}</a></div>`}`;
+      : drafts().length ? "" : `<div class="card">${esc(t("empty"))} <a href="#study">${esc(t("start"))}</a></div>`}`;
   },
   mount() {
     mountResult();
@@ -989,7 +1019,10 @@ V.carpeta = {
       toast(t("pdfHint"), 4000);
     });
     $("#view").onclick = async e => {
-      const b = e.target.closest("[data-del]"); if (!b || route !== "carpeta") return;
+      if (route !== "carpeta") return;
+      const dd = e.target.closest("[data-deldraft]");
+      if (dd) { if (await confirmIt(t("sure"))) { saveDrafts(drafts().filter(x => x.id !== dd.dataset.deldraft)); if (st.draftId === dd.dataset.deldraft) st.draftId = null; render(); } return; }
+      const b = e.target.closest("[data-del]"); if (!b) return;
       if (await confirmIt(t("sure"))) { saveFolder(folder().filter(x => x.id !== b.dataset.del)); render(); }
     };
   },
