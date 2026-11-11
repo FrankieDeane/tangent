@@ -10,7 +10,7 @@ const LS = {
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
 const K = { lang: "tangent.study.lang", folder: "tangent.study.folder", board: "tangent.study.board", agenda: "tangent.study.agenda", scale: "tangent.study.scale",
-  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup" };
+  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar" };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = n => String(n).padStart(2, "0");
@@ -190,6 +190,34 @@ const S = {
   wipe: ["Borrar todo lo de este dispositivo", "Delete everything on this device"], wipeSure: ["Se borran tus resúmenes, tablero, agenda y notas de este dispositivo. ¿Seguro?", "This deletes your summaries, board, planner and notes from this device. Sure?"],
   wiped: ["Listo, borrado.", "Done, deleted."], draft: ["Borrador. El texto legal final lo revisa un abogado.", "Draft. The final legal text will be reviewed by a lawyer."],
   exportData: ["Descargar mis datos (.json)", "Download my data (.json)"],
+  // paid learning tools
+  map: ["Mapa de temas", "Topic map"], tMap: ["Tus temas conectados.", "Your topics, connected."],
+  mapP: ["Cada círculo es un tema que estudiaste, agrupado por tu fuente. Las líneas punteadas unen temas que comparten ideas.", "Each circle is a topic you studied, grouped by your source. Dotted lines join topics that share ideas."],
+  mapLinks: ["Conexiones entre temas", "Links between topics"], mapNoLinks: ["Todavía no hay temas que compartan ideas. Estudiá más y van a aparecer.", "No topics share ideas yet. Study more and they'll show up."],
+  lockT: ["Con el plan pago", "With the paid plan"],
+  lockL: ["📅 Agendar el examen y que tu tema aparezca ese día<br>🔁 Repasos a 1, 3 y 7 días con el mini examen<br>⏱️ Bloques cortos de lectura con timer<br>🧒 Explicalo como a un chico de 8 años<br>🗺️ Mapa de tus temas<br>🤔 Antes y después: qué creías saber y qué aprendiste", "📅 Schedule the exam and see your topic on that day<br>🔁 Reviews at 1, 3 and 7 days with the mini quiz<br>⏱️ Short reading blocks with a timer<br>🧒 Explain it like to an 8-year-old<br>🗺️ Map of your topics<br>🤔 Before and after: what you thought you knew and what you learned"],
+  goalL: ["Meta chica de hoy", "Today's small goal"], goalPh: ["Ej.: páginas 12 a 14", "E.g. pages 12 to 14"],
+  beforeL: ["Antes de leer: ¿qué creés que ya sabés del tema?", "Before reading: what do you think you already know?"], beforePh: ["Lo que se te ocurra, aunque sea poco o esté mal.", "Whatever comes to mind, even if it's little or wrong."],
+  blkT: ["Bloque de lectura", "Reading block"], blkP: ["Leé tu fuente con el timer. Cuando suene, pausa corta y después grabá.", "Read your source with the timer. When it rings, take a short break and then record."],
+  blkGo: ["Empezar a leer", "Start reading"], blkStop: ["Parar", "Stop"], blkDone: ["¡Bloque terminado! Pausa de 3 minutos: tomá agua, estirate. Después grabá.", "Block done! 3-minute break: drink water, stretch. Then record."],
+  planT2: ["En tu agenda", "In your planner"], planNone: ["Este tema todavía no está en tu agenda.", "This topic isn't in your planner yet."],
+  schedBtn: ["Agendar examen o repaso", "Schedule exam or review"], icsAll: ["Pasar a Google Calendar (.ics)", "Send to Google Calendar (.ics)"], seeAgenda: ["Ver en la agenda", "See in planner"],
+  gcalHint: ["Google: tocá \"Google\" en cada fecha, o bajá el archivo .ics y abrilo con Google Calendar para pasar todas juntas.", "Google: tap \"Google\" on each date, or download the .ics file and open it with Google Calendar to add them all at once."],
+  schedWhat: ["¿Qué querés agendar?", "What do you want to schedule?"], kExam: ["📝 Examen o prueba", "📝 Exam or test"], kReview: ["🔁 Solo un repaso ese día", "🔁 Just a review that day"],
+  schedName: ["Nombre (materia o tema)", "Name (subject or topic)"], schedBefore: ["Sumar repasos 7, 3 y 1 día antes del examen", "Add reviews 7, 3 and 1 day before the exam"],
+  schedDone: ["Listo, quedó en tu agenda.", "Done, it's in your planner."], reviewW: ["Repasar", "Review"], examW: ["Examen", "Exam"],
+  spacedOn: ["Te agendé repasos para dentro de 1, 3 y 7 días.", "I scheduled reviews in 1, 3 and 7 days."],
+  openTopic: ["Abrir tema", "Open topic"], revGo: ["Repasar ahora", "Review now"], revDone: ["Repasado", "Reviewed"],
+  revNow: ["Repaso de hoy", "Today's review"], rev1: ["Contalo en voz alta sin mirar, como te acuerdes.", "Say it out loud without looking, as you remember it."], rev2: ["Hacé el mini examen de abajo.", "Take the mini quiz below."], rev3: ["Recién ahí mirá tu resumen y lo que te marcó Tangent.", "Only then look at your summary and what Tangent flagged."],
+  revCount: ["Repasado", "Reviewed"], times: ["veces", "times"],
+  dueT: ["Para repasar hoy", "To review today"], examsT: ["Próximos exámenes", "Upcoming exams"], daysLeft: ["faltan", "in"], dayW: ["días", "days"], todayW: ["¡hoy!", "today!"],
+  topicGone: ["Ese tema ya no está en tu carpeta.", "That topic is no longer in your folder."],
+  simpleT: ["Explicalo como a un chico de 8 años", "Explain it like to an 8-year-old"],
+  simpleP: ["Escribilo (o dictalo con el micrófono del teclado) con palabras muy simples. Si no te sale, es que hay algo que todavía no entendiste. Tangent no lo escribe por vos: te da pistas.", "Write it (or dictate it with your keyboard mic) in very simple words. If you can't, there's something you haven't understood yet. Tangent won't write it for you: it gives you hints."],
+  simpleGo: ["Ver cómo me fue", "See how I did"], lvClear: ["¡Clarísimo! Lo entendiste.", "Crystal clear! You got it."], lvAlmost: ["Casi. Te falta poquito.", "Almost. Just a little missing."], lvNot: ["Todavía no. Volvé a tu fuente y probá de nuevo.", "Not yet. Go back to your source and try again."],
+  hardW: ["Palabras difíciles para un chico", "Words too hard for a kid"], missingW: ["Pistas de lo que falta", "Hints of what's missing"],
+  baT: ["Antes y después", "Before and after"], baBefore: ["Lo que creía saber", "What I thought I knew"], baAfter: ["Lo que aprendí (tu resumen)", "What I learned (your summary)"], baEmpty: ["Escribí tu resumen arriba y comparalo.", "Write your summary above and compare."],
+  avT: ["Tu personaje", "Your character"], avP: ["Elegí quién sos en Tangent. Nada de fotos: solo tu personaje.", "Choose who you are in Tangent. No photos: just your character."], avColor: ["Color de fondo", "Background colour"], avNick: ["Apodo (opcional)", "Nickname (optional)"], avSaved: ["¡Personaje guardado!", "Character saved!"],
 };
 const t = k => { const v = S[k]; return v ? v[L === "en" ? 1 : 0] : k; };
 const tl = (k, lang) => { const v = S[k]; return v ? v[lang === "en" ? 1 : 0] : k; };
@@ -245,13 +273,14 @@ const IC = {
   account: '<circle cx="12" cy="8" r="4"/><path d="M4.2 21c1-4.2 4-6.2 7.8-6.2s6.8 2 7.8 6.2"/>',
   terms: '<path d="M5 11h14v10H5zM8 11V7.3a4 4 0 0 1 8 0V11M12 15v2.5"/>',
   more: '<path d="M4 7h16M4 12h16M4 17h11"/>',
+  map: '<path d="M3.5 6.5 9 4l6 2.5L20.5 4v13.5L15 20l-6-2.5L3.5 20zM9 4v13.5M15 6.5V20"/>',
   guide: '<path d="M4 5.5c2.7-1 5.3-1 8 .8 2.7-1.8 5.3-1.8 8-.8V19c-2.7-1-5.3-1-8 .8-2.7-1.8-5.3-1.8-8-.8zM12 6.3v13.5"/>',
 };
 const ic = (k, cls = "") => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true"><g>${IC[k] || IC.more}</g></svg>`;
 const squiggle = () => `<svg class="squiggle" viewBox="0 0 120 10" aria-hidden="true"><path d="M2 6c8-5 14 4 22 0s14-5 22 0 14 4 22 0 14-5 22 0 14 4 22 0" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>`;
 
 /* ---------------- router ---------------- */
-const NAV = [["inicio", "home"], ["guia", "guide"], ["study", "study"], ["carpeta", "folder"], ["tablero", "board"], ["agenda", "agenda"],
+const NAV = [["inicio", "home"], ["guia", "guide"], ["study", "study"], ["carpeta", "folder"], ["mapa", "map"], ["tablero", "board"], ["agenda", "agenda"],
   ["progreso", "progress"], ["test", "test"], ["kit", "kit"], ["ideas", "ideas"], ["cuenta", "account"], ["terminos", "terms"]];
 const TABS = ["inicio", "study", "tablero", "agenda", "mas"];
 let route = "inicio", arg = "";
@@ -259,6 +288,7 @@ const V = {}; // views: name -> {html(), mount?()}
 function render() {
   document.documentElement.lang = L;
   $("#langBtn").textContent = L === "en" ? "ES" : "EN";
+  { const me = $("#me"); if (me) me.innerHTML = avatarHTML(myAvatar(), 34); }
   $("#side").innerHTML = NAV.map(([r, k]) => `<a href="#${r}" class="${r === route ? "on" : ""}">${ic(k)}${esc(t(k))}</a>`).join("");
   const inMore = !["inicio", "study", "tablero", "agenda"].includes(route);
   $("#tabs").innerHTML = [...NAV.filter(n => TABS.includes(n[0])), ["mas", "more"]].map(([r, k]) => `<a href="#${r}" class="${r === route || (r === "mas" && inMore) ? "on" : ""}">${ic(k)}${esc(t(k))}</a>`).join("");
@@ -290,7 +320,7 @@ async function tryCode(code) {
 }
 
 /* ---------------- home ---------------- */
-const TILES = [["guia", "tGuide"], ["study", "tStudy"], ["carpeta", "tFolder"], ["tablero", "tBoard"], ["agenda", "tAgenda"], ["progreso", "tProgress"], ["test", "tTest"], ["kit", "tKit"], ["ideas", "tIdeas"], ["cuenta", "tAccount"], ["terminos", "tTerms"]];
+const TILES = [["guia", "tGuide"], ["study", "tStudy"], ["carpeta", "tFolder"], ["mapa", "tMap"], ["tablero", "tBoard"], ["agenda", "tAgenda"], ["progreso", "tProgress"], ["test", "tTest"], ["kit", "tKit"], ["ideas", "tIdeas"], ["cuenta", "tAccount"], ["terminos", "tTerms"]];
 const navKey = r => NAV.find(n => n[0] === r)[1];
 V.inicio = {
   html: () => `
@@ -304,6 +334,7 @@ V.inicio = {
     <p style="position:relative;margin:0 0 8px"><a href="#guia">📖 ${esc(t("guideLink"))}</a></p>
     <div class="small" style="position:relative">${esc(LS.get(K.code, "") ? t("codeOn") : t("codeOff"))} ${LS.get(K.code, "") ? "" : `<a href="#cuenta">${esc(t("haveCode"))}</a>`}</div>
   </div>
+  ${homeDue()}
   <div class="grid">
     ${TILES.map(([r, d]) => `<a class="tile" href="#${r}">${ic(navKey(r))}<b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></a>`).join("")}
   </div>`,
@@ -344,7 +375,7 @@ V.mas = {
 
 /* ---------------- Study ---------------- */
 const SEG_MS = 60000;
-const st = { audio: [], step: 1, source: LS.get(K.source, { title: "", author: "", page: "" }), topic: "", minutes: 5, parts: [], image: null, imageUrl: null, transcript: "", busy: false, item: null, error: "" };
+const st = { audio: [], step: 1, source: LS.get(K.source, { title: "", author: "", page: "" }), topic: "", minutes: 5, parts: [], image: null, imageUrl: null, transcript: "", busy: false, item: null, error: "", goal: "", before: "", review: null };
 let rec = null;
 
 function stepsBar(n) { return `<div class="steps">${[1, 2, 3, 4].map(i => `<i class="${i <= n ? "on" : ""}"></i>`).join("")}</div>`; }
@@ -362,16 +393,21 @@ V.study = {
         <div class="two"><div><label class="f" for="sA">${esc(t("srcAuthor"))}</label><input class="t" id="sA" name="author" maxlength="120" value="${esc(st.source.author)}"></div>
         <div><label class="f" for="sP">${esc(t("srcPage"))}</label><input class="t" id="sP" name="page" maxlength="60" value="${esc(st.source.page)}"></div></div>
         <label class="f" for="sTo">${esc(t("topic"))}</label><input class="t" id="sTo" name="topic" maxlength="120" placeholder="${esc(t("topicPh"))}" value="${esc(st.topic)}">
+        ${paid() ? `<label class="f" for="sG">🎯 ${esc(t("goalL"))}</label><input class="t" id="sG" name="goal" maxlength="80" placeholder="${esc(t("goalPh"))}" value="${esc(st.goal)}">
+        <label class="f" for="sB">🤔 ${esc(t("beforeL"))}</label><textarea class="t" id="sB" name="before" maxlength="1500" placeholder="${esc(t("beforePh"))}" style="min-height:80px">${esc(st.before)}</textarea>` : ""}
         <label class="f">${esc(t("howLong"))}</label>
         <div class="seg" id="mins">${[5, 10].map(m => `<button type="button" data-m="${m}" class="${st.minutes === m ? "on" : ""}">${m} ${esc(t("min"))}</button>`).join("")}</div>
         <button class="btn" type="submit">${esc(t("next"))}</button>
       </form>
+      ${paid() ? "" : lockAll()}
       <div class="card"><b>${esc(t("why"))}</b><p class="small" style="margin-top:6px">${esc(t("whyP"))}<br>Dunlosky et al. (2013), <i>Psychological Science in the Public Interest</i>. MacLeod et al. (2010), <i>J. Exp. Psychology: Learning, Memory, and Cognition</i>.</p></div>`;
     if (st.step === 2) {
       const on = Boolean(rec), done = st.parts.filter(p => p != null).length;
       return `
       <h1>${esc(t("s2"))}</h1>${stepsBar(2)}
       ${srcLine(st.source)}
+      ${st.goal ? `<div class="small" style="margin-top:6px">🎯 <b>${esc(t("goalL"))}:</b> ${esc(st.goal)}</div>` : ""}
+      ${!on && paid() ? blockCard() : ""}
       <p class="lead" style="margin-top:10px">${esc(t("s2p"))}</p>
       ${on ? "" : `<div class="tip"><span class="hand">${esc(t("tipT"))}</span><ol>${tl("tips", L).map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>`}
       <div class="rec">
@@ -419,7 +455,7 @@ V.study = {
     $("#srcForm")?.addEventListener("submit", e => {
       e.preventDefault();
       const f = Object.fromEntries(new FormData(e.target));
-      st.source = { title: f.title.trim(), author: f.author.trim(), page: f.page.trim() }; st.topic = f.topic.trim();
+      st.source = { title: f.title.trim(), author: f.author.trim(), page: f.page.trim() }; st.topic = f.topic.trim(); st.goal = (f.goal || "").trim(); st.before = (f.before || "").trim();
       if (st.source.title.length < 2) return toast(t("needSource"));
       LS.set(K.source, st.source); st.step = 2; render();
     });
@@ -435,12 +471,16 @@ V.study = {
       st.step = 3; st.error = ""; render();
     });
     $("#back1")?.addEventListener("click", () => { st.step = 1; render(); });
+    $("#blkMins")?.addEventListener("click", e => { const b = e.target.closest("[data-bm]"); if (!b) return; blk.mins = Number(b.dataset.bm); $$("#blkMins button").forEach(x => x.classList.toggle("on", x === b)); });
+    $("#blkGo")?.addEventListener("click", () => { blk.end = Date.now() + blk.mins * 60e3; blk.done = false; clearInterval(blk.iv); blk.iv = setInterval(blkTick, 500); render(); blkTick(); });
+    $("#blkStop")?.addEventListener("click", () => { clearInterval(blk.iv); blk.iv = null; blk.end = 0; render(); });
+    if (blk.end) blkTick();
     $("#back2")?.addEventListener("click", () => { dropAudio(); st.step = 2; render(); });
     $("#tr")?.addEventListener("input", e => { st.transcript = e.target.value; });
     $("#make")?.addEventListener("click", makeSummary);
     $("#speak")?.addEventListener("click", () => speak(st.item));
     $("#printOne")?.addEventListener("click", () => printItems([st.item], "A4", L, false));
-    $("#again")?.addEventListener("click", () => { Object.assign(st, { step: 1, topic: "", parts: [], image: null, imageUrl: null, transcript: "", item: null, error: "" }); location.hash = "study"; render(); });
+    $("#again")?.addEventListener("click", () => { Object.assign(st, { step: 1, topic: "", goal: "", before: "", review: null, parts: [], image: null, imageUrl: null, transcript: "", item: null, error: "" }); location.hash = "study"; render(); });
     mountResult();
   },
 };
@@ -466,7 +506,7 @@ function resultHTML(it, view = LS.get("tangent.study.view", L)) {
     ${ck?.sources?.length ? `<p class="small lic">${esc(t("sources"))}: ${ck.sources.map(x => `<a href="${esc(x.uri)}" target="_blank" rel="noopener">${esc(x.title || "web")}</a>`).join(" · ")}</p>` : ""}
     <p class="small">${esc(t("checkWarn"))}</p></div>`;
   const qz = r.quiz || [], ans = it.quizAns || [];
-  const quiz = !qz.length ? "" : `<details class="card" id="quiz" ${ans.length ? "open" : ""}><summary style="cursor:pointer"><b>🧩 ${esc(t("quizT"))}</b></summary><p class="small" style="margin-top:6px">${esc(t("quizP"))}</p>
+  const quiz = !qz.length ? "" : `<details class="card" id="quiz" ${ans.length || st.review === it.id ? "open" : ""}><summary style="cursor:pointer"><b>🧩 ${esc(t("quizT"))}</b></summary><p class="small" style="margin-top:6px">${esc(t("quizP"))}</p>
     ${qz.map((q, qi) => { const a = ans[qi]; return `<div class="q"><p>${qi + 1}. ${esc(q.q[L] || q.q.es)}</p><div class="opts">${(q.options[L]?.length === 3 ? q.options[L] : q.options.es).map((o, oi) => {
       const cls = a == null ? "" : oi === q.answer ? "right" : oi === a ? "wrong" : "";
       return `<button type="button" data-qq="${qi}" data-qo="${oi}" class="${cls}" ${a != null ? "disabled" : ""}>${esc(o)}</button>`; }).join("")}</div>
@@ -475,15 +515,18 @@ function resultHTML(it, view = LS.get("tangent.study.view", L)) {
   </details>`;
   const mine = `<div class="iri"><span class="hand" style="font-size:28px">✍️ ${esc(t("mineT"))}</span><p class="small" style="margin:4px 0 8px">${esc(t("mineP"))}</p>
     <textarea class="t" id="mine" maxlength="6000" data-id="${it.id}">${esc(it.mine || "")}</textarea><div class="small" id="mineSaved" style="min-height:16px"></div></div>`;
-  return `
+  const due = st.review === it.id ? `<div class="tip"><span class="hand">🔁 ${esc(t("revNow"))}</span><ol class="pts"><li>${esc(t("rev1"))}</li><li>${esc(t("rev2"))}</li><li>${esc(t("rev3"))}</li></ol></div>` : "";
+  const extras = paid() ? `${planBox(it)}${simpleBox(it)}` : lockAll();
+  const ba = it.before ? `<div class="card"><b>🤔 ${esc(t("baT"))}</b><div class="two" style="margin-top:6px"><div><div class="small"><b>${esc(t("baBefore"))}</b></div><p>${esc(it.before)}</p></div><div><div class="small"><b>${esc(t("baAfter"))}</b></div><p>${it.mine ? esc(it.mine) : `<span class="small">${esc(t("baEmpty"))}</span>`}</p></div></div></div>` : "";
+  return `${due}
     <div class="seg" id="viewSeg" style="max-width:320px;margin:4px 0 10px">${[["es", "ES"], ["en", "EN"], ["both", "ES + EN"]].map(([k, l]) => `<button type="button" data-v="${k}" class="${view === k ? "on" : ""}">${l}</button>`).join("")}</div>
-    ${srcLine(it.source)}
+    ${srcLine(it.source)}${it.goal ? `<div class="small">🎯 ${esc(it.goal)}</div>` : ""}
     <div class="${langs.length > 1 ? "two" : ""}">${langs.map(block).join("")}</div>
     ${r.concepts?.length ? `<b>${esc(t("images"))}</b><div class="concepts" style="margin:8px 0">${r.concepts.map((c, i) => {
       const p = it.photos?.[i];
       return `<div class="concept"><div class="ph">${p ? `<img src="${esc(p.src)}" alt="${esc(p.alt || c.en)}" loading="lazy">` : `<span class="hand" style="font-size:54px;color:var(--blue)">${esc((c[L] || c.es || "?").slice(0, 1).toUpperCase())}</span>`}</div><div class="c">${esc(c[L] || c.es)}<small>${esc(c[L === "en" ? "es" : "en"])}</small></div>${p ? `<div class="credit lic"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.credit)} · ${esc(p.source)}</a></div>` : ""}</div>`;
     }).join("")}</div>` : ""}
-    ${checkBox}${quiz}${mine}`;
+    ${checkBox}${quiz}${mine}${ba}${extras}`;
 }
 function mountResult() {
   $("#viewSeg")?.addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (!b) return; LS.set("tangent.study.view", b.dataset.v); render(); });
@@ -495,6 +538,21 @@ function mountResult() {
     const b = e.target.closest("[data-qq]"); if (!b) return;
     const ans = [...(cur.quizAns || [])]; ans[Number(b.dataset.qq)] = Number(b.dataset.qo);
     const keep = m.value; patchItem(id, { quizAns: ans }); render(); const mm = $("#mine"); if (mm) mm.value = keep;
+  });
+  const keepRender = () => { const keep = $("#mine")?.value; render(); const mm = $("#mine"); if (mm && keep != null) mm.value = keep; };
+  $("#schedIt")?.addEventListener("click", async () => { const it = folder().find(x => x.id === m?.dataset.id); if (it && await scheduleItem(it)) keepRender(); });
+  $("#icsIt")?.addEventListener("click", () => { const id = m?.dataset.id, evs = agenda().filter(e => e.item === id); if (evs.length) icsFile(evs, `tangent-${id}.ics`); });
+  const sp = $("#simple");
+  sp?.addEventListener("input", () => { clearTimeout(sp.t); sp.t = setTimeout(() => patchItem(m.dataset.id, { simple: sp.value }), 500); });
+  $("#simpleGo")?.addEventListener("click", async () => {
+    const id = m.dataset.id, it = folder().find(x => x.id === id), txt = sp.value.trim();
+    if (!it) return; if (txt.length < 20) return toast(t("tooShort"));
+    patchItem(id, { simple: txt }); simpleBusy.add(id); keepRender();
+    let d; try { d = await api("/api/study-simple", { title: it.result.title.es || it.result.title.en, plain: it.result.plain.es || it.result.plain.en, simple: txt }); } catch { d = {}; }
+    simpleBusy.delete(id);
+    if (d.status === "ok") patchItem(id, { simpleFb: { level: d.level, good: d.good, hardWords: d.hardWords, missing: d.missing } });
+    else toast(d.status === "paywall" ? t("paywall") : d.status === "support" ? t("support") : d.status === "blocked" ? t("blocked") : t("errAI"), 4500);
+    keepRender();
   });
   $("#reCheck")?.addEventListener("click", () => { const it = folder().find(x => x.id === m?.dataset.id); if (it) runCheck(it, true); });
   const it = m && folder().find(x => x.id === m.dataset.id);
@@ -654,8 +712,10 @@ async function makeSummary() {
   if (d.status === "unclear") { st.error = esc(t("unclear")); if (d.transcript) st.transcript = d.transcript; return render(); }
   const msg = { paywall: `${esc(t("paywall"))} <a href="#cuenta">${esc(t("seePlans"))}</a>`, blocked: esc(t("blocked")), support: esc(t("support")), language: esc(t("langOnly")), no_source: esc(t("needSource")) }[d.status];
   if (d.status !== "ok") { st.error = msg || esc(t("errAI")); return render(); }
-  const item = { id: uid(), at: new Date().toISOString(), source: { ...st.source }, topic: st.topic, transcript: st.transcript, result: d.result, photos: [] };
+  const item = { id: uid(), at: new Date().toISOString(), source: { ...st.source }, topic: st.topic, transcript: st.transcript, result: d.result, photos: [], goal: st.goal, before: st.before };
   saveFolder([item, ...folder()]);
+  if (paid()) { addSpaced(item); setTimeout(() => toast(t("spacedOn"), 3500), 2700); }
+  st.goal = ""; st.before = "";
   st.item = item; st.step = 4; st.image = st.imageUrl = null;
   history.replaceState(null, "", `#study/${item.id}`); arg = item.id;
   render(); toast(t("saved"));
@@ -670,6 +730,166 @@ async function makeSummary() {
       }
     } catch {}
   }
+}
+
+/* ---------------- paid learning tools ---------------- */
+const paid = () => Boolean(LS.get(K.code, ""));
+const lockAll = () => `<div class="card lock"><b>🔒 ${esc(t("lockT"))}</b><p class="small" style="margin-top:6px;line-height:1.7">${t("lockL")}</p><a class="btn small" href="#cuenta">${esc(t("seePlans"))}</a></div>`;
+const addDays = (iso, n) => { const [y, m, d] = iso.split("-").map(Number); return dayKey(new Date(y, m - 1, d + n)); };
+const itemName = it => it.topic || it.result.title[L] || it.result.title.es || it.source.title;
+const itemDetails = it => `Tangent Study · ${it.result.title[L] || it.result.title.es} · ${it.source.title}`;
+function addEvents(list) {
+  const cur = agenda(), dup = e => e.kind === "review" && [...cur, ...list.slice(0, list.indexOf(e))].some(x => x.kind === "review" && x.item === e.item && x.date === e.date);
+  saveAgenda([...cur, ...list.filter(e => !dup(e))]); scheduleNotifs();
+}
+const reviewEv = (it, date, name = itemName(it)) => ({ id: uid(), title: `🔁 ${t("reviewW")}: ${name}`, date, time: "18:00", remind: 10, tag: "repaso", item: it.id, kind: "review", details: itemDetails(it) });
+function addSpaced(it) { addEvents([1, 3, 7].map(n => reviewEv(it, addDays(dayKey(), n)))); }
+async function scheduleItem(it) {
+  const v = await sheet(t("schedBtn"), `
+    <label class="f">${esc(t("schedWhat"))}</label>
+    <label class="row" style="flex-wrap:nowrap"><input type="radio" name="kind" value="exam" checked style="width:20px;height:20px"> ${esc(t("kExam"))}</label>
+    <label class="row" style="flex-wrap:nowrap"><input type="radio" name="kind" value="review" style="width:20px;height:20px"> ${esc(t("kReview"))}</label>
+    <label class="f" for="scN">${esc(t("schedName"))}</label><input class="t" id="scN" name="name" maxlength="80" required value="${esc(itemName(it))}">
+    <div class="two"><div><label class="f" for="scD">${esc(t("when"))}</label><input class="t" id="scD" type="date" name="date" required min="${dayKey()}" value="${addDays(dayKey(), 7)}"></div>
+    <div><label class="f" for="scH">${esc(t("hour"))}</label><input class="t" id="scH" type="time" name="time" value="08:00"></div></div>
+    <label class="row" style="flex-wrap:nowrap;align-items:flex-start;font-size:14px;margin-top:10px"><input type="checkbox" name="before" checked style="width:20px;height:20px;flex-shrink:0"> <span>${esc(t("schedBefore"))}</span></label>`, { ok: t("add") });
+  if (!v || !v.date) return false;
+  const name = (v.name || "").trim() || itemName(it);
+  if (v.kind === "review") addEvents([{ ...reviewEv(it, v.date, name), time: v.time || "18:00" }]);
+  else {
+    const list = [{ id: uid(), title: `📝 ${t("examW")}: ${name}`, date: v.date, time: v.time || "08:00", remind: 1440, tag: "prueba", item: it.id, kind: "exam", details: itemDetails(it) }];
+    if (v.before) for (const n of [7, 3, 1]) { const d = addDays(v.date, -n); if (d >= dayKey()) list.push(reviewEv(it, d, name)); }
+    addEvents(list);
+  }
+  toast(t("schedDone")); return true;
+}
+function planBox(it) {
+  const evs = agenda().filter(e => e.item === it.id).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  return `<div class="card" id="planBox"><b>📅 ${esc(t("planT2"))}</b>${it.reviews?.length ? ` <span class="small">· ${esc(t("revCount"))} ${it.reviews.length} ${esc(t("times"))}</span>` : ""}
+    ${evs.length ? `<ul class="pts" style="margin-top:6px">${evs.map(e => `<li><span style="color:${tagOf(e).color}">●</span> <b>${esc(fmtDate(e.date))}</b> ${esc(e.time || "")} · ${esc(e.title)}${e.done ? " ✓" : ""} · <a href="${esc(gcalUrl(e))}" target="_blank" rel="noopener" class="small">Google</a></li>`).join("")}</ul>` : `<p class="small" style="margin-top:6px">${esc(t("planNone"))}</p>`}
+    <div class="row"><button class="btn small" id="schedIt" type="button">＋ ${esc(t("schedBtn"))}</button>${evs.length ? `<button class="btn small ghost" id="icsIt" type="button">⬇ ${esc(t("icsAll"))}</button><a class="btn small ghost" href="#agenda/${esc(evs[0].date)}">${esc(t("seeAgenda"))}</a>` : ""}</div>
+    <p class="small">${esc(t("gcalHint"))}</p></div>`;
+}
+const simpleBusy = new Set();
+function simpleBox(it) {
+  const fb = it.simpleFb, busy = simpleBusy.has(it.id);
+  const lv = fb ? { clear: ["✅", "lvClear"], almost: ["🟡", "lvAlmost"], not_yet: ["🔁", "lvNot"] }[fb.level] || ["🟡", "lvAlmost"] : null;
+  return `<details class="card" id="simpleBox" ${it.simple ? "open" : ""}><summary style="cursor:pointer"><b>🧒 ${esc(t("simpleT"))}</b></summary>
+    <p class="small" style="margin-top:6px">${esc(t("simpleP"))}</p>
+    <textarea class="t" id="simple" maxlength="3000">${esc(it.simple || "")}</textarea>
+    <button class="btn small" id="simpleGo" type="button" ${busy ? "disabled" : ""}>${esc(busy ? t("making") : t("simpleGo"))}</button>
+    ${fb ? `<div class="${fb.level === "clear" ? "ok" : "warn"}" style="margin-top:10px;padding:10px;border-radius:12px"><b>${lv[0]} ${esc(t(lv[1]))}</b>
+      ${fb.good?.[L] ? `<p class="small" style="margin-top:4px">${esc(fb.good[L])}</p>` : ""}
+      ${fb.hardWords?.length ? `<p class="small"><b>${esc(t("hardW"))}:</b> ${fb.hardWords.map(esc).join(", ")}</p>` : ""}
+      ${fb.missing?.[L]?.length ? `<p class="small"><b>${esc(t("missingW"))}:</b></p><ul class="pts">${fb.missing[L].map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}</div>` : ""}
+  </details>`;
+}
+function startReview(evId) {
+  const ev = agenda().find(x => x.id === evId); if (!ev) return;
+  const it = folder().find(x => x.id === ev.item); if (!it) return toast(t("topicGone"));
+  saveAgenda(agenda().map(x => (x.id === evId ? { ...x, done: true } : x)));
+  patchItem(it.id, { quizAns: [], reviews: [...(it.reviews || []), dayKey()] });
+  st.review = it.id;
+  if (location.hash === `#carpeta/${it.id}`) render(); else location.hash = `carpeta/${it.id}`;
+}
+function homeDue() {
+  if (!paid()) return "";
+  const today = dayKey(), ids = new Set(folder().map(i => i.id));
+  const due = agenda().filter(e => e.kind === "review" && !e.done && e.date <= today && ids.has(e.item)).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 5);
+  const exams = agenda().filter(e => e.kind === "exam" && e.date >= today).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 3);
+  if (!due.length && !exams.length) return "";
+  const left = d => Math.round((new Date(d) - new Date(today)) / 864e5);
+  return `<div class="two" style="margin:14px 0">
+    ${due.length ? `<div class="card"><b>🔁 ${esc(t("dueT"))}</b>${due.map(e => `<div class="item" style="margin-top:8px"><div class="grow"><b>${esc(e.title)}</b><div class="small">${esc(fmtDate(e.date))}</div></div><button class="btn small" data-rev="${e.id}" type="button" style="margin:0">${esc(t("revGo"))}</button></div>`).join("")}</div>` : ""}
+    ${exams.length ? `<div class="card"><b>📝 ${esc(t("examsT"))}</b>${exams.map(e => { const n = left(e.date); return `<div class="item" style="margin-top:8px"><div class="grow"><b>${esc(e.title)}</b><div class="small">${esc(fmtDate(e.date))} · ${n === 0 ? esc(t("todayW")) : `${esc(t("daysLeft"))} ${n} ${esc(t("dayW"))}`}</div></div>${e.item ? `<a class="btn small ghost" href="#carpeta/${esc(e.item)}" style="margin:0">📄</a>` : ""}</div>`; }).join("")}</div>` : ""}
+  </div>`;
+}
+document.addEventListener("click", e => {
+  const r = e.target.closest("[data-rev]"); if (r) { e.preventDefault(); return startReview(r.dataset.rev); }
+  const p = e.target.closest("[data-printit]");
+  if (p) { e.preventDefault(); const it = folder().find(x => x.id === p.dataset.printit); if (it) printItems([it], LS.get("tangent.study.print", { paper: "A4" }).paper, LS.get("tangent.study.view", L), false); else toast(t("topicGone")); }
+});
+/* reading block timer */
+const blk = { end: 0, mins: 15, iv: null, done: false };
+function beep() { try { const AC = window.AudioContext || window.webkitAudioContext, a = new AC(), o = a.createOscillator(), g = a.createGain(); o.frequency.value = 660; g.gain.value = 0.08; o.connect(g); g.connect(a.destination); o.start(); setTimeout(() => { o.stop(); a.close(); }, 700); } catch {} }
+function blkTick() {
+  const left = Math.max(0, blk.end - Date.now()), el = $("#blkClock"), bar = $("#blkBar");
+  if (el) el.textContent = `${Math.floor(left / 60000)}:${pad(Math.floor(left / 1000) % 60)}`;
+  if (bar) bar.style.width = `${100 - (left / (blk.mins * 60e3)) * 100}%`;
+  if (blk.end && left <= 0) {
+    clearInterval(blk.iv); blk.iv = null; blk.end = 0; blk.done = true;
+    beep(); try { navigator.vibrate?.([300, 150, 300]); } catch {}
+    toast(t("blkDone"), 7000); if (route === "study" && !rec) render();
+  }
+}
+const blockCard = () => `<div class="card blk"><b>⏱️ ${esc(t("blkT"))}</b><p class="small" style="margin-top:4px">${esc(t("blkP"))}</p>
+  ${blk.end ? `<div class="hand" id="blkClock" style="font-size:44px;line-height:1">${blk.mins}:00</div><div class="bar"><i id="blkBar"></i></div><button class="btn small ghost" id="blkStop" type="button">${esc(t("blkStop"))}</button>`
+  : `${blk.done ? `<div class="ok small" style="padding:8px;border-radius:10px;margin:6px 0">${esc(t("blkDone"))}</div>` : ""}<div class="seg" id="blkMins" style="max-width:300px;margin:8px 0">${[10, 15, 20].map(m => `<button type="button" data-bm="${m}" class="${blk.mins === m ? "on" : ""}">${m} ${esc(t("min"))}</button>`).join("")}</div><button class="btn small" id="blkGo" type="button">▶ ${esc(t("blkGo"))}</button>`}</div>`;
+
+/* topic map */
+const STOP = new Set("para como sobre entre desde hasta donde cuando porque tiene tienen hacer este esta estos estas otros otras puede pueden that with from this what which about their there these those into have been were they your more than".split(" "));
+const wordsOf = it => new Set([it.topic, it.result.title.es, it.result.title.en, ...(it.result.concepts || []).flatMap(c => [c.es, c.en])].join(" ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").split(/[^a-z0-9]+/).filter(w => w.length >= 5 && !STOP.has(w)));
+const cut = (x, n) => { x = String(x || ""); return x.length > n ? x.slice(0, n - 1) + "…" : x; };
+V.mapa = {
+  html() {
+    const head = `<h1>${esc(t("map"))}</h1><p class="lead">${esc(t("mapP"))}</p>`;
+    if (!paid()) return head + lockAll();
+    const items = folder().slice(0, 40);
+    if (!items.length) return `${head}<div class="card">${esc(t("empty"))} <a href="#study">${esc(t("start"))}</a></div>`;
+    const key = i => i.source.title.trim().toLowerCase();
+    const srcs = [...new Set(items.map(key))];
+    const W = 680, H = 680, cx = W / 2, cy = H / 2, R = srcs.length === 1 ? 0 : 205;
+    const pos = {}, hubs = srcs.map((s, si) => {
+      const a = (si / srcs.length) * 2 * Math.PI - Math.PI / 2, hx = cx + R * Math.cos(a), hy = cy + R * Math.sin(a);
+      const mine = items.filter(i => key(i) === s), r2 = srcs.length === 1 ? 190 : Math.min(125, 78 + mine.length * 6);
+      mine.forEach((i, k) => { const b = a + (k / Math.max(1, mine.length)) * 2 * Math.PI + (srcs.length === 1 ? 0 : Math.PI / mine.length); pos[i.id] = [hx + r2 * Math.cos(b), hy + r2 * Math.sin(b), si]; });
+      return { x: hx, y: hy, title: mine[0].source.title, color: COLORS[si % COLORS.length] };
+    });
+    const W2 = items.map(wordsOf), links = [];
+    for (let a = 0; a < items.length; a++) for (let b = a + 1; b < items.length; b++) {
+      const shared = [...W2[a]].filter(w => W2[b].has(w));
+      if (shared.length) links.push([items[a], items[b], shared[0]]);
+    }
+    const exam = id => agenda().some(e => e.item === id && e.kind === "exam" && e.date >= dayKey());
+    const svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(t("map"))}">
+      <g fill="none" stroke-linecap="round">
+        ${items.map(i => { const [x, y, si] = pos[i.id], h = hubs[si]; return `<path d="M${h.x.toFixed(1)} ${h.y.toFixed(1)} L${x.toFixed(1)} ${y.toFixed(1)}" stroke="${h.color}" stroke-width="2.4" opacity=".55"/>`; }).join("")}
+        ${links.map(([a, b]) => `<path d="M${pos[a.id][0].toFixed(1)} ${pos[a.id][1].toFixed(1)} L${pos[b.id][0].toFixed(1)} ${pos[b.id][1].toFixed(1)}" stroke="#1d1d1f" stroke-width="2" stroke-dasharray="6 7" opacity=".45"/>`).join("")}
+      </g>
+      ${hubs.map(h => `<g><rect x="${(h.x - 92).toFixed(1)}" y="${(h.y - 24).toFixed(1)}" width="184" height="48" rx="24" fill="${h.color}" filter="url(#rough)"/><text x="${h.x.toFixed(1)}" y="${(h.y + 7).toFixed(1)}" text-anchor="middle" class="hub">📖 ${esc(cut(h.title, 18))}</text></g>`).join("")}
+      ${items.map(i => { const [x, y, si] = pos[i.id]; return `<a href="#carpeta/${i.id}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="27" fill="#fff" stroke="${hubs[si].color}" stroke-width="3.5" filter="url(#rough)"/><text x="${x.toFixed(1)}" y="${(y + 8).toFixed(1)}" text-anchor="middle" class="ini">${esc((i.result.title[L] || i.result.title.es || "?").slice(0, 1).toUpperCase())}</text>${exam(i.id) ? `<text x="${(x + 20).toFixed(1)}" y="${(y - 18).toFixed(1)}" class="badge">📝</text>` : ""}<text x="${x.toFixed(1)}" y="${(y + 48).toFixed(1)}" text-anchor="middle" class="lbl">${esc(cut(i.result.title[L] || i.result.title.es, 20))}</text></a>`; }).join("")}
+    </svg>`;
+    return `${head}<div class="map">${svg}</div>
+      <h2>${esc(t("mapLinks"))}</h2>
+      ${links.length ? `<ul class="pts">${links.slice(0, 20).map(([a, b, w]) => `<li><a href="#carpeta/${a.id}">${esc(a.result.title[L] || a.result.title.es)}</a> ↔ <a href="#carpeta/${b.id}">${esc(b.result.title[L] || b.result.title.es)}</a> <span class="small">(${esc(w)})</span></li>`).join("")}</ul>` : `<p class="small">${esc(t("mapNoLinks"))}</p>`}`;
+  },
+};
+
+/* profile character (no photos, ever) */
+const AVATARS = [["🛹", "Skater", "Skater"], ["🪁", "Wingfoiler", "Wingfoiler"], ["🏄", "Surfista", "Surfer"], ["🧝", "Elfo", "Elf"], ["🧙", "Mago", "Wizard"], ["🧚", "Hada", "Fairy"],
+  ["🧜", "Sirena", "Mermaid"], ["🦸", "Superhéroe", "Superhero"], ["🥷", "Ninja", "Ninja"], ["🤖", "Chico robot", "Robot kid"], ["👾", "Bicho pixel", "Pixel critter"], ["👽", "Extraterrestre", "Alien"],
+  ["🧑‍🚀", "Astronauta", "Astronaut"], ["🧑‍🔬", "Científica", "Scientist"], ["🧑‍🎤", "Rockera", "Rock star"], ["🎸", "Guitarrista", "Guitarist"], ["🛡️", "Caballero", "Knight"], ["🦁", "Felino guerrero", "Warrior cat"],
+  ["🐉", "Dragón", "Dragon"], ["🦄", "Unicornio", "Unicorn"], ["🦖", "Dino", "Dino"], ["🐯", "Tigre", "Tiger"], ["🦊", "Zorro", "Fox"], ["🐺", "Lobo", "Wolf"],
+  ["🐼", "Panda", "Panda"], ["🦉", "Búho sabio", "Wise owl"], ["🐙", "Pulpo", "Octopus"], ["🐢", "Tortuga", "Turtle"], ["🦈", "Tiburón", "Shark"], ["🐧", "Pingüino", "Penguin"],
+  ["🧗", "Escaladora", "Climber"], ["🚴", "Ciclista", "Cyclist"], ["🏂", "Snowboarder", "Snowboarder"], ["⚽", "Futbolista", "Footballer"], ["🏀", "Basquetbolista", "Basketball player"], ["🎮", "Gamer", "Gamer"],
+  ["🎨", "Artista", "Artist"], ["🚀", "Cohete", "Rocket"], ["⚡", "Rayo", "Lightning"], ["🌋", "Volcán", "Volcano"], ["🌊", "Ola", "Wave"], ["🌵", "Cactus", "Cactus"]];
+const AV_COLORS = ["#2B44E8", "#7C5CFF", "#3FA7FF", "#16A34A", "#F59E0B", "#E2363B", "#EC4899", "#14B8A6", "#1d1d1f"];
+const myAvatar = () => LS.get(K.avatar, null);
+const avatarHTML = (a, size = 44) => `<span class="av" style="--s:${size}px;--c:${esc(a?.c || "#E8E8EC")}">${a?.e ? esc(a.e) : `<svg viewBox="0 0 24 24" width="${Math.round(size * 0.55)}" height="${Math.round(size * 0.55)}" aria-hidden="true"><g fill="none" stroke="#1d1d1f" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.2 21c1-4.2 4-6.2 7.8-6.2s6.8 2 7.8 6.2"/></g></svg>`}</span>`;
+function avatarCard() {
+  const a = myAvatar() || { e: "", c: AV_COLORS[0], n: "" };
+  return `<div class="iri avcard"><div class="row" style="flex-wrap:nowrap;gap:14px">${avatarHTML(a, 74)}<div><span class="hand" style="font-size:28px">${esc(t("avT"))}</span><div class="small">${esc(a.n || "")}${a.e ? ` · ${esc((AVATARS.find(x => x[0] === a.e) || [])[L === "en" ? 2 : 1] || "")}` : ""}</div></div></div>
+    <p class="small" style="margin:8px 0">${esc(t("avP"))}</p>
+    <div class="avgrid" id="avGrid">${AVATARS.map(([e, es, en]) => `<button type="button" data-av="${e}" class="${a.e === e ? "on" : ""}" title="${esc(L === "en" ? en : es)}"><span>${e}</span><small>${esc(L === "en" ? en : es)}</small></button>`).join("")}</div>
+    <label class="f">${esc(t("avColor"))}</label><div class="dots" id="avCol">${AV_COLORS.map(c => `<button type="button" data-avc="${c}" class="${a.c === c ? "on" : ""}" style="background:${c}" aria-label="${c}"></button>`).join("")}</div>
+    <label class="f" for="avN">${esc(t("avNick"))}</label><input class="t" id="avN" maxlength="24" value="${esc(a.n || "")}" autocomplete="off">
+  </div>`;
+}
+function mountAvatar() {
+  const save = patch => { LS.set(K.avatar, { ...(myAvatar() || { e: "", c: AV_COLORS[0], n: "" }), ...patch }); };
+  $("#avGrid")?.addEventListener("click", e => { const b = e.target.closest("[data-av]"); if (!b) return; save({ e: b.dataset.av }); render(); toast(t("avSaved")); });
+  $("#avCol")?.addEventListener("click", e => { const b = e.target.closest("[data-avc]"); if (!b) return; save({ c: b.dataset.avc }); render(); });
+  $("#avN")?.addEventListener("change", e => { save({ n: e.target.value.trim().slice(0, 24) }); render(); });
 }
 
 /* ---------------- folder + PDF ---------------- */
@@ -688,7 +908,7 @@ V.carpeta = {
         <label class="row small" style="grid-column:1/-1"><input type="checkbox" id="ptext" ${pf.text ? "checked" : ""}> ${esc(t("withText"))}</label>
       </div>
       ${items.map(it => `<div class="item"><input type="checkbox" class="pick" value="${it.id}" checked aria-label="${esc(it.result.title[L])}">
-        <div class="grow"><a href="#carpeta/${it.id}"><b>${esc(it.result.title[L] || it.result.title.es)}</b></a><div class="small">${esc(it.source.title)} · ${esc(new Date(it.at).toLocaleDateString(L === "en" ? "en-US" : "es-AR"))}</div></div>
+        <div class="grow"><a href="#carpeta/${it.id}"><b>${esc(it.result.title[L] || it.result.title.es)}</b></a><div class="small">${esc(it.source.title)} · ${esc(new Date(it.at).toLocaleDateString(L === "en" ? "en-US" : "es-AR"))}${(() => { const x = agenda().filter(e => e.item === it.id && e.kind === "exam" && e.date >= dayKey()).sort((a, b) => a.date.localeCompare(b.date))[0]; return x ? ` · 📝 ${esc(fmtDate(x.date))}` : ""; })()}</div></div>
         <button class="x" data-del="${it.id}" aria-label="${esc(t("del"))}">🗑</button></div>`).join("")}
       <button class="btn" id="pdf" type="button">⬇ ${esc(t("download"))}</button><div class="small" style="text-align:center">${esc(t("pdfHint"))}</div>`
       : `<div class="card">${esc(t("empty"))} <a href="#study">${esc(t("start"))}</a></div>`}`;
@@ -724,7 +944,9 @@ function printItems(items, paper, view, withText) {
       ${r.review[lang] ? `<p><b>${esc(tl("review", lang))}:</b> ${esc(r.review[lang])}</p>` : ""}
       ${r.goBack?.[lang]?.length ? `<h2>${esc(tl("goBackT", lang))}</h2><ul>${r.goBack[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
       ${it.check?.issues?.length ? `<h2>${esc(tl("checkT", lang))}</h2><ul>${it.check.issues.map(i => `<li>«${esc(i.said)}» → ${esc(i.fix[lang] || i.fix.es)}</li>`).join("")}</ul>` : ""}
+      ${it.before ? `<h2>${esc(tl("baBefore", lang))}</h2><p>${esc(it.before)}</p>` : ""}
       ${it.mine ? `<h2>${esc(tl("mineTitle", lang))}</h2><p>${esc(it.mine)}</p>` : ""}
+      ${agenda().some(e => e.item === it.id) ? `<h2>${esc(tl("planT2", lang))}</h2><ul>${agenda().filter(e => e.item === it.id).sort((a, b) => a.date.localeCompare(b.date)).map(e => `<li>${esc(new Date(e.date + "T12:00").toLocaleDateString(lang === "en" ? "en-US" : "es-AR", { weekday: "short", day: "numeric", month: "short" }))} · ${esc(e.title)}</li>`).join("")}</ul>` : ""}
       ${withText && it.transcript ? `<h2>${lang === "en" ? "What I said" : "Lo que dije"}</h2><p style="font-size:9.5pt">${esc(it.transcript)}</p>` : ""}
       <h2>${esc(tl("notes", lang))}</h2><div class="lines"><div></div><div></div><div></div><div></div></div>
       <div class="foot">Tangent Study · ${esc(new Date(it.at).toLocaleDateString(lang === "en" ? "en-US" : "es-AR"))}</div></section>`).join("");
@@ -847,19 +1069,25 @@ const evStart = ev => { const [y, m, d] = ev.date.split("-").map(Number); const 
 const icsStamp = d => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
 function gcalUrl(ev) {
   const s = evStart(ev), e = new Date(s.getTime() + 3600e3);
-  const p = new URLSearchParams({ action: "TEMPLATE", text: ev.title, dates: `${icsStamp(s)}/${icsStamp(e)}`, details: "Tangent Study", ctz: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Argentina/Buenos_Aires" });
+  const p = new URLSearchParams({ action: "TEMPLATE", text: ev.title, dates: `${icsStamp(s)}/${icsStamp(e)}`, details: ev.details || "Tangent Study", ctz: Intl.DateTimeFormat().resolvedOptions().timeZone || "America/Argentina/Buenos_Aires" });
   return `https://calendar.google.com/calendar/render?${p}`;
 }
-function ics(ev) {
-  const s = evStart(ev), e = new Date(s.getTime() + 3600e3), clean = x => String(x).replace(/[\\;,]/g, m => "\\" + m).replace(/\n/g, "\\n");
-  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Tangent//Study//ES", "BEGIN:VEVENT", `UID:${ev.id}@tangent`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").slice(0, 15)}Z`,
-    `DTSTART:${icsStamp(s)}`, `DTEND:${icsStamp(e)}`, `SUMMARY:${clean(ev.title)}`, "DESCRIPTION:Tangent Study"];
-  if (ev.remind) lines.push("BEGIN:VALARM", `TRIGGER:-PT${ev.remind}M`, "ACTION:DISPLAY", `DESCRIPTION:${clean(ev.title)}`, "END:VALARM");
-  lines.push("END:VEVENT", "END:VCALENDAR");
-  download(`tangent-${ev.date}.ics`, lines.join("\r\n"), "text/calendar");
+function icsFile(evs, name) {
+  const clean = x => String(x).replace(/[\\;,]/g, m => "\\" + m).replace(/\n/g, "\\n");
+  const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Tangent//Study//ES"];
+  for (const ev of evs) {
+    const s = evStart(ev), e = new Date(s.getTime() + 3600e3);
+    lines.push("BEGIN:VEVENT", `UID:${ev.id}@tangent`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").slice(0, 15)}Z`,
+      `DTSTART:${icsStamp(s)}`, `DTEND:${icsStamp(e)}`, `SUMMARY:${clean(ev.title)}`, `DESCRIPTION:${clean(ev.details || "Tangent Study")}`);
+    if (ev.remind) lines.push("BEGIN:VALARM", `TRIGGER:-PT${ev.remind}M`, "ACTION:DISPLAY", `DESCRIPTION:${clean(ev.title)}`, "END:VALARM");
+    lines.push("END:VEVENT");
+  }
+  lines.push("END:VCALENDAR");
+  download(name, lines.join("\r\n"), "text/calendar");
 }
-const TAG_DEFAULTS = [["prueba", "#E2363B", ["Prueba", "Test"]], ["entrega", "#F59E0B", ["Entrega", "Deadline"]], ["estudio", "#2B44E8", ["Estudiar", "Study"]], ["personal", "#16A34A", ["Personal", "Personal"]]];
-const tags = () => LS.get(K.tags, TAG_DEFAULTS.map(([id, color]) => ({ id, color })));
+const ics = ev => icsFile([ev], `tangent-${ev.date}.ics`);
+const TAG_DEFAULTS = [["prueba", "#E2363B", ["Prueba", "Test"]], ["entrega", "#F59E0B", ["Entrega", "Deadline"]], ["estudio", "#2B44E8", ["Estudiar", "Study"]], ["personal", "#16A34A", ["Personal", "Personal"]], ["repaso", "#7C5CFF", ["Repaso", "Review"]]];
+const tags = () => { const base = LS.get(K.tags, null) || TAG_DEFAULTS.map(([id, color]) => ({ id, color })); return [...base, ...TAG_DEFAULTS.filter(d => !base.some(b => b.id === d[0])).map(([id, color]) => ({ id, color }))]; };
 const tagName = tg => { const d = TAG_DEFAULTS.find(x => x[0] === tg.id); return tg.name || (d ? d[2][L === "en" ? 1 : 0] : "?"); };
 const tagOf = ev => tags().find(x => x.id === ev.tag) || { id: "", color: "#6B7280", name: "—" };
 const agState = { month: null, sel: dayKey(), hide: [] };
@@ -871,6 +1099,7 @@ function monthDays(y, m) {
 V.agenda = {
   html() {
     if (!agState.month) { const n = new Date(); agState.month = [n.getFullYear(), n.getMonth()]; }
+    if (/^\d{4}-\d{2}-\d{2}$/.test(arg)) { agState.sel = arg; const [ay, am] = arg.split("-").map(Number); agState.month = [ay, am - 1]; agState.hide = []; arg = ""; history.replaceState(null, "", "#agenda"); }
     const [y, m] = agState.month, evs = agenda(), tg = tags();
     const visible = evs.filter(e => !agState.hide.includes(e.tag || ""));
     const byDay = d => visible.filter(e => e.date === d).sort((a, b) => (a.time || "").localeCompare(b.time || ""));
@@ -878,7 +1107,8 @@ V.agenda = {
     const wds = [...Array(7)].map((_, i) => new Date(2024, 0, 1 + i).toLocaleDateString(loc, { weekday: "short" }).replace(".", ""));
     const sel = agState.sel, selEvs = byDay(sel);
     const row = ev => { const g = tagOf(ev); return `<div class="item evrow" style="--c:${g.color}"><div class="grow"><b>${esc(ev.title)}</b><div class="small">${esc(ev.time || "")} · ${esc(tagName(g))}${ev.remind ? ` · ⏰ ${esc(t(ev.remind === 10 ? "before10" : ev.remind === 60 ? "before60" : "before1d"))}` : ""}</div>
-      <div class="row" style="margin-top:4px"><a href="${esc(gcalUrl(ev))}" target="_blank" rel="noopener" class="small">${esc(t("gcal"))}</a> · <a href="#" data-ics="${ev.id}" class="small">${esc(t("ics"))}</a></div></div>
+      <div class="row" style="margin-top:4px"><a href="${esc(gcalUrl(ev))}" target="_blank" rel="noopener" class="small">${esc(t("gcal"))}</a> · <a href="#" data-ics="${ev.id}" class="small">${esc(t("ics"))}</a>${ev.item ? ` · <a href="#carpeta/${esc(ev.item)}" class="small">📄 ${esc(t("openTopic"))}</a> · <a href="#" data-printit="${esc(ev.item)}" class="small">🖨️ ${esc(t("print"))}</a>` : ""}</div>
+      ${ev.kind === "review" ? (ev.done ? `<div class="small" style="margin-top:4px">✓ ${esc(t("revDone"))}</div>` : ev.date <= dayKey() ? `<button class="btn small" data-rev="${ev.id}" type="button" style="margin-top:6px">🔁 ${esc(t("revGo"))}</button>` : "") : ""}</div>
       <button class="x" data-delev="${ev.id}" aria-label="${esc(t("del"))}">🗑</button></div>`; };
     return `<h1>${esc(t("agenda"))}</h1><p class="lead">${esc(t("agendaP"))}</p>
       <div class="calhead"><button type="button" data-mon="-1" aria-label="◀">◀</button><b>${esc(monthTitle(y, m, loc))}</b><button type="button" data-mon="1" aria-label="▶">▶</button></div>
@@ -1105,7 +1335,7 @@ V.cuenta = {
   role: null,
   html() {
     const code = LS.get(K.code, ""), role = V.cuenta.role;
-    return `<h1>${esc(t("account"))}</h1><div class="warn">${esc(t("preview"))}</div>
+    return `<h1>${esc(t("account"))}</h1>${avatarCard()}<div class="warn">${esc(t("preview"))}</div>
       <div class="card"><b>${esc(t("haveCode"))}</b>
         ${code ? `<p class="small" style="margin-top:6px">✅ ${esc(t("codeOn"))}</p><button class="btn small ghost" id="rmCode" type="button">${esc(t("removeCode"))}</button>`
         : `<form id="codeForm" class="row" style="margin-top:8px;flex-wrap:nowrap"><input class="t" name="code" autocomplete="off" autocapitalize="characters" placeholder="${esc(t("code"))}" aria-label="${esc(t("code"))}"><button class="btn small" type="submit" style="margin:0">${esc(t("useCode"))}</button></form>`}
@@ -1131,6 +1361,7 @@ V.cuenta = {
       </div>`;
   },
   mount() {
+    mountAvatar();
     $("#codeForm")?.addEventListener("submit", async e => { e.preventDefault(); if (await tryCode(e.target.code.value)) render(); });
     $("#rmCode")?.addEventListener("click", () => { LS.del(K.code); render(); });
     $("#who").addEventListener("click", e => { const b = e.target.closest("[data-role]"); if (!b) return; V.cuenta.role = b.dataset.role; render(); $("#suForm")?.scrollIntoView({ behavior: "smooth", block: "start" }); });
