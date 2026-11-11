@@ -10,7 +10,7 @@ const LS = {
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
 const K = { lang: "tangent.study.lang", folder: "tangent.study.folder", board: "tangent.study.board", agenda: "tangent.study.agenda", scale: "tangent.study.scale",
-  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar" };
+  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read" };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = n => String(n).padStart(2, "0");
@@ -217,6 +217,17 @@ const S = {
   simpleGo: ["Ver cómo me fue", "See how I did"], lvClear: ["¡Clarísimo! Lo entendiste.", "Crystal clear! You got it."], lvAlmost: ["Casi. Te falta poquito.", "Almost. Just a little missing."], lvNot: ["Todavía no. Volvé a tu fuente y probá de nuevo.", "Not yet. Go back to your source and try again."],
   hardW: ["Palabras difíciles para un chico", "Words too hard for a kid"], missingW: ["Pistas de lo que falta", "Hints of what's missing"],
   baT: ["Antes y después", "Before and after"], baBefore: ["Lo que creía saber", "What I thought I knew"], baAfter: ["Lo que aprendí (tu resumen)", "What I learned (your summary)"], baEmpty: ["Escribí tu resumen arriba y comparalo.", "Write your summary above and compare."],
+  bHintT: ["Deslizá para ver las columnas. Mantené apretada una tarea para moverla. Tocala para editarla.", "Swipe to see the columns. Press and hold a task to move it. Tap it to edit."],
+  bHintM: ["Arrastrá las tareas entre columnas. Hacé clic en una para editarla.", "Drag tasks between columns. Click one to edit it."],
+  bCol: ["Columna", "Column"], bColMenu: ["Columna", "Column"], bEmpty: ["Soltá una tarea acá", "Drop a task here"],
+  bDone: ["Marcar como hecha", "Mark as done"], bUndone: ["Volver a por hacer", "Back to to-do"], bDoneT: ["¡Hecha!", "Done!"],
+  bPlace: ["Lugar", "Position"], bLeft: ["Izquierda", "Left"], bRight: ["Derecha", "Right"], bDelCol: ["Borrar columna", "Delete column"],
+  bMove: ["Mover a", "Move to"], bDelTask: ["Borrar tarea", "Delete task"], bDeleted: ["Tarea borrada", "Task deleted"],
+  rdT: ["Lectura fácil", "Easy reading"], rdP: ["Para leer más cómodo, por ejemplo con dislexia. Probá y dejá lo que te sirva.", "To read more comfortably, for example with dyslexia. Try it and keep what helps."],
+  rdFont: ["Letra", "Font"], rdNormal: ["Normal", "Normal"], rdSpace: ["Más espacio entre letras y renglones", "More space between letters and lines"],
+  rdBold: ["Negrita guía: el comienzo de cada palabra en negrita", "Guide bold: the start of each word in bold"],
+  rdNote: ["La negrita guía es una ayuda opcional: hay personas a las que les sirve y a otras no. Los estudios todavía no muestran que haga leer más rápido.", "Guide bold is an optional aid: it helps some people and not others. Studies don't yet show it makes reading faster."],
+  rdSample: ["Así se ve un texto de ejemplo con estas opciones.", "This is how a sample text looks with these options."],
   avT: ["Tu personaje", "Your character"], avP: ["Elegí quién sos en Tangent. Nada de fotos: solo tu personaje.", "Choose who you are in Tangent. No photos: just your character."], avColor: ["Color de fondo", "Background colour"], avNick: ["Apodo (opcional)", "Nickname (optional)"], avSaved: ["¡Personaje guardado!", "Character saved!"],
 };
 const t = k => { const v = S[k]; return v ? v[L === "en" ? 1 : 0] : k; };
@@ -237,6 +248,10 @@ function sheet(title, html, { ok = t("save"), danger = false } = {}) {
     const done = v => { m.remove(); resolve(v); };
     m.addEventListener("click", e => { if (e.target === m || e.target.closest("[data-x]")) done(null); });
     m.querySelector("form").addEventListener("submit", e => { e.preventDefault(); done(Object.fromEntries(new FormData(e.target))); });
+    m.addEventListener("click", e => {
+      const ch = e.target.closest("[data-choice]"); if (ch && !ch.disabled) { done({ ...Object.fromEntries(new FormData(m.querySelector("form"))), choice: ch.dataset.choice }); return; }
+      const mv = e.target.closest("[data-to]"); if (mv) { const g = mv.closest(".mvto"); $$("button", g).forEach(x => x.classList.toggle("on", x === mv)); g.querySelector("input").value = mv.dataset.to; }
+    });
     m.addEventListener("click", e => { const b = e.target.closest("[data-pick]"); if (!b) return; const g = b.closest(".dots"); $$("button", g).forEach(x => x.classList.toggle("on", x === b)); g.querySelector("input").value = b.dataset.pick; });
     setTimeout(() => m.querySelector("input:not([type=hidden]),textarea")?.focus(), 50);
   });
@@ -295,6 +310,7 @@ function render() {
   const v = V[route] || V.inicio;
   $("#view").innerHTML = v.html();
   v.mount?.();
+  if (readPrefs().bold) boldify($("#view"));
   document.title = `Tangent · ${t((NAV.find(n => n[0] === route) || ["", "home"])[1])}`;
 }
 function go() {
@@ -307,6 +323,7 @@ function go() {
   if (changed) window.scrollTo(0, 0);
 }
 window.addEventListener("hashchange", go);
+$("#readBtn").addEventListener("click", readSheet);
 $("#langBtn").addEventListener("click", () => { L = L === "en" ? "es" : "en"; LS.set(K.lang, L); render(); });
 
 async function tryCode(code) {
@@ -732,6 +749,53 @@ async function makeSummary() {
   }
 }
 
+/* ---------------- easy reading (dyslexia-friendly, optional) ---------------- */
+const READ_FONTS = { lexend: ["Lexend", "Lexend:wght@400;600;800"], atkinson: ["Atkinson Hyperlegible", "Atkinson+Hyperlegible:wght@400;700"] };
+const readPrefs = () => LS.get(K.read, { font: "", space: false, bold: false });
+function applyRead() {
+  const p = readPrefs(), h = document.documentElement;
+  h.classList.toggle("rd-space", Boolean(p.space)); h.classList.toggle("rd-bold", Boolean(p.bold));
+  const f = READ_FONTS[p.font];
+  if (f && !document.getElementById("rdfont")) { const l = document.createElement("link"); l.id = "rdfont"; l.rel = "stylesheet"; l.href = `https://fonts.googleapis.com/css2?family=${f[1]}&display=swap`; document.head.appendChild(l); }
+  else if (f) $("#rdfont").href = `https://fonts.googleapis.com/css2?family=${f[1]}&display=swap`;
+  h.style.setProperty("--rdfont", f ? `'${f[0]}'` : "");
+  h.classList.toggle("rd-font", Boolean(f));
+  $("#readBtn")?.classList.toggle("on", Boolean(f || p.space || p.bold));
+}
+// Bolds the first part of each word in the visible text (our own take on "bionic"-style reading).
+const SKIP = new Set(["SCRIPT", "STYLE", "TEXTAREA", "INPUT", "SELECT", "OPTION", "SVG", "CODE", "B", "STRONG", "H1", "H2", "H3"]);
+function boldify(root) {
+  if (!root) return;
+  const walk = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n => {
+    for (let e = n.parentElement; e && e !== root; e = e.parentElement) if (SKIP.has(e.tagName) || e.isContentEditable || e.classList.contains("hand") || e.closest("svg")) return NodeFilter.FILTER_REJECT;
+    return /[A-Za-zÀ-ÿ]{2}/.test(n.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+  } });
+  const nodes = []; while (walk.nextNode()) nodes.push(walk.currentNode);
+  for (const n of nodes) {
+    const frag = document.createDocumentFragment();
+    n.nodeValue.split(/([A-Za-zÀ-ÿ]+)/).forEach((w, i) => {
+      if (i % 2 === 0 || w.length < 2) { if (w) frag.appendChild(document.createTextNode(w)); return; }
+      const k = w.length <= 3 ? 1 : Math.ceil(w.length * 0.45), b = document.createElement("b"); b.className = "bw"; b.textContent = w.slice(0, k);
+      frag.appendChild(b); frag.appendChild(document.createTextNode(w.slice(k)));
+    });
+    n.replaceWith(frag);
+  }
+}
+async function readSheet() {
+  const p = readPrefs();
+  const v = await sheet(t("rdT"), `<p class="small" style="margin-top:-6px">${esc(t("rdP"))}</p>
+    <label class="f">${esc(t("rdFont"))}</label>
+    <label class="row" style="flex-wrap:nowrap"><input type="radio" name="font" value="" ${!p.font ? "checked" : ""} style="width:20px;height:20px"> ${esc(t("rdNormal"))}</label>
+    <label class="row" style="flex-wrap:nowrap;font-family:Lexend,sans-serif"><input type="radio" name="font" value="lexend" ${p.font === "lexend" ? "checked" : ""} style="width:20px;height:20px"> Lexend</label>
+    <label class="row" style="flex-wrap:nowrap;font-family:'Atkinson Hyperlegible',sans-serif"><input type="radio" name="font" value="atkinson" ${p.font === "atkinson" ? "checked" : ""} style="width:20px;height:20px"> Atkinson Hyperlegible</label>
+    <label class="row" style="flex-wrap:nowrap;align-items:flex-start;margin-top:8px"><input type="checkbox" name="space" ${p.space ? "checked" : ""} style="width:20px;height:20px;flex-shrink:0"> <span>${esc(t("rdSpace"))}</span></label>
+    <label class="row" style="flex-wrap:nowrap;align-items:flex-start"><input type="checkbox" name="bold" ${p.bold ? "checked" : ""} style="width:20px;height:20px;flex-shrink:0"> <span>${esc(t("rdBold"))}</span></label>
+    <p class="small">${esc(t("rdNote"))}</p>`, { ok: t("save") });
+  if (!v) return;
+  LS.set(K.read, { font: READ_FONTS[v.font] ? v.font : "", space: Boolean(v.space), bold: Boolean(v.bold) });
+  applyRead(); render();
+}
+
 /* ---------------- paid learning tools ---------------- */
 const paid = () => Boolean(LS.get(K.code, ""));
 const lockAll = () => `<div class="card lock"><b>🔒 ${esc(t("lockT"))}</b><p class="small" style="margin-top:6px;line-height:1.7">${t("lockL")}</p><a class="btn small" href="#cuenta">${esc(t("seePlans"))}</a></div>`;
@@ -961,105 +1025,188 @@ function board() {
   return b;
 }
 const saveBoard = b => LS.set(K.board, b);
+const isTouch = () => matchMedia("(pointer: coarse)").matches;
+const bState = { col: null, justDragged: 0 };
+function taskHTML(k, c, last) {
+  const late = k.date && k.date < dayKey() && !last;
+  return `<div class="task ${last ? "done" : ""}" data-task="${k.id}" style="--c:${k.color || c.color}">
+    <button type="button" class="chk" data-done aria-label="${esc(last ? t("bUndone") : t("bDone"))}">${last ? "✓" : ""}</button>
+    <div class="tx">${esc(k.text)}${k.date ? `<span class="dt ${late ? "late" : ""}">📅 ${esc(fmtDate(k.date))}</span>` : ""}</div></div>`;
+}
 V.tablero = {
   html() {
-    const b = board();
-    let sel = LS.get("tangent.study.boardCol", b.cols[0]?.id);
-    if (!b.cols.some(c => c.id === sel)) sel = b.cols[0]?.id;
-    return `<h1>${esc(t("board"))}</h1><p class="lead">${esc(t("boardP"))}</p>
-      <div class="row" style="margin-bottom:8px"><button class="btn small" data-act="addcol" type="button">${esc(t("addCol"))}</button></div>
-      <div class="colchips" role="tablist">${b.cols.map(c => `<button type="button" role="tab" data-chip="${c.id}" class="${c.id === sel ? "on" : ""}" style="--c:${c.color}">${esc(c.name)} <small>${c.tasks.length}</small></button>`).join("")}</div>
+    const b = board(), n = b.cols.length;
+    return `<h1>${esc(t("board"))}</h1>
+      <div class="bhint"><span class="hand">${isTouch() ? "☝️" : "🖱️"}</span><span class="small">${esc(t(isTouch() ? "bHintT" : "bHintM"))}</span></div>
+      <div class="colchips" id="chips">${b.cols.map(c => `<button type="button" data-chip="${c.id}" style="--c:${c.color}">${esc(c.name)} <small>${c.tasks.length}</small></button>`).join("")}<button type="button" class="addc" data-addcol>＋ ${esc(t("bCol"))}</button></div>
       <div class="board" id="board">${b.cols.map((c, ci) => `
-        <section class="col ${c.id === sel ? "" : "hide-m"}" data-col="${c.id}" style="--c:${c.color}">
-          <div class="colh"><h3 data-act="editcol" title="${esc(t("colName"))}">${esc(c.name)}</h3><span class="n">${c.tasks.length}</span>
-            <button type="button" data-act="colL" ${ci === 0 ? "disabled" : ""} aria-label="◀">◀</button><button type="button" data-act="colR" ${ci === b.cols.length - 1 ? "disabled" : ""} aria-label="▶">▶</button>
-            <button type="button" data-act="editcol" aria-label="✎">✎</button><button type="button" data-act="delcol" aria-label="${esc(t("del"))}">🗑</button></div>
-          <div class="tasks" data-col="${c.id}">${c.tasks.map((k, ti) => `
-            <div class="task" data-task="${k.id}" style="--c:${k.color || c.color}">
-              <div class="row" style="flex-wrap:nowrap;align-items:flex-start"><span class="handle" aria-label="⠿">⠿</span><div class="tx grow" data-act="edittask">${esc(k.text)}</div></div>
-              ${k.date ? `<div class="dt">📅 ${esc(fmtDate(k.date))}</div>` : ""}
-              <div class="acts">
-                <button type="button" data-act="tL" ${ci === 0 ? "disabled" : ""} aria-label="◀">◀</button><button type="button" data-act="tU" ${ti === 0 ? "disabled" : ""} aria-label="▲">▲</button>
-                <button type="button" data-act="tD" ${ti === c.tasks.length - 1 ? "disabled" : ""} aria-label="▼">▼</button><button type="button" data-act="tR" ${ci === b.cols.length - 1 ? "disabled" : ""} aria-label="▶">▶</button>
-                <button type="button" data-act="edittask" aria-label="✎">✎</button><button type="button" data-act="deltask" aria-label="${esc(t("del"))}">🗑</button>
-              </div></div>`).join("")}</div>
-          <form class="addt" data-col="${c.id}"><input name="t" placeholder="${esc(t("newTask"))}" maxlength="200" aria-label="${esc(t("newTask"))}"><button type="submit" aria-label="${esc(t("add"))}">＋</button></form>
+        <section class="col" data-col="${c.id}" style="--c:${c.color}">
+          <div class="colh"><h3 data-colmenu>${esc(c.name)}</h3><span class="n">${c.tasks.length}</span><button type="button" class="more" data-colmenu aria-label="${esc(t("bColMenu"))}">⋯</button></div>
+          <div class="tasks" data-col="${c.id}" data-empty="${esc(t("bEmpty"))}">${c.tasks.map(k => taskHTML(k, c, ci === n - 1 && n > 1)).join("")}</div>
+          <form class="addt" data-col="${c.id}"><input name="t" placeholder="＋ ${esc(t("newTask"))}" maxlength="200" aria-label="${esc(t("newTask"))}" enterkeyhint="done"><button type="submit" aria-label="${esc(t("add"))}">＋</button></form>
         </section>`).join("")}</div>
+      <div class="bdots" id="bdots">${b.cols.map(() => "<i></i>").join("")}</div>
+      <div class="row" style="margin-top:6px"><button class="btn small ghost" type="button" data-addcol>${esc(t("addCol"))}</button></div>
       <p class="small">${esc(t("syncNote"))}</p>`;
   },
   mount() {
-    const view = $("#view");
-    view.onclick = e => { if (route === "tablero") boardAct(e, false); };
-    view.ondblclick = e => { if (route === "tablero") boardAct(e, true); };
+    const view = $("#view"), bd = $("#board"), b = board();
+    // keep the column you were looking at (phone)
+    const start = b.cols.findIndex(c => c.id === bState.col);
+    if (start > 0) bd.scrollLeft = bd.children[start].offsetLeft - 16;
+    const sync = () => {
+      const cols = [...bd.children]; if (!cols.length) return;
+      const x = bd.scrollLeft + 20; let i = cols.findIndex(c => c.offsetLeft + c.offsetWidth - 16 > x); if (i < 0) i = cols.length - 1;
+      bState.col = cols[i].dataset.col;
+      $$("#chips [data-chip]").forEach((ch, j) => ch.classList.toggle("on", j === i));
+      $$("#bdots i").forEach((d, j) => d.classList.toggle("on", j === i));
+      $(`#chips [data-chip="${bState.col}"]`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
+    };
+    bd.addEventListener("scroll", () => { cancelAnimationFrame(sync.f); sync.f = requestAnimationFrame(sync); }, { passive: true });
+    sync();
+    view.onclick = e => { if (route === "tablero") boardClick(e); };
+    view.ondblclick = null;
     view.onsubmit = e => {
       const f = e.target.closest(".addt"); if (!f || route !== "tablero") return;
       e.preventDefault(); const v = f.t.value.trim(); if (!v) return;
-      const b = board(); b.cols.find(c => c.id === f.dataset.col).tasks.push({ id: uid(), text: v, date: "", color: "" }); saveBoard(b); render();
-      setTimeout(() => $(`.addt[data-col="${f.dataset.col}"] input`)?.focus(), 0);
+      const b = board(); b.cols.find(c => c.id === f.dataset.col).tasks.push({ id: uid(), text: v, date: "", color: "" }); saveBoard(b);
+      bState.col = f.dataset.col; render();
+      setTimeout(() => $(`.addt[data-col="${f.dataset.col}"] input`)?.focus({ preventScroll: true }), 0);
     };
-    view.onpointerdown = e => { if (route === "tablero" && e.target.closest(".handle")) dragStart(e); };
+    view.onpointerdown = e => { if (route === "tablero" && e.pointerType === "mouse" && e.button === 0) pressMouse(e); };
+    view.ontouchstart = e => { if (route === "tablero") pressTouch(e); };
   },
 };
-async function boardAct(e, dbl) {
-  const chip = !dbl && e.target.closest("[data-chip]");
-  if (chip) { LS.set("tangent.study.boardCol", chip.dataset.chip); return render(); }
-  const el = e.target.closest("[data-act]"); if (!el) return;
-  const act = el.dataset.act;
-  // Buttons work with one tap; the column name and task text open the editor with a double tap/click.
-  if (dbl === (el.tagName === "BUTTON")) return;
-  const b = board(), colEl = el.closest("[data-col]"), ci = colEl ? b.cols.findIndex(c => c.id === colEl.dataset.col) : -1, col = b.cols[ci];
-  const taskEl = el.closest("[data-task]"), ti = taskEl && col ? col.tasks.findIndex(k => k.id === taskEl.dataset.task) : -1, task = ti >= 0 ? col.tasks[ti] : null;
-  const swap = (arr, i, j) => { [arr[i], arr[j]] = [arr[j], arr[i]]; };
-  if (act === "addcol") {
-    const v = await sheet(t("addCol"), `<label class="f">${esc(t("colName"))}</label><input class="t" name="name" maxlength="40" required><label class="f">${esc(t("color"))}</label>${dots("color", COLORS[b.cols.length % COLORS.length])}`);
-    if (v?.name?.trim()) { const id = uid(); b.cols.push({ id, name: v.name.trim(), color: v.color || COLORS[0], tasks: [] }); saveBoard(b); LS.set("tangent.study.boardCol", id); render(); }
-  } else if (act === "editcol" && col) {
-    const v = await sheet(t("colName"), `<input class="t" name="name" maxlength="40" required value="${esc(col.name)}"><label class="f">${esc(t("color"))}</label>${dots("color", col.color)}`);
-    if (v?.name?.trim()) { col.name = v.name.trim(); col.color = v.color || col.color; saveBoard(b); render(); }
-  } else if (act === "delcol" && col) { if (await confirmIt(`${t("sure")} «${col.name}»`)) { b.cols.splice(ci, 1); saveBoard(b); render(); } }
-  else if (act === "colL" && ci > 0) { swap(b.cols, ci, ci - 1); saveBoard(b); render(); }
-  else if (act === "colR" && ci < b.cols.length - 1) { swap(b.cols, ci, ci + 1); saveBoard(b); render(); }
-  else if (!task) return;
-  else if (act === "edittask") {
-    const v = await sheet(t("task"), `<textarea class="t" name="text" maxlength="200" required style="min-height:80px">${esc(task.text)}</textarea><label class="f">${esc(t("date"))}</label><input class="t" type="date" name="date" value="${esc(task.date)}"><label class="f">${esc(t("color"))}</label>${dots("color", task.color || col.color)}`);
-    if (v?.text?.trim()) { Object.assign(task, { text: v.text.trim(), date: v.date || "", color: v.color || "" }); saveBoard(b); render(); }
-  } else if (act === "deltask") { if (await confirmIt(t("sure"))) { col.tasks.splice(ti, 1); saveBoard(b); render(); } }
-  else if (act === "tU" && ti > 0) { swap(col.tasks, ti, ti - 1); saveBoard(b); render(); }
-  else if (act === "tD" && ti < col.tasks.length - 1) { swap(col.tasks, ti, ti + 1); saveBoard(b); render(); }
-  else if ((act === "tL" && ci > 0) || (act === "tR" && ci < b.cols.length - 1)) { const to = b.cols[ci + (act === "tL" ? -1 : 1)]; col.tasks.splice(ti, 1); to.tasks.push(task); saveBoard(b); render(); toast(`→ ${to.name}`, 1500); }
+const scrollToCol = id => { const bd = $("#board"), el = bd && $(`.col[data-col="${id}"]`, bd); if (el) bd.scrollTo({ left: el.offsetLeft - 16, behavior: "smooth" }); };
+async function boardClick(e) {
+  if (Date.now() - bState.justDragged < 400) return;
+  const chip = e.target.closest("[data-chip]"); if (chip) return scrollToCol(chip.dataset.chip);
+  if (e.target.closest("[data-addcol]")) return addCol();
+  const b = board(), colEl = e.target.closest("[data-col]"), ci = colEl ? b.cols.findIndex(c => c.id === colEl.dataset.col) : -1, col = b.cols[ci];
+  if (!col) return;
+  if (e.target.closest("[data-colmenu]")) return colMenu(b, ci);
+  const taskEl = e.target.closest("[data-task]"); if (!taskEl) return;
+  const ti = col.tasks.findIndex(k => k.id === taskEl.dataset.task), task = col.tasks[ti];
+  if (e.target.closest("[data-done]")) {
+    const last = b.cols.length - 1; if (last < 1) return;
+    const to = ci === last ? b.cols[0] : b.cols[last];
+    col.tasks.splice(ti, 1); if (ci === last) to.tasks.push(task); else to.tasks.unshift(task);
+    saveBoard(b); bState.col = col.id; render();
+    try { navigator.vibrate?.(30); } catch {}
+    return toast(ci === last ? `↩ ${to.name}` : `🎉 ${t("bDoneT")} → ${to.name}`, 1800);
+  }
+  taskMenu(b, ci, ti);
 }
-// Drag with finger or mouse (pointer events work on phones too).
-function dragStart(e) {
-  const card = e.target.closest(".task"); if (!card) return;
-  e.preventDefault();
-  const ghost = card.cloneNode(true); ghost.classList.add("dragghost"); document.body.appendChild(ghost);
-  card.style.opacity = ".35";
-  let target = null, index = 0;
-  const move = ev => {
-    ghost.style.left = ev.clientX - 30 + "px"; ghost.style.top = ev.clientY - 20 + "px";
-    const hit = document.elementFromPoint(ev.clientX, ev.clientY);
-    const under = hit?.closest(".col"), chip = hit?.closest("[data-chip]");
-    $$(".drop").forEach(x => x.classList.remove("drop"));
-    target = under ? $(".tasks", under) : null;
-    if (chip) { chip.classList.add("drop"); target = { dataset: { col: chip.dataset.chip } }; index = 1e9; }
-    else if (target) {
-      target.classList.add("drop");
-      const kids = $$(".task", target).filter(k => k !== card);
-      index = kids.findIndex(k => { const r = k.getBoundingClientRect(); return ev.clientY < r.top + r.height / 2; });
-      if (index < 0) index = kids.length;
+async function addCol() {
+  const b = board();
+  const v = await sheet(t("addCol"), `<label class="f">${esc(t("colName"))}</label><input class="t" name="name" maxlength="40" required><label class="f">${esc(t("color"))}</label>${dots("color", COLORS[b.cols.length % COLORS.length])}`);
+  if (v?.name?.trim()) { const id = uid(); b.cols.push({ id, name: v.name.trim(), color: v.color || COLORS[0], tasks: [] }); saveBoard(b); bState.col = id; render(); }
+}
+async function colMenu(b, ci) {
+  const col = b.cols[ci];
+  const v = await sheet(t("bColMenu"), `<label class="f">${esc(t("colName"))}</label><input class="t" name="name" maxlength="40" required value="${esc(col.name)}">
+    <label class="f">${esc(t("color"))}</label>${dots("color", col.color)}
+    <label class="f">${esc(t("bPlace"))}</label><div class="row"><button type="button" class="btn small ghost" data-choice="left" ${ci === 0 ? "disabled" : ""}>◀ ${esc(t("bLeft"))}</button><button type="button" class="btn small ghost" data-choice="right" ${ci === b.cols.length - 1 ? "disabled" : ""}>${esc(t("bRight"))} ▶</button></div>
+    <button type="button" class="danger" data-choice="del">🗑 ${esc(t("bDelCol"))}</button>`);
+  if (!v) return;
+  if (v.name?.trim()) col.name = v.name.trim(); if (v.color) col.color = v.color;
+  if (v.choice === "del") { if (!(await confirmIt(`${t("sure")} «${col.name}»`))) return; b.cols.splice(ci, 1); }
+  else if (v.choice === "left" && ci > 0) [b.cols[ci - 1], b.cols[ci]] = [b.cols[ci], b.cols[ci - 1]];
+  else if (v.choice === "right" && ci < b.cols.length - 1) [b.cols[ci + 1], b.cols[ci]] = [b.cols[ci], b.cols[ci + 1]];
+  saveBoard(b); bState.col = col.id; render();
+}
+async function taskMenu(b, ci, ti) {
+  const col = b.cols[ci], task = col.tasks[ti];
+  const v = await sheet(t("task"), `<textarea class="t" name="text" maxlength="200" required style="min-height:80px">${esc(task.text)}</textarea>
+    <label class="f">${esc(t("bMove"))}</label><div class="mvto"><input type="hidden" name="to" value="${col.id}">${b.cols.map(c => `<button type="button" data-to="${c.id}" class="${c.id === col.id ? "on" : ""}" style="--c:${c.color}">${esc(c.name)}</button>`).join("")}</div>
+    <div class="two"><div><label class="f">${esc(t("date"))}</label><input class="t" type="date" name="date" value="${esc(task.date)}"></div>
+    <div><label class="f">${esc(t("color"))}</label>${dots("color", task.color || col.color)}</div></div>
+    <button type="button" class="danger" data-choice="del">🗑 ${esc(t("bDelTask"))}</button>`);
+  if (!v) return;
+  if (v.choice === "del") { col.tasks.splice(ti, 1); saveBoard(b); bState.col = col.id; render(); return toast(t("bDeleted"), 1500); }
+  if (v.text?.trim()) Object.assign(task, { text: v.text.trim(), date: v.date || "", color: !v.color || v.color === col.color ? "" : v.color });
+  const to = b.cols.find(c => c.id === v.to);
+  if (to && to !== col) { col.tasks.splice(ti, 1); to.tasks.unshift(task); bState.col = to.id; toast(`→ ${to.name}`, 1500); }
+  saveBoard(b); render();
+}
+/* drag: mouse starts after a small move, finger after a long press (so normal swipes still scroll) */
+function pressMouse(e) {
+  const card = e.target.closest(".task"); if (!card || e.target.closest("[data-done]")) return;
+  const x0 = e.clientX, y0 = e.clientY;
+  const mv = ev => { if (Math.hypot(ev.clientX - x0, ev.clientY - y0) > 5) { off(); const d = beginDrag(card, x0, y0); d.move(ev.clientX, ev.clientY); const m2 = ev2 => d.move(ev2.clientX, ev2.clientY), u2 = () => { document.removeEventListener("pointermove", m2); document.removeEventListener("pointerup", u2); d.drop(); }; document.addEventListener("pointermove", m2); document.addEventListener("pointerup", u2); } };
+  const off = () => { document.removeEventListener("pointermove", mv); document.removeEventListener("pointerup", off); };
+  document.addEventListener("pointermove", mv); document.addEventListener("pointerup", off);
+}
+function pressTouch(e) {
+  const card = e.target.closest(".task"); if (!card || e.touches.length > 1 || e.target.closest("[data-done]")) return;
+  const t0 = e.touches[0], x0 = t0.clientX, y0 = t0.clientY; let x = x0, y = y0, d = null;
+  card.classList.add("pressing");
+  const timer = setTimeout(() => { card.classList.remove("pressing"); try { navigator.vibrate?.(25); } catch {} d = beginDrag(card, x, y); }, 320);
+  const mv = ev => {
+    const p = ev.touches[0]; x = p.clientX; y = p.clientY;
+    if (d) { ev.preventDefault(); d.move(x, y); }
+    else if (Math.hypot(x - x0, y - y0) > 8) end(false);
+  };
+  const end = drop => {
+    clearTimeout(timer); card.classList.remove("pressing");
+    document.removeEventListener("touchmove", mv); document.removeEventListener("touchend", up); document.removeEventListener("touchcancel", cancel);
+    if (d) d.drop(drop);
+  };
+  const up = () => end(true), cancel = () => end(false);
+  document.addEventListener("touchmove", mv, { passive: false }); document.addEventListener("touchend", up); document.addEventListener("touchcancel", cancel);
+}
+function beginDrag(card, x0, y0) {
+  const r = card.getBoundingClientRect(), bd = $("#board");
+  const ghost = card.cloneNode(true); ghost.classList.add("dragghost");
+  Object.assign(ghost.style, { width: r.width + "px" });
+  document.body.appendChild(ghost);
+  const dx = x0 - r.left, dy = y0 - r.top;
+  const ph = document.createElement("div"); ph.className = "tph"; ph.style.height = r.height + "px";
+  card.after(ph); card.classList.add("ghost-src"); card.style.display = "none";
+  bd.classList.add("dragging"); document.body.style.userSelect = "none";
+  let chipT = null, chipId = null, raf = null, last = [x0, y0];
+  const edge = () => {
+    const [x, y] = last, w = innerWidth;
+    if (x < 36) bd.scrollLeft -= 12; else if (x > w - 36) bd.scrollLeft += 12;
+    if (y < 80) window.scrollBy(0, -10); else if (y > innerHeight - 110) window.scrollBy(0, 10);
+    raf = requestAnimationFrame(edge);
+  };
+  raf = requestAnimationFrame(edge);
+  const move = (x, y) => {
+    last = [x, y];
+    ghost.style.transform = `translate(${x - dx}px, ${y - dy}px) rotate(2.5deg) scale(1.03)`;
+    const hit = document.elementFromPoint(x, y);
+    const chip = hit?.closest("[data-chip]");
+    $$(".colchips .drop").forEach(c => c !== chip && c.classList.remove("drop"));
+    if (chip) {
+      chip.classList.add("drop");
+      if (chipId !== chip.dataset.chip) { clearTimeout(chipT); chipId = chip.dataset.chip; chipT = setTimeout(() => scrollToCol(chipId), 450); }
+      return;
     }
-    if (ev.clientY < 70) window.scrollBy(0, -12); else if (ev.clientY > innerHeight - 90) window.scrollBy(0, 12);
+    clearTimeout(chipT); chipId = null;
+    const col = hit?.closest(".col"); $$(".col.over").forEach(c => c !== col && c.classList.remove("over"));
+    if (!col) return;
+    col.classList.add("over");
+    const list = $(".tasks", col), kids = $$(".task", list).filter(k => k !== card);
+    const before = kids.find(k => { const kr = k.getBoundingClientRect(); return y < kr.top + kr.height / 2; });
+    if (before) { if (ph.nextSibling !== before) list.insertBefore(ph, before); } else if (ph.parentNode !== list || ph.nextSibling) list.appendChild(ph);
   };
-  const up = () => {
-    document.removeEventListener("pointermove", move); document.removeEventListener("pointerup", up); document.removeEventListener("pointercancel", up);
-    ghost.remove(); card.style.opacity = "";
-    if (!target) return;
-    const b = board(), from = b.cols.find(c => c.tasks.some(k => k.id === card.dataset.task)), to = b.cols.find(c => c.id === target.dataset.col);
-    const ti = from.tasks.findIndex(k => k.id === card.dataset.task), [task] = from.tasks.splice(ti, 1);
-    to.tasks.splice(Math.min(index, to.tasks.length), 0, task); saveBoard(b); render();
+  const drop = (ok = true) => {
+    cancelAnimationFrame(raf); clearTimeout(chipT);
+    ghost.remove(); bd.classList.remove("dragging"); document.body.style.userSelect = "";
+    bState.justDragged = Date.now();
+    const chip = $(".colchips .drop");
+    const b = board(), from = b.cols.find(c => c.tasks.some(k => k.id === card.dataset.task));
+    if (ok && from) {
+      const [task] = from.tasks.splice(from.tasks.findIndex(k => k.id === card.dataset.task), 1);
+      let to, idx;
+      if (chip) { to = b.cols.find(c => c.id === chip.dataset.chip); idx = 0; }
+      else { const list = ph.parentNode; to = b.cols.find(c => c.id === list?.dataset.col) || from; idx = [...list.children].filter(k => k === ph || (k.classList.contains("task") && k !== card)).indexOf(ph); }
+      to.tasks.splice(Math.max(0, idx), 0, task); saveBoard(b); bState.col = to.id;
+    }
+    render();
   };
-  move(e);
-  document.addEventListener("pointermove", move); document.addEventListener("pointerup", up); document.addEventListener("pointercancel", up);
+  return { move, drop };
 }
 
 /* ---------------- agenda ---------------- */
@@ -1398,6 +1545,7 @@ V.terminos = {
   },
 };
 
+applyRead();
 go();
 scheduleNotifs();
 })();
