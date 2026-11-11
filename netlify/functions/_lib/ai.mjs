@@ -544,3 +544,22 @@ Reply with ONLY a JSON object: {"issues": [up to 4 objects: {"said": "short quot
   }
   throw last || new Error("gemini_search_failed");
 }
+
+// "Explain it like to an 8-year-old" (Feynman technique): judges the student's simple explanation. It never writes it for them.
+export async function studySimple({ simple, plain, title, lang }) {
+  const prompt = `A student studied "${String(title).slice(0, 120)}". Their earlier explanation, already ordered, was:
+"""${String(plain).slice(0, 2000)}"""
+Now they tried to explain it as if to an 8-year-old child:
+"""${String(simple).slice(0, 3000)}"""
+Judge ONLY the new simple explanation, kindly, like a good teacher for students with ADHD. Do NOT rewrite it for them and do NOT give the full answer: give hints so they find it themselves.
+Reply with ONLY JSON: {"level": "clear" | "almost" | "not_yet",
+ "good": {"es": "one short sentence on what they explained well", "en": "same"},
+ "hard_words": ["0 to 4 difficult words they used that an 8-year-old would not understand"],
+ "missing": {"es": ["0 to 2 hints of an important idea that is missing, as a question, e.g. '¿Y para qué sirve la mitocondria?'"], "en": ["same"]}}
+Spanish must be natural Argentine Spanish (voseo). Keep it wholesome.`;
+  try { return parseJSON(await gemini([{ text: prompt }], { temperature: 0.3 })); }
+  catch (e) {
+    if (e instanceof Blocked) throw e;
+    return parseJSON(await groqChat(prompt, { temperature: 0.3 }));
+  }
+}

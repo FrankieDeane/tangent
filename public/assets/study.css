@@ -237,3 +237,19 @@ ul.pts{margin:0;padding-left:20px;line-height:1.5}
 .q .opts button.wrong{background:#FFE1DC;border-color:#E2363B;color:#9B1C1F}
 .q .opts button[disabled]{cursor:default}
 details.card summary::-webkit-details-marker{color:var(--blue)}
+.me{display:inline-flex;margin-right:8px;vertical-align:middle}
+.av{width:var(--s);height:var(--s);border-radius:50%;background:var(--c);display:inline-grid;place-items:center;font-size:calc(var(--s)*.58);line-height:1;flex-shrink:0;box-shadow:0 0 0 2px #fff,0 2px 6px rgba(0,0,0,.12)}
+.avgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px;max-height:300px;overflow:auto;padding:2px}
+.avgrid button{background:#fff;border:2px solid transparent;border-radius:14px;padding:8px 4px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;font:inherit}
+.avgrid button span{font-size:30px;line-height:1.1}
+.avgrid button small{font-size:11px;color:var(--soft);text-align:center;line-height:1.15}
+.avgrid button.on{border-color:var(--blue);background:#EEF0FF}
+.lock{border:2px dashed #C9C9D2}
+.map{background:#fff;border-radius:18px;padding:6px;margin:8px 0}
+.map svg{width:100%;height:auto;display:block}
+.map .hub{font-family:Caveat,cursive;font-size:23px;font-weight:700;fill:#fff}
+.map .ini{font-family:Caveat,cursive;font-size:26px;font-weight:700;fill:#1d1d1f}
+.map .lbl{font-family:Caveat,cursive;font-size:21px;fill:#1d1d1f}
+.map .badge{font-size:18px}
+.map a:hover circle{fill:#EEF0FF}
+.blk .bar{margin:8px 0}
