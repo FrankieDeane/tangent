@@ -17,7 +17,7 @@ export function createPreapproval({ userId, email, siteUrl }) {
     reason: "Tangent · cuenta mensual",
     external_reference: userId,
     payer_email: email,
-    back_url: siteUrl + "/?pago=ok",
+    back_url: siteUrl + "/organizer/?pago=ok",
     status: "pending",
     auto_recurring: { frequency: 1, frequency_type: "months", transaction_amount: Number(process.env.MP_PRICE_ARS), currency_id: "ARS" },
   }) });

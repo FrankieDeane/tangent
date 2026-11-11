@@ -26,7 +26,7 @@ const S = {
   progress: ["Cómo me fue", "How it went"], test: ["Tu cabeza", "Your brain"], kit: ["Kit de papel", "Paper kit"], ideas: ["Ideas", "Ideas"],
   account: ["Cuenta", "Account"], terms: ["Tus datos", "Your data"],
   heroT1: ["Decí un tema en voz alta.", "Say a topic out loud."], heroT2: ["Te lo explico fácil.", "I'll explain it simply."],
-  heroNote: ["¡empezá acá!", "start here!"], more: ["Más", "More"],
+  heroNote: ["¡empezá acá!", "start here!"], organizer: ["Organizador", "Organizer"], organizerP: ["Contá todo lo que tenés que hacer y te lo ordeno en burbujas.", "Say everything you have to do and I'll sort it into bubbles."], more: ["Más", "More"],
   heroP: ["Citás tu libro, hablás hasta 10 minutos y te queda un resumen en español y en inglés, con imágenes, para imprimir.", "Cite your book, talk for up to 10 minutes and get a summary in Spanish and English, with pictures, ready to print."],
   start: ["Empezar un tema", "Start a topic"],
   tStudy: ["Hablá, sacale foto a la hoja o escribí.", "Talk, snap the sheet or type."], tFolder: ["Tus resúmenes. Bajalos en PDF.", "Your summaries. Download as PDF."],
@@ -293,7 +293,8 @@ V.inicio = {
   </div>`,
 };
 V.mas = {
-  html: () => `<h1>${esc(t("more"))}</h1><div class="menu">${TILES.filter(([r]) => !["study", "tablero", "agenda"].includes(r)).map(([r, d]) => `<a href="#${r}">${ic(navKey(r))}<div><b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></div></a>`).join("")}</div>`,
+  html: () => `<h1>${esc(t("more"))}</h1><div class="menu">${TILES.filter(([r]) => !["study", "tablero", "agenda"].includes(r)).map(([r, d]) => `<a href="#${r}">${ic(navKey(r))}<div><b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></div></a>`).join("")}
+    <a href="/organizer/">${ic("ideas")}<div><b>${esc(t("organizer"))}</b><span>${esc(t("organizerP"))}</span></div></a></div>`,
 };
 
 /* ---------------- Study ---------------- */

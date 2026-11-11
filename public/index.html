@@ -3,150 +3,34 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Tangent · Contame todo. Yo lo ordeno.</title>
-<meta name="description" content="Tangent: grabá todo lo que tenés en la cabeza y convertilo en burbujas de tareas, con color solo si vos dijiste la prioridad.">
-<meta name="robots" content="noai, noimageai">
-<meta name="theme-color" content="#1a1612">
-<link rel="icon" href="/assets/favicon.png">
-<link rel="apple-touch-icon" href="/assets/icon.png">
-<meta property="og:title" content="Tangent">
-<meta property="og:description" content="Contame todo. Yo lo ordeno.">
-<meta property="og:image" content="/assets/scenes/dia.jpg">
+<title>Tangent Study</title>
+<meta name="description" content="Tangent Study: decí un tema en voz alta y entendelo fácil, en español y en inglés.">
+<meta name="robots" content="noindex, noai, noimageai">
+<meta name="theme-color" content="#ECECEC">
+<link rel="icon" href="/assets/logo-skater.png">
+<link rel="apple-touch-icon" href="/assets/logo-skater.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&display=swap">
-<link rel="stylesheet" href="/assets/burbujas.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Inter+Tight:wght@400;600;800&display=swap">
+<link rel="stylesheet" href="/assets/study.css">
 </head>
 <body>
-<div id="app">
-  <img class="art" data-m="day" alt="">
-  <img class="art" data-m="night" alt="">
-  <img class="art" data-m="nord" alt="">
-  <div class="veil"></div>
-
-  <header>
-    <div class="mark">Tangent<i data-t="beta"></i></div>
-    <div class="tools">
-      <button class="sw" data-mode="day" style="background-image:url(/assets/scenes/dia.jpg)" aria-label="Día"></button>
-      <button class="sw" data-mode="night" style="background-image:url(/assets/scenes/noche.jpg)" aria-label="Noche"></button>
-      <button class="sw" data-mode="nord" style="background-image:url(/assets/scenes/nord.jpg)" aria-label="Nord"></button>
-      <button class="pill" id="acctBtn" hidden></button>
-      <button class="pill" id="lang">EN</button>
-      <button class="pill q" id="whyBtn" aria-label="?">?</button>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="rough" x="-10%" y="-10%" width="120%" height="120%"><feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="7"/><feDisplacementMap in="SourceGraphic" scale="1.8"/></filter>
+</defs></svg>
+<div id="shell">
+  <header id="top">
+    <a href="#inicio" class="brand"><img src="/assets/logo-skater.png" alt="" width="34" height="38"><span>Tangent</span></a>
+    <div class="topr">
+      <button id="langBtn" class="pill" type="button" aria-label="Idioma / Language">EN</button>
     </div>
   </header>
-
-  <div id="stage"></div>
-  <div class="thinking" id="thinking" role="status"></div>
-
-  <div id="dock">
-    <div class="lead" id="lead"></div>
-    <button class="recbtn" id="recBtn"><span></span></button>
-    <div class="fine" id="fine"></div>
-    <div class="alt"><button id="typeLink"></button><button id="exampleLink"></button></div>
-  </div>
-  <div id="done"></div>
-
-  <!-- grabando -->
-  <div class="layer" id="rec"><div class="dim"></div><div class="panel">
-    <div class="grab"></div>
-    <div class="eyebrow" id="recEy"></div>
-    <canvas id="wave"></canvas>
-    <p class="sub" id="recHint" style="text-align:left"></p>
-    <div class="recmeta"><span><i class="reddot"></i><span id="clock">0:00</span></span><button class="link" id="cancelRec"></button></div>
-    <button class="btn" id="stopBtn"></button>
-  </div></div>
-
-  <!-- ¿cuál te pesa más hoy? -->
-  <div class="layer" id="ask"><div class="dim"></div><div class="panel">
-    <div class="grab"></div>
-    <div class="eyebrow" id="askEy"></div>
-    <h2 id="askH"></h2>
-    <p class="sub" id="askSub"></p>
-    <div id="askRows" style="margin:12px 0 20px"></div>
-    <button class="btn" id="paintBtn" disabled></button>
-  </div></div>
-
-  <!-- burbuja abierta -->
-  <div class="layer" id="det"><div class="dim"></div><div class="panel">
-    <div class="grab"></div>
-    <button class="x" data-close aria-label="×">×</button>
-    <div class="prow"><span class="ptag" id="dTag"><i></i><span></span></span><span class="cue" id="dCue"></span></div>
-    <h2 id="dTitle"></h2>
-    <p class="body" id="dSum"></p>
-    <div class="anchor"><div class="ic" id="dIc"></div><q id="dQuote"></q></div>
-    <div class="eyebrow lbl" id="lState"></div>
-    <div class="seg" id="dSeg"></div>
-    <div class="eyebrow lbl" id="lPrio"></div>
-    <div class="prio" id="dPrio"></div>
-    <button class="btn sosbtn" id="sosBtn"></button>
-  </div></div>
-
-  <!-- modo emergencia -->
-  <div class="layer" id="sos"><div class="full">
-    <div class="eyebrow" id="sosEy"></div>
-    <div id="step"></div>
-    <div class="ring"><svg width="120" height="120"><circle cx="60" cy="60" r="54" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="3"/><circle id="arc" cx="60" cy="60" r="54" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-dasharray="339.3" stroke-dashoffset="0"/></svg><b id="secs">10</b></div>
-    <div class="sosact"><button class="btn" id="didIt"></button><button class="btn ghost" id="easier"></button><button class="btn ghost" id="sosOut" style="box-shadow:none;height:40px;font-weight:400;opacity:.8"></button></div>
-  </div></div>
-
-  <!-- cuenta -->
-  <div class="layer" id="pay"><div class="dim"></div><div class="panel">
-    <div class="grab"></div>
-    <button class="x" data-close aria-label="×">×</button>
-    <div class="eyebrow" id="payEy"></div>
-    <h2 id="payH"></h2>
-    <p class="sub" id="paySub"></p>
-    <div class="price"><b>1 USD</b><span class="sub" id="payPer"></span></div>
-    <ul class="list" id="payList"></ul>
-    <div class="stack"><button class="btn" id="payGo"></button><button class="btn ghost" data-close id="payNo"></button></div>
-  </div></div>
-
-  <!-- por qué así -->
-  <div class="layer" id="why"><div class="dim"></div><div class="panel">
-    <div class="grab"></div>
-    <button class="x" data-close aria-label="×">×</button>
-    <div class="eyebrow" id="whyEy"></div>
-    <h2 id="whyH"></h2>
-    <ul class="list" id="whyList"></ul>
-    <div class="toggle"><span id="stillL"></span><button class="sw2" id="still" aria-pressed="false"></button></div>
-    <div class="foot"><a href="/terms.html" id="fTerms"></a><a href="/privacy.html" id="fPriv"></a><button class="link" id="fIdea"></button></div>
-    <p class="foot" style="margin-top:6px">© 2026 Tangent. Una idea de Tangent. Todos los derechos reservados.</p>
-  </div></div>
-
-  <!-- cuenta: crear, entrar, recuperar -->
-  <div class="layer" id="acct"><div class="dim"></div><div class="panel">
-    <div class="grab"></div>
-    <button class="x" data-close aria-label="×">×</button>
-    <div class="eyebrow" id="aEy"></div>
-    <h2 id="aH"></h2>
-    <p class="sub" id="aSub"></p>
-    <form id="aForm" class="aform" novalidate>
-      <label><span id="aEmailL"></span><input type="email" id="aEmail" autocomplete="email" required></label>
-      <label id="aCodeW"><span id="aCodeL"></span><input type="text" id="aCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" pattern="[0-9]*"></label>
-      <label id="aPassW"><span id="aPassL"></span><input type="password" id="aPass" autocomplete="current-password" minlength="8"></label>
-      <p class="aerr" id="aErr" role="alert"></p>
-      <button class="btn" id="aGo" type="submit"></button>
-    </form>
-    <div class="alt2" id="aLinks"><button class="link" id="aSwitch"></button><button class="link" id="aForgot"></button><button class="link" id="aResend"></button></div>
-    <div id="aIn" hidden>
-      <div class="arow2"><span id="aWhoL"></span><b id="aWho"></b></div>
-      <div class="arow2"><span id="aPlanL"></span><b id="aPlan"></b></div>
-      <div class="stack" style="margin-top:18px"><button class="btn" id="aActivate"></button><button class="btn ghost" id="aOut"></button><button class="link" id="aCancel" style="margin-top:6px"></button></div>
-    </div>
-  </div></div>
-
-  <!-- aviso genérico -->
-  <div class="layer modal" id="msg"><div class="dim"></div><div class="panel">
-    <div class="grab"></div>
-    <button class="x" data-close aria-label="×">×</button>
-    <h2 id="mTitle"></h2>
-    <div class="body" id="mBody"></div>
-    <div class="stack" id="mBtns" style="margin-top:18px"></div>
-  </div></div>
-
-  <div id="toast" role="status"></div>
+  <nav id="side" aria-label="Menú"></nav>
+  <main id="view" tabindex="-1"></main>
+  <nav id="tabs" aria-label="Menú rápido"></nav>
 </div>
-<script src="/assets/burbujas.js"></script>
+<div id="print" aria-hidden="true"></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script src="/assets/study.js" defer></script>
 </body>
 </html>
