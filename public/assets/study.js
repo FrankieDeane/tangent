@@ -10,7 +10,7 @@ const LS = {
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
 const K = { lang: "tangent.study.lang", folder: "tangent.study.folder", board: "tangent.study.board", agenda: "tangent.study.agenda", scale: "tangent.study.scale",
-  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read", drafts: "tangent.study.drafts" };
+  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read", drafts: "tangent.study.drafts", onb: "tangent.study.onb" };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = n => String(n).padStart(2, "0");
@@ -25,9 +25,19 @@ const S = {
   home: ["Inicio", "Home"], study: ["Study", "Study"], folder: ["Carpeta", "Folder"], board: ["Tablero", "Board"], agenda: ["Agenda", "Planner"],
   progress: ["Cómo me fue", "How it went"], test: ["Tu cabeza", "Your brain"], kit: ["Kit de papel", "Paper kit"], ideas: ["Ideas", "Ideas"],
   account: ["Cuenta", "Account"], terms: ["Tus datos", "Your data"],
-  heroT1: ["Decí un tema en voz alta.", "Say a topic out loud."], heroT2: ["Te lo explico fácil.", "I'll explain it simply."],
+  heroT1: ["Estudiá en voz alta.", "Study out loud."], heroT2: ["Volvé a lo importante.", "Come back to what matters."],
+  secStudy: ["Estudiar", "Study"], secPlan: ["Organizarte", "Get organised"], secYou: ["Para vos", "For you"], todayT: ["Hoy", "Today"],
+  coachT: ["Tu coach", "Your coach"], coachFix: ["Ojo con esto", "Heads up"], coachRight: ["Lo correcto", "What's right"], coachWhy: ["Por qué", "Why"],
+  coachFocus: ["Volvamos a tu meta", "Back to your goal"], coachNext: ["Tu próximo paso", "Your next step"],
+  onbSkip: ["Saltar", "Skip"], onbNext: ["Seguir", "Next"], onbGo: ["Empezar", "Let's go"], onbAgain: ["Ver la intro otra vez", "See the intro again"],
+  onb: [[["Tu cabeza no es el problema.", "Con TDAH, arrancar cuesta y cualquier cosa te lleva a otro lado. No es falta de ganas: tu cerebro busca algo que valga la pena. Tangent te da un solo paso por vez."],
+    ["Hablá. Tangent sostiene el timón.", "Contás el tema en voz alta, con tus palabras, aunque salga desordenado. Tangent lo ordena, te corrige con calma lo que no es así y te avisa cuando te fuiste de tema."],
+    ["Abrí la ventana.", "Bloques cortos, tu propio resumen, preguntas rápidas y repasos en días distintos. Así lo que estudiás se queda. Y si te perdés, volvés con un solo botón."]],
+   [["Your mind is not the problem.", "With ADHD, starting is hard and anything pulls you away. It's not a lack of will: your brain is looking for something worth it. Tangent gives you one step at a time."],
+    ["Talk. Tangent holds the wheel.", "You explain the topic out loud, in your words, even if it comes out messy. Tangent puts it in order, calmly corrects what isn't right and tells you when you drifted."],
+    ["Open the window.", "Short blocks, your own summary, quick questions and reviews on different days. That's how what you study sticks. And if you get lost, one button brings you back."]]],
   heroNote: ["¡empezá acá!", "start here!"], organizer: ["Organizador", "Organizer"], organizerP: ["Contá todo lo que tenés que hacer y te lo ordeno en burbujas.", "Say everything you have to do and I'll sort it into bubbles."], more: ["Más", "More"],
-  heroP: ["Citás tu libro, hablás hasta 10 minutos y te queda un resumen en español y en inglés, con imágenes, para imprimir.", "Cite your book, talk for up to 10 minutes and get a summary in Spanish and English, with pictures, ready to print."],
+  heroP: ["Elegí tu libro, contá el tema con tus palabras y Tangent lo ordena, te corrige con calma y te devuelve a tu meta. Un paso por vez.", "Pick your book, explain the topic in your own words and Tangent puts it in order, calmly corrects you and brings you back to your goal. One step at a time."],
   start: ["Empezar un tema", "Start a topic"],
   tStudy: ["Hablá, sacale foto a la hoja o escribí.", "Talk, snap the sheet or type."], tFolder: ["Tus resúmenes. Bajalos en PDF.", "Your summaries. Download as PDF."],
   tBoard: ["Columnas y tareas, como en un corcho.", "Columns and tasks, like a corkboard."], tAgenda: ["Pruebas, entregas y avisos.", "Tests, deadlines and reminders."],
@@ -315,6 +325,7 @@ function render() {
   v.mount?.();
   if (readPrefs().bold) boldify($("#view"));
   document.title = `Tangent · ${t((NAV.find(n => n[0] === route) || ["", "home"])[1])}`;
+  document.body.classList.toggle("recording", Boolean(rec));
 }
 function go() {
   let h = decodeURIComponent(location.hash.slice(1));
@@ -342,52 +353,65 @@ async function tryCode(code) {
 /* ---------------- home ---------------- */
 const TILES = [["guia", "tGuide"], ["study", "tStudy"], ["carpeta", "tFolder"], ["mapa", "tMap"], ["tablero", "tBoard"], ["agenda", "tAgenda"], ["progreso", "tProgress"], ["test", "tTest"], ["kit", "tKit"], ["ideas", "tIdeas"], ["cuenta", "tAccount"], ["terminos", "tTerms"]];
 const navKey = r => NAV.find(n => n[0] === r)[1];
+const GROUPS = [["secStudy", ["study", "carpeta", "mapa"]], ["secPlan", ["tablero", "agenda", "progreso"]], ["secYou", ["guia", "test", "kit", "ideas", "cuenta", "terminos"]]];
 V.inicio = {
   html: () => `
-  <div class="iri hero">
-    <img class="skater" src="/assets/logo-skater.png" alt="">
-    <h1>${esc(t("heroT1"))} <span class="mk">${esc(t("heroT2"))}</span></h1>
-    ${squiggle()}
-    <p class="lead">${esc(t("heroP"))}</p>
-    <span class="note hand" aria-hidden="true">${esc(t("heroNote"))} ↓</span>
-    <a class="btn" href="#study">${esc(t("start"))}</a>
-    <p style="position:relative;margin:0 0 8px"><a href="#guia">📖 ${esc(t("guideLink"))}</a></p>
-    <div class="small" style="position:relative">${esc(LS.get(K.code, "") ? t("codeOn") : t("codeOff"))} ${LS.get(K.code, "") ? "" : `<a href="#cuenta">${esc(t("haveCode"))}</a>`}</div>
-  </div>
+  <section class="sky">
+    <div class="art">${scene("calm", { w: 1200, h: 900, id: "hero" })}</div>
+    <div class="skytxt">
+      <h1>${esc(t("heroT1"))} <em>${esc(t("heroT2"))}</em></h1>
+      <p class="lead">${esc(t("heroP"))}</p>
+      <a class="btn" href="#study">${esc(t("start"))}</a>
+      <a class="quiet" href="#guia">${esc(t("guideLink"))} →</a>
+    </div>
+  </section>
+  <p class="small codeline">${esc(LS.get(K.code, "") ? t("codeOn") : t("codeOff"))} ${LS.get(K.code, "") ? "" : `<a href="#cuenta">${esc(t("haveCode"))}</a>`}</p>
   ${drafts().length ? `<a class="card" href="#carpeta" style="display:flex;gap:10px;align-items:center;margin-top:14px;text-decoration:none;color:inherit">✏️ <b class="grow">${esc(t("draftHome"))}</b> →</a>` : ""}
   ${homeDue()}
-  <div class="grid">
-    ${TILES.map(([r, d]) => `<a class="tile" href="#${r}">${ic(navKey(r))}<b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></a>`).join("")}
-  </div>`,
+  ${GROUPS.map(([g, rs]) => `<h2 class="sec">${esc(t(g))}</h2><div class="grid g3">${rs.map(r => { const d = TILES.find(x => x[0] === r)[1]; return `<a class="tile" href="#${r}">${ic(navKey(r))}<b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></a>`; }).join("")}</div>`).join("")}`,
+};
+// Guide written for people with ADHD: why Tangent exists, how to start when you can't, what to do when you drift.
+const GUIDE = {
+  es: {
+    h: "Cómo te ayuda Tangent", lead: "Tangent existe para personas con TDAH (y para cualquiera a quien le cueste concentrarse). Estudiar de resúmenes ajenos no sirve: perdés el contexto y los detalles. Lo que sí sirve es explicarlo vos, en voz alta, con tu libro al lado. Tangent te acompaña en eso, un paso por vez.",
+    start: ["Cuando no podés arrancar", "Arrancar es lo más difícil. Hacelo ridículamente chico:", ["Escribí solo el libro y la página. Nada más.", "Elegí 5 minutos. No 10: 5.", "Apretá grabar y decí la primera frase que te acuerdes, aunque sea «hoy estudio la célula».", "Listo: ya empezaste. El envión hace el resto."]],
+    drift: ["Cuando te vas por las ramas", "Pasa, y está bien. Tu coach separa lo que es de otro tema, te lo dice sin retarte y te devuelve a tu meta. Si la idea que se te cruzó vale la pena, anotala en el Tablero y seguí."],
+    session: ["Una sesión de 15 minutos", [["5 min", "Leé tu fuente. Solo esa parte."], ["5 min", "Contala en voz alta, con tus palabras."], ["3 min", "Leé a tu coach: qué estuvo bien, qué corregir y tu próximo paso."], ["2 min", "Escribí tu resumen y hacé el mini examen."]]],
+    coach: ["Qué hace tu coach", ["Ordena lo que dijiste, aunque haya salido desordenado.", "Te corrige con calma lo que no es así, y te explica por qué es fácil confundirse.", "Revisa con fuentes de internet y te muestra de dónde sale.", "Te marca qué detalle buscar de nuevo en tu libro.", "Te agenda repasos a 1, 3 y 7 días, y antes de tu examen."]],
+    daily: ["Todos los días, en 1 minuto", "Abrí Inicio: ahí está lo que toca hoy (repasos y exámenes). Hacé un bloque. Al final, anotá en «Cómo me fue» del 1 al 5. Sin culpa: es para ver cómo vas, no para juzgarte."],
+    isnt: ["Lo que Tangent no es", ["No es un diagnóstico ni un tratamiento. Para eso, un profesional de la salud.", "No hace la tarea por vos: te ayuda a entenderla.", "La IA también se equivoca: confirmá siempre con tu libro."]],
+    why: ["Por qué funciona", "Decir algo en voz alta ayuda a recordarlo (MacLeod y otros, 2010). Probarte con preguntas fija lo aprendido mejor que releer (Roediger y Karpicke, 2006). Repasar en días distintos le gana a estudiar todo junto (Cepeda y otros, 2006). Y explicarle algo a otro, aunque sea imaginario, te muestra lo que todavía no entendiste (Dunlosky y otros, 2013)."],
+  },
+  en: {
+    h: "How Tangent helps you", lead: "Tangent exists for people with ADHD (and anyone who finds it hard to focus). Studying from someone else's summary doesn't work: you lose the context and the details. What works is explaining it yourself, out loud, with your book next to you. Tangent walks you through it, one step at a time.",
+    start: ["When you can't get started", "Starting is the hardest part. Make it ridiculously small:", ["Write only the book and the page. Nothing else.", "Pick 5 minutes. Not 10: 5.", "Press record and say the first sentence you remember, even \"today I'm studying the cell\".", "Done: you've started. Momentum does the rest."]],
+    drift: ["When you drift off", "It happens, and that's fine. Your coach separates what belongs to another topic, tells you without scolding and brings you back to your goal. If the idea that popped up is worth it, put it on the Board and keep going."],
+    session: ["A 15-minute session", [["5 min", "Read your source. Only that part."], ["5 min", "Explain it out loud, in your words."], ["3 min", "Read your coach: what went well, what to fix and your next step."], ["2 min", "Write your summary and take the mini quiz."]]],
+    coach: ["What your coach does", ["Puts what you said in order, even if it came out messy.", "Calmly corrects what isn't right, and explains why it's easy to mix up.", "Checks with web sources and shows you where it comes from.", "Points out which detail to look for again in your book.", "Schedules reviews at 1, 3 and 7 days, and before your exam."]],
+    daily: ["Every day, in 1 minute", "Open Home: what's due today is there (reviews and exams). Do one block. At the end, rate \"How it went\" from 1 to 5. No guilt: it's to see how you're doing, not to judge you."],
+    isnt: ["What Tangent is not", ["It's not a diagnosis or a treatment. For that, see a health professional.", "It doesn't do your homework: it helps you understand it.", "AI makes mistakes too: always check with your book."]],
+    why: ["Why it works", "Saying something out loud helps you remember it (MacLeod et al., 2010). Quizzing yourself fixes learning better than re-reading (Roediger & Karpicke, 2006). Reviewing on different days beats cramming (Cepeda et al., 2006). And explaining something to someone, even an imaginary someone, shows you what you haven't understood yet (Dunlosky et al., 2013)."],
+  },
 };
 V.guia = {
-  html: () => L === "en" ? `
-  <h1>How to study with <span class="mk">Tangent</span></h1>${squiggle()}
-  <p class="lead">Any AI can give you a summary of a book. Studying from summaries doesn't work: you lose the context and the details, and the details are what let you really explain a topic. Tangent is not a cheat-sheet machine. It teaches you to study.</p>
-  <div class="card"><ol class="pts" style="line-height:1.7">
-    <li><b>Read your source.</b> The whole part, not a summary. Write down the book and pages in Tangent.</li>
-    <li><b>Study out loud.</b> Explain it in your own words, as if teaching someone. Up to 5 or 10 minutes.</li>
-    <li><b>Listen to yourself</b> if you want, then press OK: the audio is deleted and only the text stays.</li>
-    <li><b>Tangent orders what you said</b>, flags what belongs to another subject and checks it against web sources to spot mistakes or contradictions.</li>
-    <li><b>Go back to the source</b> to look for the details Tangent points out (examples, dates, causes, steps).</li>
-    <li><b>Write your own summary</b> in Tangent, in your words. That is the summary that helps you learn.</li>
-    <li><b>Test yourself</b> with the questions and review on another day. Print it if paper works better for you.</li>
-  </ol></div>
-  <div class="iri"><b>Why it works</b><p class="small" style="margin-top:6px">Explaining out loud, testing yourself and spacing your reviews are among the best-supported study techniques (Dunlosky et al., 2013). Writing your own summary after re-reading forces you to choose what matters, which is learning.</p></div>
-  <a class="btn" href="#study">Start a topic</a>` : `
-  <h1>Cómo estudiar con <span class="mk">Tangent</span></h1>${squiggle()}
-  <p class="lead">Cualquier IA te hace un resumen de un libro. Pero estudiar de resúmenes (machetes) no sirve: perdés el contexto y los detalles, y los detalles son los que te dejan contar bien un tema. Tangent no hace machetes: te enseña a estudiar.</p>
-  <div class="card"><ol class="pts" style="line-height:1.7">
-    <li><b>Leé tu fuente.</b> La parte completa, no un resumen. Anotá en Tangent el libro y las páginas.</li>
-    <li><b>Estudiá en voz alta.</b> Explicalo con tus palabras, como si se lo enseñaras a alguien. Hasta 5 o 10 minutos.</li>
-    <li><b>Escuchate</b> si querés, y dale OK: el audio se borra y queda solo el texto.</li>
-    <li><b>Tangent ordena lo que dijiste</b>, te marca lo que es de otro tema y lo revisa con fuentes de internet para encontrar errores o contradicciones.</li>
-    <li><b>Volvé a la fuente</b> a buscar los detalles que te marca (ejemplos, fechas, causas, pasos).</li>
-    <li><b>Escribí tu propio resumen</b> en Tangent, con tus palabras. Ese es el resumen que te sirve para aprender.</li>
-    <li><b>Probate</b> con las preguntas y repasá otro día. Si te sirve el papel, imprimilo.</li>
-  </ol></div>
-  <div class="iri"><b>Por qué funciona</b><p class="small" style="margin-top:6px">Explicar en voz alta, probarse con preguntas y repasar en días distintos están entre las técnicas de estudio con más evidencia (Dunlosky y otros, 2013). Escribir tu resumen después de releer te obliga a elegir lo importante, y eso es aprender.</p></div>
-  <a class="btn" href="#study">Empezar un tema</a>`,
+  html() {
+    const g = GUIDE[L === "en" ? "en" : "es"];
+    return `<section class="sky slim"><div class="art">${scene("window", { w: 1200, h: 700, id: "guide" })}</div>
+      <div class="skytxt"><h1>${esc(g.h)}</h1><p class="lead">${esc(g.lead)}</p></div></section>
+    <div class="two">
+      <div class="card"><h3>${esc(g.start[0])}</h3><p>${esc(g.start[1])}</p><ol class="pts">${g.start[2].map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>
+      <div class="card"><h3>${esc(g.drift[0])}</h3><p>${esc(g.drift[1])}</p></div>
+    </div>
+    <div class="card"><h3>${esc(g.session[0])}</h3><div class="timeline">${g.session[1].map(([m, x]) => `<div><span>${esc(m)}</span><p>${esc(x)}</p></div>`).join("")}</div></div>
+    <div class="two">
+      <div class="card"><h3>${esc(g.coach[0])}</h3><ul class="pts">${g.coach[1].map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
+      <div class="card"><h3>${esc(g.daily[0])}</h3><p>${esc(g.daily[1])}</p><h3 style="margin-top:16px">${esc(g.isnt[0])}</h3><ul class="pts">${g.isnt[1].map(x => `<li>${esc(x)}</li>`).join("")}</ul></div>
+    </div>
+    <div class="iri"><b>${esc(g.why[0])}</b><p class="small" style="margin-top:6px">${esc(g.why[1])}</p></div>
+    <a class="btn" href="#study">${esc(t("start"))}</a>
+    <button class="btn ghost" id="onbAgain" type="button">${esc(t("onbAgain"))}</button>`;
+  },
+  mount() { $("#onbAgain")?.addEventListener("click", onboard); },
 };
 V.mas = {
   html: () => `<h1>${esc(t("more"))}</h1><div class="menu">${TILES.filter(([r]) => !["study", "tablero", "agenda"].includes(r)).map(([r, d]) => `<a href="#${r}">${ic(navKey(r))}<div><b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></div></a>`).join("")}
@@ -507,6 +531,19 @@ V.study = {
   },
 };
 
+// The coach: warm, sure, corrects facts and brings the student back to the goal.
+function coachHTML(it) {
+  const c = it.result?.coach; if (!c) return "";
+  const x = v => (v && (v[L] || v.es || v.en)) || "";
+  const fixes = (c.fixes || []).filter(f => x(f.right));
+  if (!x(c.hello) && !fixes.length && !x(c.focus) && !x(c.next)) return "";
+  return `<section class="coach">
+    <div class="coachhd"><span class="coachav" aria-hidden="true">${ic("guide")}</span><div><b>${esc(t("coachT"))}</b>${x(c.hello) ? `<p>${esc(x(c.hello))}</p>` : ""}</div></div>
+    ${fixes.map(f => `<div class="fix"><div class="small"><b>${esc(t("coachFix"))}:</b> «${esc(f.said)}»</div><p><b>${esc(t("coachRight"))}:</b> ${esc(x(f.right))}</p>${x(f.why) ? `<p class="small"><b>${esc(t("coachWhy"))}:</b> ${esc(x(f.why))}</p>` : ""}</div>`).join("")}
+    ${x(c.focus) ? `<div class="focusback"><b>${esc(t("coachFocus"))}</b><p>${esc(x(c.focus))}</p></div>` : ""}
+    ${x(c.next) ? `<div class="nextstep"><span>${esc(t("coachNext"))}</span><b>${esc(x(c.next))}</b></div>` : ""}
+  </section>`;
+}
 function resultHTML(it, view = LS.get("tangent.study.view", L)) {
   const r = it.result, langs = view === "both" ? [L, L === "en" ? "es" : "en"] : [view];
   const block = lang => `
@@ -543,6 +580,7 @@ function resultHTML(it, view = LS.get("tangent.study.view", L)) {
   return `${due}
     <div class="seg" id="viewSeg" style="max-width:320px;margin:4px 0 10px">${[["es", "ES"], ["en", "EN"], ["both", "ES + EN"]].map(([k, l]) => `<button type="button" data-v="${k}" class="${view === k ? "on" : ""}">${l}</button>`).join("")}</div>
     ${srcLine(it.source)}${it.goal ? `<div class="small">🎯 ${esc(it.goal)}</div>` : ""}
+    ${coachHTML(it)}
     <div class="${langs.length > 1 ? "two" : ""}">${langs.map(block).join("")}</div>
     ${r.concepts?.length ? `<b>${esc(t("images"))}</b><div class="concepts" style="margin:8px 0">${r.concepts.map((c, i) => {
       const p = it.photos?.[i];
@@ -619,6 +657,7 @@ async function recStart() {
   render();
   segment();
   rec.tick = setInterval(tickRec, 250);
+  document.body.classList.add("recording");
 }
 function segment() {
   const r = rec; if (!r) return;
@@ -641,7 +680,7 @@ function enqueue(blob, i) {
       const wav = await toWavBase64(blob);
       const d = await api("/api/study-chunk", { audio: wav });
       if (d.status === "ok") st.parts[i] = d.text || "";
-      else if (d.status === "paywall") r.paywall = true;
+      else if (d.status === "paywall") { r.paywall = true; if (!r.stopping) setTimeout(recStop, 0); }
       else if (d.status === "blocked") { st.parts[i] = ""; r.blocked = true; }
       else { st.parts[i] = ""; r.errors++; }
     } catch { st.parts[i] = ""; r.errors++; }
@@ -682,7 +721,7 @@ async function finishRec(r) {
   r.stream.getTracks().forEach(tr => tr.stop());
   try { r.ac?.close(); } catch {}
   await r.queue;
-  rec = null;
+  rec = null; document.body.classList.remove("recording");
   st.transcript = st.parts.filter(Boolean).join(" ").replace(/\s+/g, " ").trim();
   keepDraft();
   if (r.paywall) { st.step = 3; st.error = `${esc(t("paywall"))} <a href="#cuenta">${esc(t("seePlans"))}</a>${st.draftId ? ` <b>${esc(t("draftKept"))}</b>` : ""}`; return render(); }
@@ -730,7 +769,7 @@ async function makeSummary() {
   keepDraft();
   st.busy = true; st.error = ""; render();
   let d;
-  try { d = await api("/api/study", { source: st.source, topic: st.topic, transcript: st.transcript, image: st.image || undefined }); }
+  try { d = await api("/api/study", { source: st.source, topic: st.topic, goal: st.goal || undefined, before: st.before || undefined, transcript: st.transcript, image: st.image || undefined }); }
   catch { d = { status: "ai_error" }; }
   st.busy = false;
   const kept = st.draftId ? ` <b>${esc(t("draftKept"))}</b>` : "";
@@ -756,6 +795,115 @@ async function makeSummary() {
       }
     } catch {}
   }
+}
+
+/* ---------------- painted scenes + first-run intro ---------------- */
+// Watercolor scenes drawn in SVG (no image files): sky, sea and window.
+function wcDefs(id, seed) {
+  return `<defs>
+  <filter id="wc${id}" x="-20%" y="-20%" width="140%" height="140%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="4" seed="${seed}" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="22" xChannelSelector="R" yChannelSelector="G" result="d"/>
+    <feGaussianBlur in="d" stdDeviation="3.5" result="bl"/>
+    <feComposite in="d" in2="bl" operator="arithmetic" k2="1.35" k3="-0.35" result="edge"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="2" seed="${seed + 3}" result="g"/>
+    <feColorMatrix in="g" type="matrix" values="0 0 0 0 0.05  0 0 0 0 0.1  0 0 0 0 0.25  0 0 0 0.22 -0.06" result="gm"/>
+    <feComposite in="gm" in2="d" operator="in" result="grain"/>
+    <feMerge><feMergeNode in="edge"/><feMergeNode in="grain"/></feMerge>
+  </filter>
+  <filter id="fr${id}" x="-10%" y="-10%" width="120%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="${seed}" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="5"/>
+  </filter>
+  <filter id="soft${id}" x="-30%" y="-30%" width="160%" height="160%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="${seed + 7}" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="26"/>
+    <feGaussianBlur stdDeviation="6"/>
+  </filter>
+  <filter id="paper${id}"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="2"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .35  0 0 0 0 .45  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
+  </defs>`;
+}
+const cloud = (x, y, s, fill, op = 1) => `<g transform="translate(${x} ${y}) scale(${s})" fill="${fill}" opacity="${op}"><ellipse cx="0" cy="0" rx="120" ry="60"/><ellipse cx="-90" cy="20" rx="80" ry="45"/><ellipse cx="95" cy="18" rx="90" ry="48"/><ellipse cx="20" cy="-45" rx="75" ry="55"/><ellipse cx="-40" cy="-25" rx="60" ry="45"/></g>`;
+const birds = (pts, c = "#1B2B4A") => pts.map(([x, y, s]) => `<path d="M${x - 10 * s} ${y} q${5 * s} ${-6 * s} ${10 * s} 0 q${5 * s} ${-6 * s} ${10 * s} 0" fill="none" stroke="${c}" stroke-width="${2.2 * s}" stroke-linecap="round"/>`).join("");
+const boat = (x, y, s, c = "#14213D") => `<g transform="translate(${x} ${y}) scale(${s})" fill="${c}"><path d="M-26 0 L26 0 L18 9 L-20 9 Z"/><rect x="-1.5" y="-30" width="3" height="30"/><path d="M1.5 -28 L18 -4 L1.5 -4 Z" opacity=".9"/><path d="M-1.5 -24 L-14 -4 L-1.5 -4 Z" opacity=".75"/></g>`;
+
+// variant: "calm" (sky over a quiet sea), "storm" (your head before), "window" (focus)
+function scene(variant = "calm", { w = 800, h = 1000, id = "a" } = {}) {
+  const seed = { calm: 11, storm: 23, window: 5 }[variant] || 11;
+  let body = "";
+  if (variant === "storm") {
+    body = `<rect width="${w}" height="${h}" fill="#C9D3DD"/>
+    <g filter="url(#soft${id})">${cloud(w * .3, h * .18, 2.2, "#8A9BB0", .8)}${cloud(w * .75, h * .12, 1.8, "#E9E4DA", .9)}${cloud(w * .55, h * .3, 2.4, "#6E8099", .55)}</g>
+    <g filter="url(#wc${id})">
+      <path d="M-60 ${h * .55} C ${w * .2} ${h * .45}, ${w * .35} ${h * .62}, ${w * .55} ${h * .5} S ${w * .85} ${h * .52}, ${w + 60} ${h * .46} L${w + 60} ${h + 60} L-60 ${h + 60}Z" fill="#2F6E7E"/>
+      <path d="M-60 ${h * .66} C ${w * .25} ${h * .56}, ${w * .4} ${h * .72}, ${w * .6} ${h * .6} S ${w * .9} ${h * .66}, ${w + 60} ${h * .58} L${w + 60} ${h + 60} L-60 ${h + 60}Z" fill="#1D4E63"/>
+      <path d="M-60 ${h * .8} C ${w * .3} ${h * .72}, ${w * .5} ${h * .86}, ${w * .7} ${h * .76} S ${w * .95} ${h * .8}, ${w + 60} ${h * .75} L${w + 60} ${h + 60} L-60 ${h + 60}Z" fill="#0F3346"/>
+      <path d="M${w * .3} ${h * .56} q ${w * .1} -${h * .06} ${w * .22} -${h * .02} q -${w * .08} ${h * .01} -${w * .12} ${h * .05}Z" fill="#F4F1EA" opacity=".9"/>
+      <path d="M${w * .58} ${h * .66} q ${w * .12} -${h * .07} ${w * .25} -${h * .02} q -${w * .1} 0 -${w * .14} ${h * .05}Z" fill="#EEF2F2" opacity=".85"/>
+    </g>
+    <g fill="none" stroke="#F4F1EA" stroke-linecap="round" stroke-width="5" opacity=".85" filter="url(#fr${id})">${[[.05,.7],[.35,.74],[.7,.66],[.15,.86],[.55,.88]].map(([x, y]) => `<path d="M${w * x} ${h * y} q ${w * .06} -${h * .03} ${w * .13} -${h * .005}"/>`).join("")}</g>
+    ${boat(w * .5, h * .58, 2.1, "#5A2E1E")}
+    ${birds([[w * .2, h * .2, 1], [w * .3, h * .15, .8], [w * .72, h * .22, .9], [w * .8, h * .3, .7], [w * .45, h * .1, .7]], "#3A4658")}`;
+  } else if (variant === "window") {
+    body = `<rect width="${w}" height="${h}" fill="#1F4FBF"/>
+    <g filter="url(#wc${id})"><rect x="${w * .02}" y="${h * .02}" width="${w * .96}" height="${h * .96}" fill="#2457C9"/></g>
+    <svg x="${w * .18}" y="${h * .3}" width="${w * .64}" height="${h * .5}" viewBox="0 0 512 500" preserveAspectRatio="xMidYMid slice">
+      <rect width="512" height="500" fill="#A9CDEB"/>
+      <g filter="url(#soft${id})">${cloud(300, 150, 1.1, "#FFFFFF", .95)}${cloud(120, 210, .8, "#F4F8FC", .9)}</g>
+      <g filter="url(#wc${id})">
+        <path d="M-20 400 L110 290 L200 330 L300 230 L420 320 L540 300 L540 500 L-20 500Z" fill="#5B7FC6"/>
+        <path d="M-20 430 C 120 380, 260 420, 540 390 L540 500 L-20 500Z" fill="#7FA77A"/>
+        <path d="M-20 465 C 160 440, 330 470, 540 450 L540 500 L-20 500Z" fill="#B9584A" opacity=".85"/>
+      </g>
+      ${birds([[170, 160, 1.3], [210, 140, 1]], "#2A3550")}
+    </svg>
+    <g filter="url(#fr${id})" fill="#F3EEDF">
+      <rect x="${w * .16}" y="${h * .28}" width="${w * .68}" height="${h * .025}"/>
+      <rect x="${w * .16}" y="${h * .78}" width="${w * .68}" height="${h * .05}"/>
+      <path d="M${w * .18} ${h * .3} L${w * .06} ${h * .24} L${w * .06} ${h * .86} L${w * .18} ${h * .8}Z" fill="#E9E2CF"/>
+      <path d="M${w * .16} ${h * .33} L${w * .08} ${h * .29} L${w * .08} ${h * .54} L${w * .16} ${h * .55}Z M${w * .16} ${h * .58} L${w * .08} ${h * .58} L${w * .08} ${h * .82} L${w * .16} ${h * .77}Z" fill="#B8D3EA"/>
+      <path d="M${w * .82} ${h * .3} L${w * .94} ${h * .24} L${w * .94} ${h * .86} L${w * .82} ${h * .8}Z" fill="#E9E2CF"/>
+      <path d="M${w * .84} ${h * .33} L${w * .92} ${h * .29} L${w * .92} ${h * .54} L${w * .84} ${h * .55}Z M${w * .84} ${h * .58} L${w * .92} ${h * .58} L${w * .92} ${h * .82} L${w * .84} ${h * .77}Z" fill="#B8D3EA"/>
+    </g>
+    <g fill="#F6F0DC" opacity=".9" filter="url(#wc${id})"><circle cx="${w * .66}" cy="${h * .74}" r="9"/><circle cx="${w * .7}" cy="${h * .73}" r="8"/><circle cx="${w * .63}" cy="${h * .75}" r="7"/></g>
+    <path d="M${w * .6} ${h * .79} q ${w * .06} -${h * .07} ${w * .12} 0Z" fill="#6E8E3A" filter="url(#wc${id})"/>`;
+  } else {
+    body = `<linearGradient id="sk${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9FC3DD"/><stop offset=".6" stop-color="#C7DCEA"/><stop offset="1" stop-color="#E7EFF5"/></linearGradient>
+    <rect width="${w}" height="${h}" fill="url(#sk${id})"/>
+    <g filter="url(#soft${id})">${cloud(w * .2, h * .2, 1.9, "#FFFFFF", .95)}${cloud(w * .7, h * .32, 2.3, "#F7FAFD", .95)}${cloud(w * .4, h * .45, 2.6, "#FFFFFF", .9)}</g>
+    <g filter="url(#wc${id})">
+      <path d="M-60 ${h * .5} C ${w * .2} ${h * .44}, ${w * .3} ${h * .58}, ${w * .45} ${h * .52} S ${w * .7} ${h * .44}, ${w + 60} ${h * .55} L${w + 60} ${h + 60} L-60 ${h + 60}Z" fill="#5C93C9" opacity=".75"/>
+      <path d="M-60 ${h * .62} C ${w * .25} ${h * .55}, ${w * .45} ${h * .7}, ${w * .65} ${h * .6} S ${w * .9} ${h * .58}, ${w + 60} ${h * .64} L${w + 60} ${h + 60} L-60 ${h + 60}Z" fill="#2D63A8"/>
+      <path d="M-60 ${h * .74} C ${w * .3} ${h * .68}, ${w * .5} ${h * .8}, ${w * .75} ${h * .72} S ${w * .95} ${h * .74}, ${w + 60} ${h * .72} L${w + 60} ${h + 60} L-60 ${h + 60}Z" fill="#183F7E"/>
+      <rect x="-60" y="${h * .86}" width="${w + 120}" height="${h * .2}" fill="#2B5DA0" opacity=".85"/>
+    </g>
+    <g stroke="#EAF2FA" stroke-linecap="round" opacity=".7" filter="url(#fr${id})">${[[.08,.8,.12],[.3,.83,.08],[.55,.79,.14],[.72,.9,.1],[.15,.93,.09],[.6,.95,.12]].map(([x, y, l]) => `<line x1="${w * x}" y1="${h * y}" x2="${w * (x + l)}" y2="${h * y}" stroke-width="3"/>`).join("")}</g>
+    ${boat(w * .38, h * .88, 1.5)}
+    ${birds([[w * .62, h * .14, 1.3], [w * .7, h * .17, 1], [w * .76, h * .13, .9], [w * .55, h * .2, .7], [w * .82, h * .22, .6]])}`;
+  }
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${wcDefs(id, seed)}${body}<rect width="${w}" height="${h}" filter="url(#paper${id})" fill="#fff"/></svg>`;
+}
+
+// Three calm screens for the first visit: the storm (your head), the boat (Tangent), the open window (focus).
+function onboard() {
+  const slides = tl("onb", L), arts = ["storm", "calm", "window"];
+  let i = 0;
+  const box = document.createElement("div"); box.className = "onb"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true");
+  const done = goStudy => { LS.set(K.onb, true); box.remove(); document.body.classList.remove("noscroll"); if (goStudy) location.hash = "study"; };
+  const paint = () => {
+    const [h, p] = slides[i], last = i === slides.length - 1;
+    box.innerHTML = `<div class="onbcard"><div class="onbart">${scene(arts[i], { w: 600, h: 520, id: "onb" + i })}</div>
+      <div class="onbtxt"><div class="dots">${slides.map((_, k) => `<i class="${k === i ? "on" : ""}"></i>`).join("")}</div>
+      <h2>${esc(h)}</h2><p>${esc(p)}</p>
+      <div class="onbbtns"><button type="button" class="btn ghost" data-skip>${esc(t("onbSkip"))}</button><button type="button" class="btn" data-next>${esc(last ? t("onbGo") : t("onbNext"))}</button></div></div></div>`;
+    box.querySelector("[data-next]").focus();
+  };
+  box.addEventListener("click", e => {
+    if (e.target.closest("[data-skip]")) return done(false);
+    if (e.target.closest("[data-next]")) { if (i === slides.length - 1) return done(true); i++; paint(); }
+  });
+  box.addEventListener("keydown", e => { if (e.key === "Escape") done(false); });
+  document.body.appendChild(box); document.body.classList.add("noscroll"); paint();
 }
 
 /* ---------------- easy reading (dyslexia-friendly, optional) ---------------- */
@@ -1580,5 +1728,6 @@ V.terminos = {
 
 applyRead();
 go();
+if (!LS.get(K.onb, false)) onboard();
 scheduleNotifs();
 })();
