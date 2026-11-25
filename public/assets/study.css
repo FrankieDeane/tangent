@@ -598,3 +598,15 @@ body.recording .skater,body.recording .skatetrail{display:none}
 /* painting credit (public-domain works from The Met Open Access) */
 .sky .art .credit{position:absolute;right:10px;top:8px;font-size:10px;line-height:1.2;color:rgba(255,255,255,.92);background:rgba(15,30,54,.38);padding:3px 7px;border-radius:6px;max-width:70%;text-align:right;pointer-events:none}
 @media (max-width:520px){.bideas{gap:6px}.bideas button{padding:6px 10px;font-size:13.5px}}
+/* intro: back, skip, clickable step dots */
+.onbcard{position:relative}
+.onbskip{position:absolute;top:12px;right:12px;z-index:2;border:0;border-radius:99px;padding:7px 12px;font-size:13px;font-weight:600;background:rgba(255,255,255,.85);color:var(--ink);cursor:pointer;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.onb .dots{gap:8px}
+.onb .dots [data-go]{width:26px;height:6px;border-radius:6px;border:0;padding:0;background:var(--line);cursor:pointer;transition:background .2s,width .2s}
+.onb .dots [data-go].on{background:var(--blue);width:38px}
+.onbbtns .ghost.off{visibility:hidden}
+/* header: no tinted band behind the logo and buttons */
+#top{background:transparent;border-bottom:0}
+@media (max-width:899px){#top{background:rgba(238,242,246,.82);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);box-shadow:0 1px 0 rgba(15,30,54,.06)}}
+@media (min-width:900px){#top{position:static}#side{top:16px}}
+#me .av{box-shadow:0 0 0 2px #fff,0 1px 3px rgba(15,30,54,.18)}

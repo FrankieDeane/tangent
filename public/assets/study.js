@@ -29,7 +29,7 @@ const S = {
   secStudy: ["Estudiar", "Study"], secPlan: ["Organizarte", "Get organised"], secYou: ["Para vos", "For you"], todayT: ["Hoy", "Today"],
   coachT: ["Tu coach", "Your coach"], coachFix: ["Ojo con esto", "Heads up"], coachRight: ["Lo correcto", "What's right"], coachWhy: ["Por qué", "Why"],
   coachFocus: ["Volvamos a tu meta", "Back to your goal"], coachNext: ["Tu próximo paso", "Your next step"],
-  onbSkip: ["Saltar", "Skip"], onbNext: ["Seguir", "Next"], onbGo: ["Empezar", "Let's go"], onbAgain: ["Ver la intro otra vez", "See the intro again"],
+  onbSkip: ["Saltar", "Skip"], onbBack: ["Atrás", "Back"], onbNext: ["Seguir", "Next"], onbGo: ["Empezar", "Let's go"], onbAgain: ["Ver la intro otra vez", "See the intro again"],
   onb: [[["Tu cabeza no es el problema.", "Con TDAH, arrancar cuesta y cualquier cosa te lleva a otro lado. No es falta de ganas: tu cerebro busca algo que valga la pena. Tangent te da un solo paso por vez."],
     ["Hablá. Tangent sostiene el timón.", "Contás el tema en voz alta, con tus palabras, aunque salga desordenado. Tangent lo ordena, te corrige con calma lo que no es así y te avisa cuando te fuiste de tema."],
     ["Abrí la ventana.", "Bloques cortos, tu propio resumen, preguntas rápidas y repasos en días distintos. Así lo que estudiás se queda. Y si te perdés, volvés con un solo botón."]],
@@ -826,21 +826,37 @@ function onboard() {
   let i = 0;
   const box = document.createElement("div"); box.className = "onb"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true");
   box.innerHTML = `<div class="onbcard"><div class="onbart"><img src="/assets/intro.jpg" alt="" class="z0"></div>
-    <div class="onbtxt"><div class="dots">${slides.map(() => "<i></i>").join("")}</div><h2></h2><p></p>
-    <div class="onbbtns"><button type="button" class="btn ghost" data-skip>${esc(t("onbSkip"))}</button><button type="button" class="btn" data-next></button></div></div></div>`;
+    <button type="button" class="onbskip" data-skip>${esc(t("onbSkip"))} ✕</button>
+    <div class="onbtxt"><div class="dots">${slides.map((_, k) => `<button type="button" data-go="${k}" aria-label="${k + 1}"></button>`).join("")}</div><h2></h2><p></p>
+    <div class="onbbtns"><button type="button" class="btn ghost" data-back>← ${esc(t("onbBack"))}</button><button type="button" class="btn" data-next></button></div></div></div>`;
   const done = goStudy => { LS.set(K.onb, true); box.remove(); document.body.classList.remove("noscroll"); if (goStudy) location.hash = "study"; };
   const paint = () => {
     const [h, p] = slides[i], last = i === slides.length - 1;
     box.querySelector("img").className = "z" + i;
-    box.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === i));
+    box.querySelectorAll(".dots [data-go]").forEach((d, k) => d.classList.toggle("on", k === i));
+    const bk = box.querySelector("[data-back]"); bk.disabled = i === 0; bk.classList.toggle("off", i === 0);
     box.querySelector("h2").textContent = h; box.querySelector(".onbtxt p").textContent = p;
     const nx = box.querySelector("[data-next]"); nx.textContent = last ? t("onbGo") : t("onbNext"); nx.focus();
   };
   box.addEventListener("click", e => {
     if (e.target.closest("[data-skip]")) return done(false);
     if (e.target.closest("[data-next]")) { if (i === slides.length - 1) return done(true); i++; paint(); }
+    if (e.target.closest("[data-back]") && i > 0) { i--; paint(); }
+    const g = e.target.closest("[data-go]"); if (g) { i = Number(g.dataset.go); paint(); }
   });
-  box.addEventListener("keydown", e => { if (e.key === "Escape") done(false); });
+  box.addEventListener("keydown", e => {
+    if (e.key === "Escape") done(false);
+    else if (e.key === "ArrowLeft" && i > 0) { i--; paint(); }
+    else if (e.key === "ArrowRight" && i < slides.length - 1) { i++; paint(); }
+  });
+  // swipe left / right on phones
+  let sx = null;
+  box.addEventListener("touchstart", e => { sx = e.touches[0].clientX; }, { passive: true });
+  box.addEventListener("touchend", e => {
+    if (sx === null) return; const dx = e.changedTouches[0].clientX - sx; sx = null;
+    if (Math.abs(dx) < 50) return;
+    if (dx < 0 && i < slides.length - 1) { i++; paint(); } else if (dx > 0 && i > 0) { i--; paint(); }
+  }, { passive: true });
   document.body.appendChild(box); document.body.classList.add("noscroll"); paint();
 }
 
