@@ -314,7 +314,7 @@ async function printHTML(html, paper = "A4") {
   await Promise.race([Promise.all(imgs.map(i => new Promise(r => { i.onload = i.onerror = r; }))), new Promise(r => setTimeout(r, 3500))]);
   window.print();
 }
-const printHdr = () => `<div class="hdr"><img src="/assets/logo-skater.png" alt="">Tangent</div>`;
+const printHdr = () => `<div class="hdr"><img src="/assets/logo-tangent.png" alt="">Tangent</div>`;
 
 /* ---------------- hand-drawn icons ---------------- */
 const IC = {
@@ -1553,7 +1553,7 @@ function scheduleNotifs() {
   for (const ev of agenda()) {
     if (!ev.remind) continue;
     const ms = evStart(ev).getTime() - ev.remind * 60e3 - Date.now();
-    if (ms > 0 && ms < 864e5) timers.push(setTimeout(() => { try { new Notification("Tangent", { body: `${ev.time} · ${ev.title}`, icon: "/assets/logo-skater.png" }); } catch {} }, ms));
+    if (ms > 0 && ms < 864e5) timers.push(setTimeout(() => { try { new Notification("Tangent", { body: `${ev.time} · ${ev.title}`, icon: "/assets/icon-tangent-180.png" }); } catch {} }, ms));
   }
 }
 
