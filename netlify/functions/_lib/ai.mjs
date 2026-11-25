@@ -473,10 +473,12 @@ export async function studyTranscribe(wavBase64) {
   }
 }
 
-function studyPrompt({ transcript, source, topic, hasImage }) {
+function studyPrompt({ transcript, source, topic, goal, before, hasImage }) {
   const src = `Title: ${source.title}${source.author ? ` | Author: ${source.author}` : ""}${source.page ? ` | Pages/chapter: ${source.page}` : ""}`;
   return `You help a student with ADHD (any age from 6 to university) understand a topic. They read or explained it aloud from a source they cited${hasImage ? ", and they also sent a photo of the sheet" : ""}. Explain it "for dummies": short sentences, everyday words, one idea per sentence, warm, never childish for older students, never clinical.
-Use ONLY what the student said${hasImage ? " and what is written in the photo" : ""}. Do not add facts, dates or names that are not there. If something they said looks wrong or unclear, do not correct it silently: say it in "review" so they check it in their source.
+You are also their study coach: calm, warm, sure of yourself, with broad and accurate general knowledge (school and university level), like the best teacher they ever had. Never shame them and never say "wrong": say "Ojo:" / "Heads up:".
+Build plain and points from what the student said${hasImage ? " and what is written in the photo" : ""}: do not add new subtopics they did not cover (that is what go_back is for). But NEVER repeat a mistake: when they said something inaccurate, write the correct version in plain and points, and explain it in coach.fixes (what they said, the correct idea, and why it is easy to confuse). Also correct any misconception in what they believed before studying, if given. Only correct things you are sure about; if you are not sure, put it in "review" so they check it in their source.
+If they drifted away from the topic or from their goal (stories, other subjects, side ideas), say it kindly in coach.focus and bring them back to the goal in one sentence.
 Speech recognition can fail. Set "clarity" to "low" when the text is fragmented, has many [?], reads like random words, or does not match the cited source or topic at all; in that case do NOT invent an explanation (leave plain and points empty). Never fill gaps with guesses.
 Students often mix subjects without noticing (for example a maths topic with a history fact). Put anything that clearly belongs to a different subject than the cited source and topic in "mixed", quoting it briefly, and keep it OUT of plain and points.
 Tangent teaches how to study, it does not hand out cheat-sheets: the plain text orders what the student said; "go_back" tells them which details to look for again in their source (examples, dates, causes, steps, definitions they skipped), because the detail is what gives context.
@@ -486,6 +488,8 @@ Safety: set safety.ok false only for sexual content beyond a school biology leve
 
 Cited source: ${src}
 Topic they named: ${topic || "(not given)"}
+Their goal for this session: ${goal || "(not given)"}
+What they believed before studying: ${before ? `"""${String(before).slice(0, 1500)}"""` : "(not given)"}
 What they said: """${String(transcript || "").slice(0, 12000)}"""
 
 Reply with ONLY a JSON object, every field in BOTH languages (es = Spanish from Argentina with natural voseo, en = English):
@@ -500,18 +504,22 @@ Reply with ONLY a JSON object, every field in BOTH languages (es = Spanish from 
  "mixed": {"es": ["0 to 3 short quotes or ideas that belong to another subject, each with which subject"], "en": ["same"]},
  "quiz": [3 multiple-choice questions to check the student really understood, ONLY about what they said (and the photo), simple words: {"q": {"es": "", "en": ""}, "options": {"es": ["3 short options"], "en": ["same order"]}, "answer": index 0-2 of the correct option}],
  "go_back": {"es": ["2 or 3 concrete things to look for again in the source, e.g. 'Buscá en la página 13 qué ejemplo da el libro'"], "en": ["same"]},
- "review": {"es": "one sentence on what to double-check in the source, or empty", "en": "same or empty"}}`;
+ "review": {"es": "one sentence on what to double-check in the source, or empty", "en": "same or empty"},
+ "coach": {"hello": {"es": "one warm sentence on something concrete they did well, max 18 words", "en": "same"},
+   "fixes": [0 to 4 objects, only for inaccurate statements you are sure about: {"said": "short quote of what they said or believed", "right": {"es": "the correct idea, one simple sentence", "en": "same"}, "why": {"es": "why it is easy to confuse or why it matters, max 18 words", "en": "same"}}],
+   "focus": {"es": "only if they drifted from the topic or goal: one kind sentence that names it and brings them back; else empty", "en": "same or empty"},
+   "next": {"es": "one tiny next step toward their goal, max 14 words, starting with a verb", "en": "same"}}}`;
 }
 
-export async function studyExplain({ transcript, source, topic, image }) {
-  const prompt = studyPrompt({ transcript, source, topic, hasImage: Boolean(image) });
+export async function studyExplain({ transcript, source, topic, goal, before, image }) {
+  const prompt = studyPrompt({ transcript, source, topic, goal, before, hasImage: Boolean(image) });
   const parts = image ? [{ inline_data: { mime_type: "image/jpeg", data: image } }, { text: prompt }] : [{ text: prompt }];
   try { return { ...parseJSON(await gemini(parts, { temperature: 0.3 })), provider: "gemini" }; }
   catch (e) {
     if (e instanceof Blocked) throw e;
     if (!String(transcript || "").trim()) throw e; // photo only: Groq cannot read images
     console.error("gemini study failed, trying groq:", e.message);
-    return { ...parseJSON(await groqChat(studyPrompt({ transcript, source, topic, hasImage: false }), { temperature: 0.3 })), provider: "groq" };
+    return { ...parseJSON(await groqChat(studyPrompt({ transcript, source, topic, goal, before, hasImage: false }), { temperature: 0.3 })), provider: "groq" };
   }
 }
 

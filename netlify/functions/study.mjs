@@ -21,13 +21,13 @@ export default async (req, context) => {
 
   const source = { title: s(body.source?.title, 160), author: s(body.source?.author, 120), page: s(body.source?.page, 60) };
   if (source.title.length < 2) return json(400, { status: "no_source" });
-  const topic = s(body.topic, 120);
+  const topic = s(body.topic, 120), goal = s(body.goal, 120), before = s(body.before, 1500);
   const transcript = s(body.transcript, 12000);
   const image = typeof body.image === "string" ? body.image : "";
   if (!transcript && !image) return json(400, { status: "empty" });
   if (image.length > MAX_IMAGE_B64) return json(413, { status: "too_big" });
 
-  const said = checkStudyText([source.title, topic, transcript].join(" \n "));
+  const said = checkStudyText([source.title, topic, goal, before, transcript].join(" \n "));
   if (said) return json(200, { status: said.category === "selfharm" ? "support" : "blocked" });
 
   // Too many inaudible parts: ask to record again instead of guessing.
@@ -36,7 +36,7 @@ export default async (req, context) => {
 
   setBudget(24000);
   let r;
-  try { r = await studyExplain({ transcript, source, topic, image }); }
+  try { r = await studyExplain({ transcript, source, topic, goal, before, image }); }
   catch (e) {
     if (e instanceof Blocked) return json(200, { status: "blocked" });
     console.error("study failed:", e.message);
@@ -52,10 +52,15 @@ export default async (req, context) => {
       const o = { es: (Array.isArray(q?.options?.es) ? q.options.es : []).slice(0, 3).map(x => s(x, 120)), en: (Array.isArray(q?.options?.en) ? q.options.en : []).slice(0, 3).map(x => s(x, 120)) };
       return { q: pair(q?.q, 200), options: o, answer: Number.isInteger(q?.answer) ? q.answer : -1 };
     }).filter(q => q.q.es && q.options.es.length === 3 && q.answer >= 0 && q.answer < 3),
+    coach: {
+      hello: pair(r.coach?.hello, 220),
+      fixes: (Array.isArray(r.coach?.fixes) ? r.coach.fixes : []).slice(0, 4).map(f => ({ said: s(f?.said, 160), right: pair(f?.right, 260), why: pair(f?.why, 200) })).filter(f => f.right.es || f.right.en),
+      focus: pair(r.coach?.focus, 260), next: pair(r.coach?.next, 160),
+    },
     concepts: (Array.isArray(r.concepts) ? r.concepts : []).slice(0, 3).map(c => ({ es: s(c?.es, 40), en: s(c?.en, 40), photo: s(c?.photo, 50) })).filter(c => c.es || c.en),
   };
   if (!result.plain.es && !result.plain.en) return json(502, { status: "ai_error" });
-  const out = [result.title.es, result.title.en, result.plain.es, result.plain.en, ...result.points.es, ...result.points.en].join(" \n ");
+  const out = [result.title.es, result.title.en, result.plain.es, result.plain.en, ...result.points.es, ...result.points.en, result.coach.hello.es, result.coach.hello.en, result.coach.focus.es, result.coach.focus.en, result.coach.next.es, result.coach.next.en, ...result.coach.fixes.flatMap(f => [f.right.es, f.right.en, f.why.es, f.why.en])].join(" \n ");
   if (checkStudyText(out)) return json(200, { status: "ai_error" });
 
   await countUse(id, "study");
