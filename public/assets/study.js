@@ -884,19 +884,21 @@ function scene(variant = "calm", { w = 800, h = 1000, id = "a" } = {}) {
   return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${wcDefs(id, seed)}${body}<rect width="${w}" height="${h}" filter="url(#paper${id})" fill="#fff"/></svg>`;
 }
 
-// Three calm screens for the first visit: the storm (your head), the boat (Tangent), the open window (focus).
+// First visit: three calm screens over Francisco's own photo. Each step zooms a little closer to the flowers: from the noise to one thing.
 function onboard() {
-  const slides = tl("onb", L), arts = ["storm", "calm", "window"];
+  const slides = tl("onb", L);
   let i = 0;
   const box = document.createElement("div"); box.className = "onb"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true");
+  box.innerHTML = `<div class="onbcard"><div class="onbart"><img src="/assets/intro.jpg" alt="" class="z0"></div>
+    <div class="onbtxt"><div class="dots">${slides.map(() => "<i></i>").join("")}</div><h2></h2><p></p>
+    <div class="onbbtns"><button type="button" class="btn ghost" data-skip>${esc(t("onbSkip"))}</button><button type="button" class="btn" data-next></button></div></div></div>`;
   const done = goStudy => { LS.set(K.onb, true); box.remove(); document.body.classList.remove("noscroll"); if (goStudy) location.hash = "study"; };
   const paint = () => {
     const [h, p] = slides[i], last = i === slides.length - 1;
-    box.innerHTML = `<div class="onbcard"><div class="onbart">${scene(arts[i], { w: 600, h: 520, id: "onb" + i })}</div>
-      <div class="onbtxt"><div class="dots">${slides.map((_, k) => `<i class="${k === i ? "on" : ""}"></i>`).join("")}</div>
-      <h2>${esc(h)}</h2><p>${esc(p)}</p>
-      <div class="onbbtns"><button type="button" class="btn ghost" data-skip>${esc(t("onbSkip"))}</button><button type="button" class="btn" data-next>${esc(last ? t("onbGo") : t("onbNext"))}</button></div></div></div>`;
-    box.querySelector("[data-next]").focus();
+    box.querySelector("img").className = "z" + i;
+    box.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === i));
+    box.querySelector("h2").textContent = h; box.querySelector(".onbtxt p").textContent = p;
+    const nx = box.querySelector("[data-next]"); nx.textContent = last ? t("onbGo") : t("onbNext"); nx.focus();
   };
   box.addEventListener("click", e => {
     if (e.target.closest("[data-skip]")) return done(false);
