@@ -473,9 +473,18 @@ export async function studyTranscribe(wavBase64) {
   }
 }
 
-function studyPrompt({ transcript, source, topic, goal, before, hasImage }) {
+// Reading level by age band, chosen once by the student. Empty = unknown (the model adapts to what it hears).
+const AGE_LEVEL = {
+  "6-8": "The student is 6 to 8 years old. Use very short sentences (max 10 words) and only words a first or second grader knows. Warm and playful, never babyish.",
+  "9-12": "The student is 9 to 12 years old. Use short sentences and everyday words; when a school word is needed, explain it in a few words in parentheses.",
+  "13-18": "The student is a teenager (13 to 18). Be clear and direct with normal school vocabulary, never childish. For stories and literature you may name the theme, the characters' motives and what the author wanted to show.",
+  "adult": "The student is at university or an adult. Be precise and concise; technical terms are fine with a short explanation.",
+};
+export const ageLevel = a => AGE_LEVEL[a] || "";
+
+function studyPrompt({ transcript, source, topic, goal, before, hasImage, age }) {
   const src = `Title: ${source.title}${source.author ? ` | Author: ${source.author}` : ""}${source.page ? ` | Pages/chapter: ${source.page}` : ""}`;
-  return `You help a student with ADHD (any age from 6 to university) understand a topic. They read or explained it aloud from a source they cited${hasImage ? ", and they also sent a photo of the sheet" : ""}. Explain it "for dummies": short sentences, everyday words, one idea per sentence, warm, never childish for older students, never clinical.
+  return `You help a student with ADHD (any age from 6 to university) understand a topic. They read or explained it aloud from a source they cited${hasImage ? ", and they also sent a photo of the sheet" : ""}. Explain it "for dummies": short sentences, everyday words, one idea per sentence, warm, never childish for older students, never clinical.${ageLevel(age) ? `\n${ageLevel(age)}` : ""}
 You are also their study coach: calm, warm, sure of yourself, with broad and accurate general knowledge (school and university level), like the best teacher they ever had. Never shame them and never say "wrong": say "Ojo:" / "Heads up:".
 Build plain and points from what the student said${hasImage ? " and what is written in the photo" : ""}: do not add new subtopics they did not cover (that is what go_back is for). But NEVER repeat a mistake: when they said something inaccurate, write the correct version in plain and points, and explain it in coach.fixes (what they said, the correct idea, and why it is easy to confuse). Also correct any misconception in what they believed before studying, if given. Only correct things you are sure about; if you are not sure, put it in "review" so they check it in their source.
 If they drifted away from the topic or from their goal (stories, other subjects, side ideas), say it kindly in coach.focus and bring them back to the goal in one sentence.
@@ -514,13 +523,14 @@ Reply with ONLY a JSON object, every field in BOTH languages (es = Spanish from 
 
 // Reading mode: a child (often 6 to 10) read a story or a text aloud. We tell them what it was about and what happened,
 // and, when there is a photo of the page, which words they read differently. Same JSON shape as studyPrompt, plus "words" and "misread".
-function readPrompt({ transcript, source, topic, hasImage }) {
+function readPrompt({ transcript, source, topic, hasImage, age }) {
   const src = `Title: ${source.title}${source.author ? ` | Author: ${source.author}` : ""}${source.page ? ` | Pages/chapter: ${source.page}` : ""}`;
-  return `A child with ADHD, often 6 to 10 years old, READ ALOUD a story or a short text${hasImage ? ", and sent a photo of the page they read" : ""}. Below is what speech recognition heard. Beginner readers hesitate, repeat words, spell out syllables and misread words: that is normal and is NOT low clarity. Work out the most likely text they read.
-Your job is to help them UNDERSTAND what they just read, like a warm, patient first-grade teacher. Use very short sentences (max 12 words), everyday words a 6-year-old knows, and speak to the child directly with Argentine voseo. Never shame them, never say "wrong" or "mal". Praise the effort of reading.
+  const young = !age || age === "6-8" || age === "9-12";
+  return `A ${young ? "child" : "student"} with ADHD${age ? "" : ", often 6 to 10 years old,"} READ ALOUD a story or a short text${hasImage ? ", and sent a photo of the page they read" : ""}. Below is what speech recognition heard. Beginner readers hesitate, repeat words, spell out syllables and misread words: that is normal and is NOT low clarity. Work out the most likely text they read.
+Your job is to help them UNDERSTAND what they just read, like a warm, patient teacher. ${ageLevel(age) || "Use very short sentences (max 12 words) and everyday words a 6-year-old knows."} Speak to them directly with Argentine voseo. Never shame them, never say "wrong" or "mal". Praise the effort of reading.
 - plain: tell what the text was about and what happened, in order (who, where, what happened, how it ended), 40 to 90 words. If it is not a story (for example a page about animals), explain simply what it teaches.
 - points: what happened, 3 to 5 steps in order, starting with "Al principio", "Después", "Al final" (en: "First", "Then", "In the end"). For a non-story text, the 3 to 5 main ideas.
-- words: 0 to 4 words from the text a young child may not know, each with a very simple meaning.
+- words: 0 to 4 words from the text a reader of this age may not know, each with a very simple meaning.
 - check: 2 friendly questions to talk about it with a grown-up (feelings, why something happened, what they would do).
 - quiz: 3 very easy questions about the text (who, what happened, why), 3 short options each.
 - go_back: 1 or 2 suggestions like "Volvé a leer la parte donde el lobo sopla la casa".
@@ -548,8 +558,8 @@ Reply with ONLY a JSON object, every text in BOTH languages (es = Spanish from A
  "coach": {"hello": {"es": "max 18 words", "en": "same"}, "fixes": [], "focus": {"es": "", "en": ""}, "next": {"es": "max 14 words, starting with a verb", "en": "same"}}}`;
 }
 
-export async function studyExplain({ transcript, source, topic, goal, before, image, mode }) {
-  const make = hasImage => mode === "read" ? readPrompt({ transcript, source, topic, hasImage }) : studyPrompt({ transcript, source, topic, goal, before, hasImage });
+export async function studyExplain({ transcript, source, topic, goal, before, image, mode, age }) {
+  const make = hasImage => mode === "read" ? readPrompt({ transcript, source, topic, hasImage, age }) : studyPrompt({ transcript, source, topic, goal, before, hasImage, age });
   const prompt = make(Boolean(image));
   const parts = image ? [{ inline_data: { mime_type: "image/jpeg", data: image } }, { text: prompt }] : [{ text: prompt }];
   try { return { ...parseJSON(await gemini(parts, { temperature: 0.3 })), provider: "gemini" }; }
@@ -563,15 +573,15 @@ export async function studyExplain({ transcript, source, topic, goal, before, im
 
 // Fact check with Google Search grounding: finds statements that are wrong or contradict each other.
 // Grounded answers come back as text (no JSON mode), so we parse the JSON from the text.
-export async function studyFactCheck({ transcript, source, topic, mode }) {
+export async function studyFactCheck({ transcript, source, topic, mode, age }) {
   const key = (process.env.GEMINI_API_KEY || "").trim();
   if (!key) throw new Error("gemini_not_configured");
   const prompt = mode === "read" ? `A child (often 6 to 10 years old) read aloud this story or text: "${source.title}"${source.author ? ` by ${source.author}` : ""}${topic ? ` (${topic})` : ""}. Speech recognition heard:
 """${String(transcript).slice(0, 8000)}"""
-Use Google Search to find this story or text. If you find it, compare: report only clear differences in names of characters or places, or in what happens (for example they said "the wolf" and the story has "the fox"). Ignore hesitations, repeated words, small word changes, grammar and anything speech recognition may have misheard. If you cannot find the story, or everything matches, return an empty list. Never invent problems. Write each fix for a young child, kind and simple.
+Use Google Search to find this story or text. If you find it, compare: report only clear differences in names of characters or places, or in what happens (for example they said "the wolf" and the story has "the fox"). Ignore hesitations, repeated words, small word changes, grammar and anything speech recognition may have misheard. If you cannot find the story, or everything matches, return an empty list. Never invent problems. Write each fix kind and simple. ${ageLevel(age) || "Write for a young child."}
 Reply with ONLY a JSON object: {"issues": [up to 4 objects: {"said": "short quote of what they read", "fix": {"es": "what the story says, one short simple sentence, Spanish from Argentina", "en": "same in English"}}]}` : `A student studied aloud from this source: "${source.title}"${topic ? `, topic "${topic}"` : ""}. Here is what they said:
 """${String(transcript).slice(0, 8000)}"""
-Use Google Search to check the factual statements against reliable sources (encyclopedias, universities, official or educational sites). Ignore style, grammar and opinions. Only report statements that are clearly wrong, or that contradict each other. If everything is fine, return an empty list. Never invent problems.
+Use Google Search to check the factual statements against reliable sources (encyclopedias, universities, official or educational sites). Ignore style, grammar and opinions. Only report statements that are clearly wrong, or that contradict each other. If everything is fine, return an empty list. Never invent problems.${ageLevel(age) ? ` Write the fixes for this reader. ${ageLevel(age)}` : ""}
 Reply with ONLY a JSON object: {"issues": [up to 4 objects: {"said": "short quote of what the student said", "fix": {"es": "the correct idea in one simple sentence, Spanish from Argentina", "en": "same in English"}}]}`;
   let last;
   for (const model of [...new Set([process.env.GEMINI_SEARCH_MODEL, "gemini-2.5-flash", "gemini-flash-latest"].filter(Boolean))]) {

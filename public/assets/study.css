@@ -663,3 +663,11 @@ details.card>summary{cursor:pointer}
 .trview .say{float:right;margin-left:8px}
 .q p .say{margin-right:4px}
 @media (prefers-reduced-motion: reduce){.say.on{animation:none}}
+/* age band, chosen once */
+.agebox{margin:0 0 14px}
+.agebox b{display:block;margin-bottom:8px}
+.ageseg{max-width:480px;flex-wrap:wrap}
+.ageseg button{white-space:nowrap;color:var(--ink)}
+.ageseg button.on{color:#fff}
+.agenow{margin:0 0 10px}
+.linkbtn{background:none;border:0;padding:0;color:var(--blue);text-decoration:underline;font:inherit;cursor:pointer}

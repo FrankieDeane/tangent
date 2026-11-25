@@ -21,7 +21,7 @@ export default async (req, context) => {
 
   const source = { title: s(body.source?.title, 160), author: s(body.source?.author, 120), page: s(body.source?.page, 60) };
   if (source.title.length < 2) return json(400, { status: "no_source" });
-  const mode = body.mode === "read" ? "read" : "explain";
+  const mode = body.mode === "read" ? "read" : "explain", age = ["6-8", "9-12", "13-18", "adult"].includes(body.age) ? body.age : "";
   const topic = s(body.topic, 120), goal = s(body.goal, 120), before = s(body.before, 1500);
   const transcript = s(body.transcript, 12000);
   const image = typeof body.image === "string" ? body.image : "";
@@ -37,7 +37,7 @@ export default async (req, context) => {
 
   setBudget(24000);
   let r;
-  try { r = await studyExplain({ transcript, source, topic, goal, before, image, mode }); }
+  try { r = await studyExplain({ transcript, source, topic, goal, before, image, mode, age }); }
   catch (e) {
     if (e instanceof Blocked) return json(200, { status: "blocked" });
     console.error("study failed:", e.message);
