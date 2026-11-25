@@ -479,7 +479,8 @@ function studyPrompt({ transcript, source, topic, goal, before, hasImage }) {
 You are also their study coach: calm, warm, sure of yourself, with broad and accurate general knowledge (school and university level), like the best teacher they ever had. Never shame them and never say "wrong": say "Ojo:" / "Heads up:".
 Build plain and points from what the student said${hasImage ? " and what is written in the photo" : ""}: do not add new subtopics they did not cover (that is what go_back is for). But NEVER repeat a mistake: when they said something inaccurate, write the correct version in plain and points, and explain it in coach.fixes (what they said, the correct idea, and why it is easy to confuse). Also correct any misconception in what they believed before studying, if given. Only correct things you are sure about; if you are not sure, put it in "review" so they check it in their source.
 If they drifted away from the topic or from their goal (stories, other subjects, side ideas), say it kindly in coach.focus and bring them back to the goal in one sentence.
-Speech recognition can fail. Set "clarity" to "low" when the text is fragmented, has many [?], reads like random words, or does not match the cited source or topic at all; in that case do NOT invent an explanation (leave plain and points empty). Never fill gaps with guesses.
+If they were mostly READING a text aloud word by word (a story, a page of the book) instead of explaining it, do not just repeat it: explain what the text means and what happens in it, at the level of the reader (a young reader gets very short, simple sentences).
+Speech recognition can fail. Set "clarity" to "low" ONLY when the text is fragmented, has many [?] or reads like random words; in that case do NOT invent an explanation (leave plain and points empty). Hesitations, repeated words and a topic that differs from the one they named are NOT low clarity (mention a different topic in "review"). Never fill gaps with guesses.
 Students often mix subjects without noticing (for example a maths topic with a history fact). Put anything that clearly belongs to a different subject than the cited source and topic in "mixed", quoting it briefly, and keep it OUT of plain and points.
 Tangent teaches how to study, it does not hand out cheat-sheets: the plain text orders what the student said; "go_back" tells them which details to look for again in their source (examples, dates, causes, steps, definitions they skipped), because the detail is what gives context.
 Concepts are for pictures: pick only things the student clearly and literally talked about, concrete enough to photograph. If you are not sure, return fewer concepts (zero is fine).
@@ -511,24 +512,64 @@ Reply with ONLY a JSON object, every field in BOTH languages (es = Spanish from 
    "next": {"es": "one tiny next step toward their goal, max 14 words, starting with a verb", "en": "same"}}}`;
 }
 
-export async function studyExplain({ transcript, source, topic, goal, before, image }) {
-  const prompt = studyPrompt({ transcript, source, topic, goal, before, hasImage: Boolean(image) });
+// Reading mode: a child (often 6 to 10) read a story or a text aloud. We tell them what it was about and what happened,
+// and, when there is a photo of the page, which words they read differently. Same JSON shape as studyPrompt, plus "words" and "misread".
+function readPrompt({ transcript, source, topic, hasImage }) {
+  const src = `Title: ${source.title}${source.author ? ` | Author: ${source.author}` : ""}${source.page ? ` | Pages/chapter: ${source.page}` : ""}`;
+  return `A child with ADHD, often 6 to 10 years old, READ ALOUD a story or a short text${hasImage ? ", and sent a photo of the page they read" : ""}. Below is what speech recognition heard. Beginner readers hesitate, repeat words, spell out syllables and misread words: that is normal and is NOT low clarity. Work out the most likely text they read.
+Your job is to help them UNDERSTAND what they just read, like a warm, patient first-grade teacher. Use very short sentences (max 12 words), everyday words a 6-year-old knows, and speak to the child directly with Argentine voseo. Never shame them, never say "wrong" or "mal". Praise the effort of reading.
+- plain: tell what the text was about and what happened, in order (who, where, what happened, how it ended), 40 to 90 words. If it is not a story (for example a page about animals), explain simply what it teaches.
+- points: what happened, 3 to 5 steps in order, starting with "Al principio", "Después", "Al final" (en: "First", "Then", "In the end"). For a non-story text, the 3 to 5 main ideas.
+- words: 0 to 4 words from the text a young child may not know, each with a very simple meaning.
+- check: 2 friendly questions to talk about it with a grown-up (feelings, why something happened, what they would do).
+- quiz: 3 very easy questions about the text (who, what happened, why), 3 short options each.
+- go_back: 1 or 2 suggestions like "Volvé a leer la parte donde el lobo sopla la casa".
+- concepts: characters, animals or objects from the text that can be shown in a photo (0 to 3).
+- misread: ${hasImage ? "compare what they read with the words in the photo. List up to 5 words or short phrases they clearly read differently, as {\"said\": what they said, \"right\": what the page says}. Ignore hesitations, repeats and small endings that speech recognition may have missed. Empty if none." : "empty list (there is no photo to compare)."}
+- coach.hello: praise something concrete about their reading. coach.next: one tiny fun step (draw the part they liked best, tell the story to someone). coach.fixes and coach.focus: empty. mixed and review: empty.
+Set "clarity" to "low" ONLY when the text is random words or mostly [?]; then leave plain and points empty. Never invent parts of the story that are not in what they read${hasImage ? " or in the photo" : ""}.
+Safety: set safety.ok false only for sexual content, hate, insults or swear words, or signs of suicide or self-harm (topic "selfharm"). Only Spanish and English: "language" is "other" for anything else.
+
+What they read: ${src}${topic ? ` | Topic: ${topic}` : ""}
+What speech recognition heard: """${String(transcript || "").slice(0, 12000)}"""
+
+Reply with ONLY a JSON object, every text in BOTH languages (es = Spanish from Argentina with natural voseo, en = English):
+{"language": "es|en|other", "safety": {"ok": true, "topic": "none|sexual|minors|hate|profanity|selfharm|other"}, "clarity": "good|low",
+ "title": {"es": "max 6 words", "en": "max 6 words"},
+ "plain": {"es": "", "en": ""},
+ "points": {"es": [], "en": []},
+ "words": [{"word": {"es": "", "en": ""}, "meaning": {"es": "max 12 words", "en": "same"}}],
+ "concepts": [{"es": "1 to 3 words", "en": "1 to 3 words", "photo": "2 or 3 English words for a real stock photo"}],
+ "check": {"es": [], "en": []},
+ "quiz": [{"q": {"es": "", "en": ""}, "options": {"es": ["3 short options"], "en": ["same order"]}, "answer": 0}],
+ "go_back": {"es": [], "en": []},
+ "misread": [{"said": "", "right": ""}],
+ "mixed": {"es": [], "en": []}, "review": {"es": "", "en": ""},
+ "coach": {"hello": {"es": "max 18 words", "en": "same"}, "fixes": [], "focus": {"es": "", "en": ""}, "next": {"es": "max 14 words, starting with a verb", "en": "same"}}}`;
+}
+
+export async function studyExplain({ transcript, source, topic, goal, before, image, mode }) {
+  const make = hasImage => mode === "read" ? readPrompt({ transcript, source, topic, hasImage }) : studyPrompt({ transcript, source, topic, goal, before, hasImage });
+  const prompt = make(Boolean(image));
   const parts = image ? [{ inline_data: { mime_type: "image/jpeg", data: image } }, { text: prompt }] : [{ text: prompt }];
   try { return { ...parseJSON(await gemini(parts, { temperature: 0.3 })), provider: "gemini" }; }
   catch (e) {
     if (e instanceof Blocked) throw e;
     if (!String(transcript || "").trim()) throw e; // photo only: Groq cannot read images
     console.error("gemini study failed, trying groq:", e.message);
-    return { ...parseJSON(await groqChat(studyPrompt({ transcript, source, topic, goal, before, hasImage: false }), { temperature: 0.3 })), provider: "groq" };
+    return { ...parseJSON(await groqChat(make(false), { temperature: 0.3 })), provider: "groq" };
   }
 }
 
 // Fact check with Google Search grounding: finds statements that are wrong or contradict each other.
 // Grounded answers come back as text (no JSON mode), so we parse the JSON from the text.
-export async function studyFactCheck({ transcript, source, topic }) {
+export async function studyFactCheck({ transcript, source, topic, mode }) {
   const key = (process.env.GEMINI_API_KEY || "").trim();
   if (!key) throw new Error("gemini_not_configured");
-  const prompt = `A student studied aloud from this source: "${source.title}"${topic ? `, topic "${topic}"` : ""}. Here is what they said:
+  const prompt = mode === "read" ? `A child (often 6 to 10 years old) read aloud this story or text: "${source.title}"${source.author ? ` by ${source.author}` : ""}${topic ? ` (${topic})` : ""}. Speech recognition heard:
+"""${String(transcript).slice(0, 8000)}"""
+Use Google Search to find this story or text. If you find it, compare: report only clear differences in names of characters or places, or in what happens (for example they said "the wolf" and the story has "the fox"). Ignore hesitations, repeated words, small word changes, grammar and anything speech recognition may have misheard. If you cannot find the story, or everything matches, return an empty list. Never invent problems. Write each fix for a young child, kind and simple.
+Reply with ONLY a JSON object: {"issues": [up to 4 objects: {"said": "short quote of what they read", "fix": {"es": "what the story says, one short simple sentence, Spanish from Argentina", "en": "same in English"}}]}` : `A student studied aloud from this source: "${source.title}"${topic ? `, topic "${topic}"` : ""}. Here is what they said:
 """${String(transcript).slice(0, 8000)}"""
 Use Google Search to check the factual statements against reliable sources (encyclopedias, universities, official or educational sites). Ignore style, grammar and opinions. Only report statements that are clearly wrong, or that contradict each other. If everything is fine, return an empty list. Never invent problems.
 Reply with ONLY a JSON object: {"issues": [up to 4 objects: {"said": "short quote of what the student said", "fix": {"es": "the correct idea in one simple sentence, Spanish from Argentina", "en": "same in English"}}]}`;
