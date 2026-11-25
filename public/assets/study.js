@@ -10,7 +10,7 @@ const LS = {
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
 const K = { lang: "tangent.study.lang", folder: "tangent.study.folder", board: "tangent.study.board", agenda: "tangent.study.agenda", scale: "tangent.study.scale",
-  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read", drafts: "tangent.study.drafts", onb: "tangent.study.onb" };
+  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read", drafts: "tangent.study.drafts", onb: "tangent.study.onb", tester: "tangent.study.tester" };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = n => String(n).padStart(2, "0");
@@ -170,6 +170,20 @@ const S = {
   ideasP: ["¿Qué le falta a Tangent? ¿Qué te molesta? Todo sirve.", "What is Tangent missing? What bugs you? Everything helps."],
   send: ["Enviar", "Send"], thanks: ["¡Gracias! Lo leemos todo.", "Thanks! We read everything."], tooShort: ["Escribí un poco más.", "Write a bit more."],
   // account
+  openT: ["🧪 Fase de prueba: todo está abierto y es gratis para todos.", "🧪 Test phase: everything is open and free for everyone."],
+  joinT: ["Sumate como tester", "Join as a tester"],
+  joinP: ["Tangent está en prueba. Anotate para que te avisemos de las novedades y para contarnos qué te sirvió y qué no. No hay perfiles públicos ni mensajes entre usuarios.", "Tangent is being tested. Sign up so we can tell you what's new and you can tell us what helped and what didn't. There are no public profiles and no messages between users."],
+  nick: ["Apodo", "Nickname"], grp: ["¿Quién va a usar Tangent?", "Who is going to use Tangent?"],
+  grpKid: ["Soy adulto y lo va a usar un chico o chica de 6 a 12", "I'm an adult and a child aged 6 to 12 will use it"],
+  grpTeen: ["Tengo de 13 a 17 años", "I'm 13 to 17"], grpAdult: ["Tengo 18 o más", "I'm 18 or older"], grpUni: ["Estudio en la universidad", "I'm at university"], grpInst: ["Escuela u ONG", "School or NGO"],
+  kidMail: ["Usá tu mail de adulto. El chico o chica no necesita mail.", "Use your adult email. The child doesn't need one."],
+  guardMail: ["Mail de tu mamá, papá o tutor (le avisamos que te anotaste)", "Your parent or guardian's email (we let them know you joined)"],
+  joinNote: ["¿Qué estudiás o qué te gustaría que haga Tangent? (opcional)", "What do you study, or what would you like Tangent to do? (optional)"],
+  joinBtn: ["Anotarme", "Sign me up"], joined: ["¡Listo! Ya sos tester. Gracias por ayudarnos.", "Done! You're a tester now. Thanks for helping."],
+  joinedAs: ["Anotado como tester", "Signed up as a tester"], joinEdit: ["Cambiar mis datos", "Change my details"],
+  limitT: ["Llegaste al máximo de hoy. Mañana seguimos.", "You've reached today's maximum. Let's continue tomorrow."], errNet: ["Sin conexión. Probá de nuevo.", "No connection. Try again."],
+  joinErr: ["Revisá el apodo, el mail y la casilla de los Términos.", "Check the nickname, the email and the Terms box."], joinGuard: ["Falta el mail de un adulto (distinto del tuyo).", "An adult's email is missing (different from yours)."],
+  testerData: ["<b>Si te anotás como tester.</b> Guardamos solo tu apodo, tu mail y tu grupo de edad (y el mail del adulto si sos menor), para escribirte durante la prueba. Para borrarlos, escribinos y los eliminamos.", "<b>If you join as a tester.</b> We only keep your nickname, email and age group (and the adult's email if you're under 18), to write to you during the test. To delete them, write to us and we remove them."],
   preview: ["Vista previa: las cuentas, el pago y la verificación por mail se activan en la próxima etapa. Hoy podés usar un código.", "Preview: accounts, payment and email verification turn on in the next stage. Today you can use a code."],
   haveCode: ["Tengo un código (escuela o invitación)", "I have a code (school or invitation)"], code: ["Código", "Code"], useCode: ["Usar código", "Use code"],
   codeOk: ["¡Listo! Código activo en este dispositivo.", "Done! Code active on this device."], codeBad: ["Ese código no funciona. Revisalo.", "That code doesn't work. Check it."],
@@ -233,6 +247,11 @@ const S = {
   bHintT: ["Deslizá para ver las columnas. Mantené apretada una tarea para moverla. Tocala para editarla.", "Swipe to see the columns. Press and hold a task to move it. Tap it to edit."],
   bHintM: ["Arrastrá las tareas entre columnas. Hacé clic en una para editarla.", "Drag tasks between columns. Click one to edit it."],
   bCol: ["Columna", "Column"], bColMenu: ["Columna", "Column"], bEmpty: ["Soltá una tarea acá", "Drop a task here"],
+  bProg: ["{d} de {n} hechas", "{d} of {n} done"], bAllDone: ["¡Todo hecho! Tomate un respiro.", "All done! Take a breather."],
+  bNow: ["Ahora", "Now"], bFocus: ["Empezar 15 min con esta", "Start 15 min on this one"],
+  bCheer: [["Un paso a la vez.", "Vas bien. Seguí con la de arriba.", "Más de la mitad. ¡Dale!", "Ya casi. Una más."], ["One step at a time.", "Going well. Keep going with the top one.", "More than half. Go!", "Almost there. One more."]],
+  bStartT: ["Tu tablero está vacío", "Your board is empty"], bStartP: ["Escribí la primera tarea en «Por hacer», o tocá una idea para empezar:", "Write your first task in “To do”, or tap an idea to start:"],
+  bIdeas: [["Leer 10 páginas en voz alta", "Repasar las fórmulas del tema", "Explicar el tema como a un chico de 10", "Armar preguntas para el examen"], ["Read 10 pages aloud", "Review the topic's formulas", "Explain the topic as if to a 10-year-old", "Write questions for the exam"]],
   bDone: ["Marcar como hecha", "Mark as done"], bUndone: ["Volver a por hacer", "Back to to-do"], bDoneT: ["¡Hecha!", "Done!"],
   bPlace: ["Lugar", "Position"], bLeft: ["Izquierda", "Left"], bRight: ["Derecha", "Right"], bDelCol: ["Borrar columna", "Delete column"],
   bMove: ["Mover a", "Move to"], bDelTask: ["Borrar tarea", "Delete task"], bDeleted: ["Tarea borrada", "Task deleted"],
@@ -240,6 +259,9 @@ const S = {
   rdFont: ["Letra", "Font"], rdNormal: ["Normal", "Normal"], rdSpace: ["Más espacio entre letras y renglones", "More space between letters and lines"],
   rdBold: ["Negrita guía: el comienzo de cada palabra en negrita", "Guide bold: the start of each word in bold"],
   rdNote: ["La negrita guía es una ayuda opcional: hay personas a las que les sirve y a otras no. Los estudios todavía no muestran que haga leer más rápido.", "Guide bold is an optional aid: it helps some people and not others. Studies don't yet show it makes reading faster."],
+  artHero: ["Pierre-Auguste Renoir, Costa cerca de Wargemont, 1880 · The Met, dominio público", "Pierre-Auguste Renoir, Seacoast near Wargemont, 1880 · The Met, public domain"],
+  artGuide: ["Winslow Homer, Puente natural, Bermudas, c. 1901 · The Met, dominio público", "Winslow Homer, Natural Bridge, Bermuda, c. 1901 · The Met, public domain"],
+  rdSkate: ["Chico skater que sigue al mouse (computadora)", "Skater kid that follows the mouse (computer)"],
   rdSample: ["Así se ve un texto de ejemplo con estas opciones.", "This is how a sample text looks with these options."],
   avT: ["Tu personaje", "Your character"], avP: ["Elegí quién sos en Tangent. Nada de fotos: solo tu personaje.", "Choose who you are in Tangent. No photos: just your character."], avColor: ["Color de fondo", "Background colour"], avNick: ["Apodo (opcional)", "Nickname (optional)"], avSaved: ["¡Personaje guardado!", "Character saved!"],
 };
@@ -357,7 +379,7 @@ const GROUPS = [["secStudy", ["study", "carpeta", "mapa"]], ["secPlan", ["tabler
 V.inicio = {
   html: () => `
   <section class="sky">
-    <div class="art"><img src="/assets/sky-calm.jpg" alt="" width="1400" height="1138" fetchpriority="high"></div>
+    <div class="art"><img src="/assets/art-renoir-wargemont.jpg" alt="${esc(t("artHero"))}" width="1440" height="1164" fetchpriority="high"><small class="credit">${esc(t("artHero"))}</small></div>
     <div class="skytxt">
       <h1>${esc(t("heroT1"))} <em>${esc(t("heroT2"))}</em></h1>
       <p class="lead">${esc(t("heroP"))}</p>
@@ -365,7 +387,7 @@ V.inicio = {
       <a class="quiet" href="#guia">${esc(t("guideLink"))} →</a>
     </div>
   </section>
-  <p class="small codeline">${esc(LS.get(K.code, "") ? t("codeOn") : t("codeOff"))} ${LS.get(K.code, "") ? "" : `<a href="#cuenta">${esc(t("haveCode"))}</a>`}</p>
+  <p class="small codeline">${OPEN ? `${esc(t("openT"))} ${LS.get(K.tester, null) ? "" : `<a href="#cuenta">${esc(t("joinT"))}</a>`}` : `${esc(LS.get(K.code, "") ? t("codeOn") : t("codeOff"))} ${LS.get(K.code, "") ? "" : `<a href="#cuenta">${esc(t("haveCode"))}</a>`}`}</p>
   ${drafts().length ? `<a class="card" href="#carpeta" style="display:flex;gap:10px;align-items:center;margin-top:14px;text-decoration:none;color:inherit">✏️ <b class="grow">${esc(t("draftHome"))}</b> →</a>` : ""}
   ${homeDue()}
   ${GROUPS.map(([g, rs]) => `<h2 class="sec">${esc(t(g))}</h2><div class="grid g3">${rs.map(r => { const d = TILES.find(x => x[0] === r)[1]; return `<a class="tile" href="#${r}">${ic(navKey(r))}<b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></a>`; }).join("")}</div>`).join("")}`,
@@ -396,7 +418,7 @@ const GUIDE = {
 V.guia = {
   html() {
     const g = GUIDE[L === "en" ? "en" : "es"];
-    return `<section class="sky slim"><div class="art"><img src="/assets/sky-window.jpg" alt="" width="1400" height="875" loading="lazy"></div>
+    return `<section class="sky slim"><div class="art"><img src="/assets/art-homer-bermuda.jpg" alt="${esc(t("artGuide"))}" width="1440" height="976" loading="lazy"><small class="credit">${esc(t("artGuide"))}</small></div>
       <div class="skytxt"><h1>${esc(g.h)}</h1><p class="lead">${esc(g.lead)}</p></div></section>
     <div class="two">
       <div class="card"><h3>${esc(g.start[0])}</h3><p>${esc(g.start[1])}</p><ol class="pts">${g.start[2].map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>
@@ -441,7 +463,7 @@ V.study = {
         ${paid() ? `<label class="f" for="sG">🎯 ${esc(t("goalL"))}</label><input class="t" id="sG" name="goal" maxlength="80" placeholder="${esc(t("goalPh"))}" value="${esc(st.goal)}">
         <label class="f" for="sB">🤔 ${esc(t("beforeL"))}</label><textarea class="t" id="sB" name="before" maxlength="1500" placeholder="${esc(t("beforePh"))}" style="min-height:80px">${esc(st.before)}</textarea>` : ""}
         <label class="f">${esc(t("howLong"))}</label>
-        <div class="seg" id="mins">${[5, 10].map(m => `<button type="button" data-m="${m}" class="${st.minutes === m ? "on" : ""}">${m} ${esc(t("min"))}</button>`).join("")}</div>
+        <div class="seg" id="mins">${[5, 10, 15].map(m => `<button type="button" data-m="${m}" class="${st.minutes === m ? "on" : ""}">${m} ${esc(t("min"))}</button>`).join("")}</div>
         <button class="btn" type="submit">${esc(t("next"))}</button>
       </form>
       ${paid() ? "" : lockAll()}
@@ -863,14 +885,19 @@ async function readSheet() {
     <label class="row" style="flex-wrap:nowrap;font-family:'Atkinson Hyperlegible',sans-serif"><input type="radio" name="font" value="atkinson" ${p.font === "atkinson" ? "checked" : ""} style="width:20px;height:20px"> Atkinson Hyperlegible</label>
     <label class="row" style="flex-wrap:nowrap;align-items:flex-start;margin-top:8px"><input type="checkbox" name="space" ${p.space ? "checked" : ""} style="width:20px;height:20px;flex-shrink:0"> <span>${esc(t("rdSpace"))}</span></label>
     <label class="row" style="flex-wrap:nowrap;align-items:flex-start"><input type="checkbox" name="bold" ${p.bold ? "checked" : ""} style="width:20px;height:20px;flex-shrink:0"> <span>${esc(t("rdBold"))}</span></label>
-    <p class="small">${esc(t("rdNote"))}</p>`, { ok: t("save") });
+    <p class="small">${esc(t("rdNote"))}</p>
+    ${matchMedia("(pointer: fine)").matches ? `<label class="row" style="flex-wrap:nowrap;align-items:flex-start;margin-top:8px"><input type="checkbox" name="skate" ${p.noskate ? "" : "checked"} style="width:20px;height:20px;flex-shrink:0"> <span>🛹 ${esc(t("rdSkate"))}</span></label>` : ""}`, { ok: t("save") });
   if (!v) return;
-  LS.set(K.read, { font: READ_FONTS[v.font] ? v.font : "", space: Boolean(v.space), bold: Boolean(v.bold) });
+  LS.set(K.read, { font: READ_FONTS[v.font] ? v.font : "", space: Boolean(v.space), bold: Boolean(v.bold), noskate: matchMedia("(pointer: fine)").matches ? !v.skate : Boolean(p.noskate) });
+  skater();
   applyRead(); render();
 }
 
 /* ---------------- paid learning tools ---------------- */
-const paid = () => Boolean(LS.get(K.code, ""));
+// Test phase (Francisco, 2026-11-25): everything is free for everyone, Mapa de temas included.
+// Turn OPEN off here and set TANGENT_OPEN=0 in Netlify to bring the paid plan back.
+const OPEN = true;
+const paid = () => OPEN || Boolean(LS.get(K.code, ""));
 const lockAll = () => `<div class="card lock"><b>🔒 ${esc(t("lockT"))}</b><p class="small" style="margin-top:6px;line-height:1.7">${t("lockL")}</p><a class="btn small" href="#cuenta">${esc(t("seePlans"))}</a></div>`;
 const addDays = (iso, n) => { const [y, m, d] = iso.split("-").map(Number); return dayKey(new Date(y, m - 1, d + n)); };
 const itemName = it => it.topic || it.result.title[L] || it.result.title.es || it.source.title;
@@ -1116,6 +1143,20 @@ function printItems(items, paper, view, withText) {
 }
 
 /* ---------------- board ---------------- */
+/* small confetti burst: big = 2 when everything is done. Off for reduced motion. */
+function celebrate(x = innerWidth / 2, y = innerHeight / 3, big = 1) {
+  try { navigator.vibrate?.(big > 1 ? [30, 40, 30] : 30); } catch {}
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches || !document.body.animate) return;
+  const cols = ["#1F4FBF", "#F2B53A", "#3FA27A", "#E46F5C", "#8C6BD9", "#5FB8E8"], n = big > 1 ? 46 : 22;
+  for (let i = 0; i < n; i++) {
+    const p = document.createElement("i"); p.className = "confetti";
+    p.style.cssText = `left:${x}px;top:${y}px;background:${cols[i % cols.length]};${i % 3 ? "" : "border-radius:50%;"}`;
+    document.body.appendChild(p);
+    const a = Math.random() * Math.PI * 2, v = (big > 1 ? 160 : 90) + Math.random() * 110;
+    const tx = Math.cos(a) * v, ty = Math.sin(a) * v - 60;
+    p.animate([{ transform: "translate(-50%,-50%) rotate(0)", opacity: 1 }, { transform: `translate(calc(-50% + ${tx}px), calc(-50% + ${ty + 140}px)) rotate(${(Math.random() * 720 - 360) | 0}deg)`, opacity: 0 }], { duration: 900 + Math.random() * 500, easing: "cubic-bezier(.2,.7,.3,1)" }).onfinish = () => p.remove();
+  }
+}
 function board() {
   let b = LS.get(K.board, null);
   if (!b) { b = { cols: tl("cols", L).map((n, i) => ({ id: uid(), name: n, color: COLORS[[0, 2, 4, 1, 3][i]], tasks: [] })) }; LS.set(K.board, b); }
@@ -1124,22 +1165,29 @@ function board() {
 const saveBoard = b => LS.set(K.board, b);
 const isTouch = () => matchMedia("(pointer: coarse)").matches;
 const bState = { col: null, justDragged: 0 };
-function taskHTML(k, c, last) {
+function taskHTML(k, c, last, i = 0, now = false) {
   const late = k.date && k.date < dayKey() && !last;
-  return `<div class="task ${last ? "done" : ""}" data-task="${k.id}" style="--c:${k.color || c.color}">
+  const fx = bState.pop === k.id ? " pop" : bState.land === k.id ? " land" : "";
+  return `<div class="task ${last ? "done" : ""}${now ? " now" : ""}${fx}" data-task="${k.id}" style="--c:${k.color || c.color};--i:${Math.min(i, 12)}">${now ? `<span class="nowtag">${esc(t("bNow"))}</span>` : ""}
     <button type="button" class="chk" data-done aria-label="${esc(last ? t("bUndone") : t("bDone"))}">${last ? "✓" : ""}</button>
     <div class="tx">${esc(k.text)}${k.date ? `<span class="dt ${late ? "late" : ""}">📅 ${esc(fmtDate(k.date))}</span>` : ""}</div></div>`;
 }
 V.tablero = {
   html() {
     const b = board(), n = b.cols.length;
+    const all = b.cols.reduce((a, c) => a + c.tasks.length, 0), done = n > 1 ? b.cols[n - 1].tasks.length : 0;
+    const pct = all ? Math.round(100 * done / all) : 0, cheer = t("bCheer"), nowId = b.cols[0]?.tasks[0]?.id;
+    const prog = all ? `<div class="bprog ${pct === 100 ? "full" : ""}"><div class="bprogtx"><b>${esc(t("bProg").replace("{d}", done).replace("{n}", all))}</b><span>${esc(pct === 100 ? t("bAllDone") : cheer[Math.min(3, Math.floor(pct / 26))])}</span></div><div class="bar"><i style="width:${pct}%"></i></div>
+      ${nowId ? `<button class="btn small ghost bfocus" type="button" data-focus>⏱ ${esc(t("bFocus"))}</button>` : ""}</div>`
+      : `<div class="card bstart"><b>${esc(t("bStartT"))}</b><p class="small">${esc(t("bStartP"))}</p><div class="bideas">${t("bIdeas").map(x => `<button type="button" data-idea="${esc(x)}">＋ ${esc(x)}</button>`).join("")}</div></div>`;
     return `<h1>${esc(t("board"))}</h1>
+      ${prog}
       <div class="bhint"><span class="hand">${isTouch() ? "☝️" : "🖱️"}</span><span class="small">${esc(t(isTouch() ? "bHintT" : "bHintM"))}</span></div>
       <div class="colchips" id="chips">${b.cols.map(c => `<button type="button" data-chip="${c.id}" style="--c:${c.color}">${esc(c.name)} <small>${c.tasks.length}</small></button>`).join("")}<button type="button" class="addc" data-addcol>＋ ${esc(t("bCol"))}</button></div>
       <div class="board" id="board">${b.cols.map((c, ci) => `
         <section class="col" data-col="${c.id}" style="--c:${c.color}">
-          <div class="colh"><h3 data-colmenu>${esc(c.name)}</h3><span class="n">${c.tasks.length}</span><button type="button" class="more" data-colmenu aria-label="${esc(t("bColMenu"))}">⋯</button></div>
-          <div class="tasks" data-col="${c.id}" data-empty="${esc(t("bEmpty"))}">${c.tasks.map(k => taskHTML(k, c, ci === n - 1 && n > 1)).join("")}</div>
+          <div class="colh"><h3 data-colmenu>${esc(c.name)}</h3><span class="n${bState.bump === c.id ? " bump" : ""}">${c.tasks.length}</span><button type="button" class="more" data-colmenu aria-label="${esc(t("bColMenu"))}">⋯</button></div>
+          <div class="tasks" data-col="${c.id}" data-empty="${esc(t("bEmpty"))}">${c.tasks.map((k, i) => taskHTML(k, c, ci === n - 1 && n > 1, i, k.id === nowId && n > 1)).join("")}</div>
           <form class="addt" data-col="${c.id}"><input name="t" placeholder="＋ ${esc(t("newTask"))}" maxlength="200" aria-label="${esc(t("newTask"))}" enterkeyhint="done"><button type="submit" aria-label="${esc(t("add"))}">＋</button></form>
         </section>`).join("")}</div>
       <div class="bdots" id="bdots">${b.cols.map(() => "<i></i>").join("")}</div>
@@ -1161,13 +1209,14 @@ V.tablero = {
     };
     bd.addEventListener("scroll", () => { cancelAnimationFrame(sync.f); sync.f = requestAnimationFrame(sync); }, { passive: true });
     sync();
+    bState.pop = bState.land = bState.bump = null;
     view.onclick = e => { if (route === "tablero") boardClick(e); };
     view.ondblclick = null;
     view.onsubmit = e => {
       const f = e.target.closest(".addt"); if (!f || route !== "tablero") return;
       e.preventDefault(); const v = f.t.value.trim(); if (!v) return;
-      const b = board(); b.cols.find(c => c.id === f.dataset.col).tasks.push({ id: uid(), text: v, date: "", color: "" }); saveBoard(b);
-      bState.col = f.dataset.col; render();
+      const b = board(), id = uid(); b.cols.find(c => c.id === f.dataset.col).tasks.push({ id, text: v, date: "", color: "" }); saveBoard(b);
+      bState.col = f.dataset.col; bState.pop = id; bState.bump = f.dataset.col; render();
       setTimeout(() => $(`.addt[data-col="${f.dataset.col}"] input`)?.focus({ preventScroll: true }), 0);
     };
     view.onpointerdown = e => { if (route === "tablero" && e.pointerType === "mouse" && e.button === 0) pressMouse(e); };
@@ -1179,6 +1228,9 @@ async function boardClick(e) {
   if (Date.now() - bState.justDragged < 400) return;
   const chip = e.target.closest("[data-chip]"); if (chip) return scrollToCol(chip.dataset.chip);
   if (e.target.closest("[data-addcol]")) return addCol();
+  if (e.target.closest("[data-focus]")) { const k = board().cols[0]?.tasks[0]; if (k) { st.topic = k.text.slice(0, 120); st.minutes = 15; } location.hash = "study"; return; }
+  const idea = e.target.closest("[data-idea]");
+  if (idea) { const b = board(), id = uid(); if (!b.cols[0]) return; b.cols[0].tasks.push({ id, text: idea.dataset.idea, date: "", color: "" }); saveBoard(b); bState.col = b.cols[0].id; bState.pop = id; return render(); }
   const b = board(), colEl = e.target.closest("[data-col]"), ci = colEl ? b.cols.findIndex(c => c.id === colEl.dataset.col) : -1, col = b.cols[ci];
   if (!col) return;
   if (e.target.closest("[data-colmenu]")) return colMenu(b, ci);
@@ -1187,8 +1239,10 @@ async function boardClick(e) {
   if (e.target.closest("[data-done]")) {
     const last = b.cols.length - 1; if (last < 1) return;
     const to = ci === last ? b.cols[0] : b.cols[last];
+    const cr = e.target.closest("[data-done]").getBoundingClientRect();
     col.tasks.splice(ti, 1); if (ci === last) to.tasks.push(task); else to.tasks.unshift(task);
-    saveBoard(b); bState.col = col.id; render();
+    saveBoard(b); bState.col = col.id; bState.bump = to.id; render();
+    if (ci !== last) { const left = b.cols.slice(0, last).reduce((a, c) => a + c.tasks.length, 0); celebrate(cr.left + cr.width / 2, cr.top + cr.height / 2, left === 0 ? 2 : 1); }
     try { navigator.vibrate?.(30); } catch {}
     return toast(ci === last ? `↩ ${to.name}` : `🎉 ${t("bDoneT")} → ${to.name}`, 1800);
   }
@@ -1261,7 +1315,7 @@ function beginDrag(card, x0, y0) {
   const ph = document.createElement("div"); ph.className = "tph"; ph.style.height = r.height + "px";
   card.after(ph); card.classList.add("ghost-src"); card.style.display = "none";
   bd.classList.add("dragging"); document.body.style.userSelect = "none";
-  let chipT = null, chipId = null, raf = null, last = [x0, y0];
+  let chipT = null, chipId = null, raf = null, last = [x0, y0], tilt = 0;
   const edge = () => {
     const [x, y] = last, w = innerWidth;
     if (x < 36) bd.scrollLeft -= 12; else if (x > w - 36) bd.scrollLeft += 12;
@@ -1270,8 +1324,9 @@ function beginDrag(card, x0, y0) {
   };
   raf = requestAnimationFrame(edge);
   const move = (x, y) => {
+    tilt = Math.max(-12, Math.min(12, tilt * 0.7 + (x - last[0]) * 0.6));
     last = [x, y];
-    ghost.style.transform = `translate(${x - dx}px, ${y - dy}px) rotate(2.5deg) scale(1.03)`;
+    ghost.style.transform = `translate(${x - dx}px, ${y - dy}px) rotate(${(2 + tilt).toFixed(1)}deg) scale(1.05)`;
     const hit = document.elementFromPoint(x, y);
     const chip = hit?.closest("[data-chip]");
     $$(".colchips .drop").forEach(c => c !== chip && c.classList.remove("drop"));
@@ -1299,7 +1354,10 @@ function beginDrag(card, x0, y0) {
       let to, idx;
       if (chip) { to = b.cols.find(c => c.id === chip.dataset.chip); idx = 0; }
       else { const list = ph.parentNode; to = b.cols.find(c => c.id === list?.dataset.col) || from; idx = [...list.children].filter(k => k === ph || (k.classList.contains("task") && k !== card)).indexOf(ph); }
-      to.tasks.splice(Math.max(0, idx), 0, task); saveBoard(b); bState.col = to.id;
+      to.tasks.splice(Math.max(0, idx), 0, task); saveBoard(b); bState.col = to.id; bState.land = task.id;
+      if (to !== from) bState.bump = to.id;
+      const li = b.cols.length - 1;
+      if (to !== from && li > 0 && to === b.cols[li]) { const [x, y] = last; setTimeout(() => celebrate(x, y, b.cols.slice(0, li).every(c => !c.tasks.length) ? 2 : 1), 30); }
     }
     render();
   };
@@ -1575,10 +1633,43 @@ const VERIFY = {
   uni: ["Con el mail de la facultad se aprueba al toque. Con la foto de la credencial, una persona la revisa.", "A university email is approved right away. A student card photo is checked by a person."],
   inst: ["Revisamos la nota y llamamos a la institución antes de activar los códigos.", "We check the letter and call the institution before turning on the codes."],
 };
+function testerHTML() {
+  const me = LS.get(K.tester, null), g = V.cuenta.grp || me?.group || "", en = L === "en";
+  if (me && !V.cuenta.editing) return `<div class="card joined"><b>✅ ${esc(t("joinedAs"))}: ${esc(me.nick)}</b><p class="small" style="margin-top:6px">${esc(me.email)}</p><button class="btn small ghost" type="button" id="joinEdit">${esc(t("joinEdit"))}</button></div>`;
+  const G = [["kid", "grpKid"], ["teen", "grpTeen"], ["adult", "grpAdult"], ["uni", "grpUni"], ["inst", "grpInst"]];
+  return `<form class="card" id="joinForm" novalidate>
+    <label class="f" for="jn">${esc(t("nick"))}</label><input class="t" id="jn" name="nick" maxlength="30" required autocomplete="nickname" value="${esc(me?.nick || "")}">
+    <label class="f" for="jm">${esc(t("email"))}</label><input class="t" id="jm" name="email" type="email" maxlength="120" required autocomplete="email" value="${esc(me?.email || "")}">
+    <label class="f" for="jg">${esc(t("grp"))}</label><select class="t" id="jg" name="group" required><option value="">…</option>${G.map(([k, s]) => `<option value="${k}" ${g === k ? "selected" : ""}>${esc(t(s))}</option>`).join("")}</select>
+    ${g === "kid" ? `<p class="small">${esc(t("kidMail"))}</p>` : ""}
+    ${g === "teen" ? `<label class="f" for="jgu">${esc(t("guardMail"))}</label><input class="t" id="jgu" name="guardian" type="email" maxlength="120" required value="${esc(me?.guardian || "")}">` : ""}
+    <label class="f" for="jno">${esc(t("joinNote"))}</label><input class="t" id="jno" name="note" maxlength="300" value="${esc(me?.note || "")}">
+    ${CHK("terms", t("must"))}
+    <label class="row" style="flex-wrap:nowrap;align-items:flex-start;font-size:13px;margin-top:10px"><input type="checkbox" name="news" ${me?.news ? "checked" : ""} style="width:20px;height:20px;flex-shrink:0"><span>${esc(t("optNews"))}</span></label>
+    <p class="small" style="margin-top:8px">${en ? "We only keep your nickname, email and age group." : "Solo guardamos tu apodo, tu mail y tu grupo de edad."} <a href="#terminos">${esc(t(navKey("terminos")))}</a></p>
+    <button class="btn" type="submit">${esc(t("joinBtn"))}</button>
+  </form>`;
+}
+async function joinSubmit(form) {
+  const f = new FormData(form), v = k => String(f.get(k) || "").trim();
+  const out = { nick: v("nick"), email: v("email"), group: v("group"), guardian: v("guardian") || undefined, note: v("note") || undefined, terms: f.get("terms") === "on", news: f.get("news") === "on" };
+  if (!out.nick || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(out.email) || !out.group || !out.terms) return toast(t("joinErr"), 4000);
+  if (out.group === "teen" && (!out.guardian || out.guardian.toLowerCase() === out.email.toLowerCase())) return toast(t("joinGuard"), 4000);
+  const btn = form.querySelector("button[type=submit]"); btn.disabled = true;
+  const d = await api("/api/tester", out).catch(() => ({ status: "net" }));
+  btn.disabled = false;
+  if (d.status === "ok") { LS.set(K.tester, { nick: out.nick, email: out.email, group: out.group, guardian: out.guardian, note: out.note, news: out.news }); V.cuenta.editing = false; toast(t("joined"), 4500); celebrate(); return render(); }
+  toast(d.status === "guardian" ? t("joinGuard") : d.status === "blocked" ? t("blocked") : d.status === "limit" ? t("limitT") : d.status === "invalid" || d.status === "terms" ? t("joinErr") : t("errNet"), 4500);
+}
 V.cuenta = {
-  role: null,
+  role: null, grp: "", editing: false,
   html() {
     const code = LS.get(K.code, ""), role = V.cuenta.role;
+    if (OPEN) return `<h1>${esc(t("account"))}</h1><div class="warn">${esc(t("openT"))}</div>
+      <h2>${esc(t("joinT"))}</h2>${squiggle()}
+      <p class="lead">${esc(t("joinP"))}</p>
+      ${testerHTML()}
+      <div style="margin-top:16px">${avatarCard()}</div>`;
     return `<h1>${esc(t("account"))}</h1>${avatarCard()}<div class="warn">${esc(t("preview"))}</div>
       <div class="card"><b>${esc(t("haveCode"))}</b>
         ${code ? `<p class="small" style="margin-top:6px">✅ ${esc(t("codeOn"))}</p><button class="btn small ghost" id="rmCode" type="button">${esc(t("removeCode"))}</button>`
@@ -1606,6 +1697,12 @@ V.cuenta = {
   },
   mount() {
     mountAvatar();
+    if (OPEN) {
+      $("#joinEdit")?.addEventListener("click", () => { V.cuenta.editing = true; render(); });
+      $("#jg")?.addEventListener("change", e => { const keep = new FormData($("#joinForm")); V.cuenta.grp = e.target.value; render(); const fm = $("#joinForm"); if (fm) for (const [k, v] of keep.entries()) { const el = fm.elements[k]; if (el && el.type !== "checkbox" && k !== "group") el.value = v; else if (el && el.type === "checkbox") el.checked = true; } });
+      $("#joinForm")?.addEventListener("submit", e => { e.preventDefault(); joinSubmit(e.target); });
+      return;
+    }
     $("#codeForm")?.addEventListener("submit", async e => { e.preventDefault(); if (await tryCode(e.target.code.value)) render(); });
     $("#rmCode")?.addEventListener("click", () => { LS.del(K.code); render(); });
     $("#who").addEventListener("click", e => { const b = e.target.closest("[data-role]"); if (!b) return; V.cuenta.role = b.dataset.role; render(); $("#suForm")?.scrollIntoView({ behavior: "smooth", block: "start" }); });
@@ -1625,7 +1722,7 @@ V.terminos = {
   html() {
     const c = LS.get(K.cookies, { measure: false });
     return `<h1>${esc(t("terms"))}</h1>
-      ${["tKids", "tVoice", "tKeep", "tMinors", "tSource", "tAI", "tRights"].map(k => `<div class="card" style="font-size:14px;line-height:1.45">${t(k)}</div>`).join("")}
+      ${["tKids", "tVoice", "tKeep", ...(OPEN ? ["testerData"] : []), "tMinors", "tSource", "tAI", "tRights"].map(k => `<div class="card" style="font-size:14px;line-height:1.45">${t(k)}</div>`).join("")}
       <div class="iri"><b>${esc(t("cookiesT"))}</b><p class="small" style="margin-top:6px">${esc(t("cookiesP"))}</p>
         <label class="row" style="justify-content:space-between;font-weight:600;font-size:14px">${esc(t("cNeeded"))}<input type="checkbox" checked disabled style="width:22px;height:22px"></label>
         <label class="row" style="justify-content:space-between;font-weight:600;font-size:14px;margin-top:8px">${esc(t("cMeasure"))}<input type="checkbox" id="cm" ${c.measure ? "checked" : ""} style="width:22px;height:22px"></label></div>
@@ -1642,7 +1739,43 @@ V.terminos = {
   },
 };
 
+/* skater kid that rides behind the mouse (desktop only, off with reduced motion or in Easy reading) */
+function skater() {
+  const want = matchMedia("(pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches && !readPrefs().noskate;
+  if (!want) { skater.el?.remove(); skater.el = null; return; }
+  if (skater.el) return;
+  const el = document.createElement("div"); el.className = "skater"; el.setAttribute("aria-hidden", "true");
+  el.innerHTML = `<img src="/assets/skater-cursor.png" alt="" width="60" height="68" draggable="false">`;
+  document.body.appendChild(el); skater.el = el;
+  const img = el.firstChild;
+  let tx = -200, ty = -200, x = -200, y = -200, vx = 0, face = 1, hop = 0, lastTrail = 0, raf = 0, idle = 0;
+  const loop = now => {
+    if (skater.el !== el) { raf = 0; return; }
+    const ax = (tx + 16 - x) * 0.09, ay = (ty + 20 - y) * 0.09;
+    vx = vx * 0.72 + ax; x += vx; y += ay;
+    if (Math.abs(vx) > 0.6) face = vx > 0 ? 1 : -1;
+    const lean = Math.max(-22, Math.min(22, vx * 1.6));
+    hop *= 0.86;
+    el.style.transform = `translate3d(${x}px, ${y - hop}px, 0)`;
+    img.style.transform = `scaleX(${face}) rotate(${(lean * face).toFixed(1)}deg)`;
+    const speed = Math.hypot(ax, ay);
+    if (speed > 1.2 && now - lastTrail > 40) {
+      lastTrail = now;
+      const d = document.createElement("i"); d.className = "skatetrail";
+      d.style.cssText = `left:${x + 30 - face * 14}px;top:${y + 64}px`;
+      document.body.appendChild(d); setTimeout(() => d.remove(), 650);
+    }
+    idle = speed < 0.05 && hop < 0.2 ? idle + 1 : 0;
+    raf = idle > 30 ? 0 : requestAnimationFrame(loop);
+  };
+  const wake = () => { idle = 0; if (!raf) raf = requestAnimationFrame(loop); };
+  addEventListener("pointermove", e => { if (e.pointerType !== "mouse") return; tx = e.clientX; ty = e.clientY; el.classList.add("on"); wake(); }, { passive: true });
+  addEventListener("pointerdown", e => { if (e.pointerType === "mouse") { hop = 26; wake(); } }, { passive: true });
+  document.addEventListener("mouseleave", () => el.classList.remove("on"));
+}
+
 applyRead();
+skater();
 go();
 if (!LS.get(K.onb, false)) onboard();
 scheduleNotifs();

@@ -3,7 +3,7 @@
 // Rule: no source, no summary. The app explains what the student said; the source is the student's responsibility.
 import { checkStudyText, identify, isBanned, underLimit, countUse, json } from "./_lib/guard.mjs";
 import { studyExplain, setBudget, Blocked } from "./_lib/ai.mjs";
-import { codeOk, freeLeft, useFree } from "./_lib/access.mjs";
+import { isMember, freeLeft, useFree } from "./_lib/access.mjs";
 
 const MAX_IMAGE_B64 = 2_800_000;
 const s = (v, n) => String(v ?? "").trim().slice(0, n);
@@ -15,7 +15,7 @@ export default async (req, context) => {
   let body; try { body = await req.json(); } catch { return json(400, { status: "error" }); }
   const id = identify(req, context, body.deviceId);
   if (await isBanned(id)) return json(403, { status: "banned" });
-  const member = codeOk(body.code);
+  const member = isMember(body.code);
   if (!member && (await freeLeft(id)) <= 0) return json(200, { status: "paywall" });
   if (!(await underLimit(id, "study"))) return json(429, { status: "limit" });
 

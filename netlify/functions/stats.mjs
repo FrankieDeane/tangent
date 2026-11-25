@@ -1,6 +1,7 @@
 // GET /api/stats?token=STATS_TOKEN&days=30 -> daily usage for the owner's dashboard (/stats.html).
 import { stats, json } from "./_lib/guard.mjs";
 import { timingSafeEqual } from "node:crypto";
+import { testers } from "./tester.mjs";
 
 export default async req => {
   const expected = process.env.STATS_TOKEN || "";
@@ -12,7 +13,13 @@ export default async req => {
   const days = await stats(n);
   const sum = k => days.reduce((a, d) => a + (d[k] || 0), 0);
   const keys = Object.keys(days[0] || {}).filter(k => k !== "date");
-  return json(200, { status: "ok", total: sum("recordings"), totals: Object.fromEntries(keys.map(k => [k, sum(k)])), days });
+  // Test-phase sign-ups (newest first). Only the owner sees this, with the token.
+  let list = [];
+  try {
+    const st = testers(), { blobs } = await st.list({ prefix: "t:" });
+    list = (await Promise.all(blobs.slice(0, 500).map(b => st.get(b.key, { type: "json" })))).filter(Boolean).sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  } catch { list = []; }
+  return json(200, { status: "ok", total: sum("recordings"), totals: Object.fromEntries(keys.map(k => [k, sum(k)])), days, testers: list });
 };
 
 export const config = { path: "/api/stats" };

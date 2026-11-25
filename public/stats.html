@@ -29,6 +29,7 @@ table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:ta
 <div id="out" hidden>
   <div class="kpis" id="kpis"></div>
   <div class="card" style="margin-top:12px"><h2>Tableros creados por día</h2><div id="chart"></div></div>
+  <div class="card" style="margin-top:12px"><h2>Testers anotados</h2><div class="tw" id="testers"></div></div>
   <div class="card" style="margin-top:12px"><h2>Detalle por día</h2><div class="tw" id="tbl"></div></div>
 </div>
 </div>
@@ -55,6 +56,10 @@ table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:ta
       ${days.map((x, i) => i % Math.ceil(days.length / 8) ? "" : `<text x="${i * bw + bw / 2}" y="${H + 20}" font-size="12" fill="#8C8C8C" text-anchor="middle">${x.date.slice(5)}</text>`).join("")}</svg>`;
     const cols = Object.keys(NAMES);
     $("#tbl").innerHTML = `<table><thead><tr><th>Día</th>${cols.map(c => `<th>${NAMES[c]}</th>`).join("")}</tr></thead><tbody>${d.days.map(x => `<tr><td>${x.date}</td>${cols.map(c => `<td>${x[c] || 0}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+    const E = v => String(v ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const G = { kid: "Adulto con chico/a 6-12", teen: "13 a 17", adult: "18+", uni: "Universidad", inst: "Escuela u ONG" };
+    const tl = d.testers || [];
+    $("#testers").innerHTML = tl.length ? `<table><thead><tr><th>Fecha</th><th>Apodo</th><th>Mail</th><th>Grupo</th><th>Adulto a cargo</th><th>Novedades</th><th>Comentario</th></tr></thead><tbody>${tl.map(x => `<tr><td>${E(String(x.at).slice(0, 10))}</td><td>${E(x.nick)}</td><td>${E(x.email)}</td><td>${E(G[x.group] || x.group)}</td><td>${E(x.guardian || "")}</td><td>${x.news ? "sí" : ""}</td><td>${E(x.note || "")}</td></tr>`).join("")}</tbody></table>` : `<p>Todavía nadie se anotó.</p>`;
   }
   $("#f").onsubmit = e => { e.preventDefault(); load(); };
   if ($("#tok").value) load();

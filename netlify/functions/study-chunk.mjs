@@ -3,7 +3,7 @@
 // Audio is never stored: it is transcribed and dropped.
 import { identify, isBanned, underLimit, countUse, json } from "./_lib/guard.mjs";
 import { studyTranscribe, setBudget, Blocked } from "./_lib/ai.mjs";
-import { codeOk, freeLeft } from "./_lib/access.mjs";
+import { codeOk, isMember, freeLeft } from "./_lib/access.mjs";
 
 const MAX_AUDIO_B64 = 5_400_000;
 
@@ -12,9 +12,10 @@ export default async (req, context) => {
   let body; try { body = await req.json(); } catch { return json(400, { status: "error" }); }
   const id = identify(req, context, body.deviceId);
   if (await isBanned(id)) return json(403, { status: "banned" });
-  const member = codeOk(body.code);
+  const member = isMember(body.code);
   if (!member && (await freeLeft(id)) <= 0) return json(200, { status: "paywall" });
-  if (!member && !(await underLimit(id, "chunk"))) return json(429, { status: "limit" });
+  // Code holders are not capped; everyone else (including the open test phase) gets about 2 hours of audio a day.
+  if (!codeOk(body.code) && !(await underLimit(id, "chunk", 4))) return json(429, { status: "limit" });
   const audio = typeof body.audio === "string" ? body.audio : "";
   if (!audio) return json(400, { status: "empty" });
   if (audio.length > MAX_AUDIO_B64) return json(413, { status: "too_long" });
