@@ -268,7 +268,7 @@ const S = {
   naBoard: ["Lo próximo en tu tablero:", "Next on your board:"], naNew: ["o empezá un tema nuevo →", "or start a new topic →"],
   moreOpt: ["Más detalles (opcional): autor, página, tu meta, qué creías antes", "More details (optional): author, page, your goal, what you believed before"],
   noVoice: ["¿No podés hablar ahora? Escribilo o sacale una foto a la hoja", "Can't talk right now? Type it or take a photo of the page"],
-  rdSkate: ["Chico skater que sigue al mouse (computadora)", "Skater kid that follows the mouse (computer)"],
+  rdSkate: ["Pincel que sigue al mouse (computadora)", "Paint brush that follows the mouse (computer)"],
   rdSample: ["Así se ve un texto de ejemplo con estas opciones.", "This is how a sample text looks with these options."],
   avT: ["Tu personaje", "Your character"], avP: ["Elegí quién sos en Tangent. Nada de fotos: solo tu personaje.", "Choose who you are in Tangent. No photos: just your character."], avColor: ["Color de fondo", "Background colour"], avNick: ["Apodo (opcional)", "Nickname (optional)"], avSaved: ["¡Personaje guardado!", "Character saved!"],
 };
@@ -314,7 +314,7 @@ async function printHTML(html, paper = "A4") {
   await Promise.race([Promise.all(imgs.map(i => new Promise(r => { i.onload = i.onerror = r; }))), new Promise(r => setTimeout(r, 3500))]);
   window.print();
 }
-const printHdr = () => `<div class="hdr"><img src="/assets/logo-skater.png" alt="">Tangent</div>`;
+const printHdr = () => `<div class="hdr"><img src="/assets/logo-tangent.png" alt="">Tangent</div>`;
 
 /* ---------------- hand-drawn icons ---------------- */
 const IC = {
@@ -921,7 +921,7 @@ async function readSheet() {
     <label class="row" style="flex-wrap:nowrap;align-items:flex-start;margin-top:8px"><input type="checkbox" name="space" ${p.space ? "checked" : ""} style="width:20px;height:20px;flex-shrink:0"> <span>${esc(t("rdSpace"))}</span></label>
     <label class="row" style="flex-wrap:nowrap;align-items:flex-start"><input type="checkbox" name="bold" ${p.bold ? "checked" : ""} style="width:20px;height:20px;flex-shrink:0"> <span>${esc(t("rdBold"))}</span></label>
     <p class="small">${esc(t("rdNote"))}</p>
-    ${matchMedia("(pointer: fine)").matches ? `<label class="row" style="flex-wrap:nowrap;align-items:flex-start;margin-top:8px"><input type="checkbox" name="skate" ${p.noskate ? "" : "checked"} style="width:20px;height:20px;flex-shrink:0"> <span>🛹 ${esc(t("rdSkate"))}</span></label>` : ""}`, { ok: t("save") });
+    ${matchMedia("(pointer: fine)").matches ? `<label class="row" style="flex-wrap:nowrap;align-items:flex-start;margin-top:8px"><input type="checkbox" name="skate" ${p.noskate ? "" : "checked"} style="width:20px;height:20px;flex-shrink:0"> <span>🖌️ ${esc(t("rdSkate"))}</span></label>` : ""}`, { ok: t("save") });
   if (!v) return;
   LS.set(K.read, { font: READ_FONTS[v.font] ? v.font : "", space: Boolean(v.space), bold: Boolean(v.bold), noskate: matchMedia("(pointer: fine)").matches ? !v.skate : Boolean(p.noskate) });
   skater();
@@ -1553,7 +1553,7 @@ function scheduleNotifs() {
   for (const ev of agenda()) {
     if (!ev.remind) continue;
     const ms = evStart(ev).getTime() - ev.remind * 60e3 - Date.now();
-    if (ms > 0 && ms < 864e5) timers.push(setTimeout(() => { try { new Notification("Tangent", { body: `${ev.time} · ${ev.title}`, icon: "/assets/logo-skater.png" }); } catch {} }, ms));
+    if (ms > 0 && ms < 864e5) timers.push(setTimeout(() => { try { new Notification("Tangent", { body: `${ev.time} · ${ev.title}`, icon: "/assets/icon-tangent-180.png" }); } catch {} }, ms));
   }
 }
 
@@ -1816,41 +1816,50 @@ V.terminos = {
   },
 };
 
-/* skater kid that rides behind the mouse (desktop only, off with reduced motion or in Easy reading) */
+/* paint brush that follows the mouse and leaves a thin cobalt stroke that fades (desktop only; off with reduced motion or in Aa) */
+const BRUSH_SVG = `<svg viewBox="0 0 40 40" width="40" height="40" aria-hidden="true"><g transform="rotate(-38 20 20)">
+  <path d="M18.6 1.5h2.8l.7 21h-4.2z" fill="#B98A57"/><path d="M18.6 1.5h1.2l.2 21h-2.1z" fill="#D4A673"/>
+  <rect x="17.6" y="22" width="4.8" height="6.5" rx="1" fill="#A9B3C2"/><rect x="17.6" y="23.6" width="4.8" height="1" fill="#7C8798"/>
+  <path d="M17.7 28.4c-.4 3.6.7 7.4 2.3 10.1 1.6-2.7 2.7-6.5 2.3-10.1z" fill="#1F4FBF"/><path d="M19 28.6c0 3 .5 6 1 8.4.2-2.6.2-5.6-.1-8.4z" fill="#5E86E0"/></g></svg>`;
 function skater() {
   const want = matchMedia("(pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches && !readPrefs().noskate;
-  if (!want) { skater.el?.remove(); skater.el = null; return; }
+  if (!want) { skater.el?.remove(); skater.cv?.remove(); skater.el = skater.cv = null; return; }
   if (skater.el) return;
-  const el = document.createElement("div"); el.className = "skater"; el.setAttribute("aria-hidden", "true");
-  el.innerHTML = `<img src="/assets/skater-cursor.png" alt="" width="60" height="68" draggable="false">`;
-  document.body.appendChild(el); skater.el = el;
-  const img = el.firstChild;
-  let tx = -200, ty = -200, x = -200, y = -200, vx = 0, face = 1, hop = 0, lastTrail = 0, raf = 0, idle = 0;
-  const loop = now => {
+  const el = document.createElement("div"); el.className = "brush"; el.setAttribute("aria-hidden", "true"); el.innerHTML = BRUSH_SVG;
+  const cv = document.createElement("canvas"); cv.className = "paintrail"; cv.setAttribute("aria-hidden", "true");
+  document.body.append(cv, el); skater.el = el; skater.cv = cv;
+  const ctx = cv.getContext("2d");
+  const size = () => { const d = Math.min(2, devicePixelRatio || 1); cv.width = innerWidth * d; cv.height = innerHeight * d; ctx.setTransform(d, 0, 0, d, 0, 0); };
+  size(); addEventListener("resize", size);
+  let tx = -200, ty = -200, x = -200, y = -200, px = null, py = null, raf = 0, idle = 0, ink = 0;
+  const loop = () => {
     if (skater.el !== el) { raf = 0; return; }
-    const ax = (tx + 16 - x) * 0.09, ay = (ty + 20 - y) * 0.09;
-    vx = vx * 0.72 + ax; x += vx; y += ay;
-    if (Math.abs(vx) > 0.6) face = vx > 0 ? 1 : -1;
-    const lean = Math.max(-22, Math.min(22, vx * 1.6));
-    hop *= 0.86;
-    el.style.transform = `translate3d(${x}px, ${y - hop}px, 0)`;
-    img.style.transform = `scaleX(${face}) rotate(${(lean * face).toFixed(1)}deg)`;
-    const speed = Math.hypot(ax, ay);
-    if (speed > 1.2 && now - lastTrail > 40) {
-      lastTrail = now;
-      const d = document.createElement("i"); d.className = "skatetrail";
-      d.style.cssText = `left:${x + 30 - face * 14}px;top:${y + 64}px`;
-      document.body.appendChild(d); setTimeout(() => d.remove(), 650);
+    // the brush tip trails the pointer a little, like a hand
+    x += (tx - x) * 0.32; y += (ty - y) * 0.32;
+    el.style.transform = `translate3d(${x - 9}px, ${y - 33}px, 0)`;
+    // fade what is already painted
+    ctx.globalCompositeOperation = "destination-out"; ctx.fillStyle = "rgba(0,0,0,.07)"; ctx.fillRect(0, 0, innerWidth, innerHeight);
+    ctx.globalCompositeOperation = "source-over";
+    if (px !== null) {
+      const d = Math.hypot(x - px, y - py);
+      if (d > 0.4) {
+        ink = Math.min(1, ink + 0.08);
+        const w = Math.max(1.2, 5.5 - d * 0.12) * ink;
+        ctx.strokeStyle = "rgba(31,79,191,.30)"; ctx.lineCap = "round"; ctx.lineJoin = "round"; ctx.lineWidth = w;
+        ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(x, y); ctx.stroke();
+        ctx.strokeStyle = "rgba(23,62,122,.18)"; ctx.lineWidth = w * 0.45;
+        ctx.beginPath(); ctx.moveTo(px + 0.8, py + 0.8); ctx.lineTo(x + 0.8, y + 0.8); ctx.stroke();
+      } else ink = Math.max(0, ink - 0.05);
     }
-    idle = speed < 0.05 && hop < 0.2 ? idle + 1 : 0;
-    raf = idle > 30 ? 0 : requestAnimationFrame(loop);
+    px = x; py = y;
+    idle = Math.hypot(tx - x, ty - y) < 0.3 ? idle + 1 : 0;
+    raf = idle > 50 ? 0 : requestAnimationFrame(loop);
+    if (!raf) ctx.clearRect(0, 0, innerWidth, innerHeight);
   };
   const wake = () => { idle = 0; if (!raf) raf = requestAnimationFrame(loop); };
-  addEventListener("pointermove", e => { if (e.pointerType !== "mouse") return; tx = e.clientX; ty = e.clientY; el.classList.add("on"); wake(); }, { passive: true });
-  addEventListener("pointerdown", e => { if (e.pointerType === "mouse") { hop = 26; wake(); } }, { passive: true });
-  document.addEventListener("mouseleave", () => el.classList.remove("on"));
+  addEventListener("pointermove", e => { if (e.pointerType !== "mouse") return; tx = e.clientX; ty = e.clientY; if (x < -100) { x = tx; y = ty; } el.classList.add("on"); wake(); }, { passive: true });
+  document.addEventListener("mouseleave", () => { el.classList.remove("on"); px = null; });
 }
-
 applyRead();
 skater();
 go();

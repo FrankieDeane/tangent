@@ -584,14 +584,12 @@ body{background:radial-gradient(900px 520px at 8% -6%,rgba(120,160,205,.28),tran
 .dragghost{transition:transform .06s linear;box-shadow:0 18px 40px rgba(15,30,54,.25)!important}
 .task.done.land .chk{animation:bump .5s}
 .confetti{position:fixed;width:8px;height:12px;border-radius:2px;pointer-events:none;z-index:200}
-/* ---------- skater kid that rides behind the mouse ---------- */
-.skater{position:fixed;left:0;top:0;width:60px;height:68px;pointer-events:none;z-index:150;opacity:0;transition:opacity .3s;will-change:transform}
-.skater.on{opacity:.9}
-.skater img{width:60px;height:68px;display:block;transform-origin:50% 90%;filter:drop-shadow(0 3px 2px rgba(15,30,54,.18))}
-.skatetrail{position:fixed;width:6px;height:6px;border-radius:50%;background:var(--blue);opacity:.35;pointer-events:none;z-index:149;animation:trail .65s ease-out forwards}
-@keyframes trail{to{opacity:0;transform:scale(.2) translateY(4px)}}
-body.recording .skater,body.recording .skatetrail{display:none}
-@media (pointer:coarse),(prefers-reduced-motion:reduce){.skater,.skatetrail{display:none}}
+/* ---------- paint brush that follows the mouse ---------- */
+.brush{position:fixed;left:0;top:0;width:40px;height:40px;pointer-events:none;z-index:150;opacity:0;transition:opacity .3s;will-change:transform;filter:drop-shadow(0 2px 2px rgba(15,30,54,.2))}
+.brush.on{opacity:1}
+.paintrail{position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:149;mix-blend-mode:multiply}
+body.recording .brush,body.recording .paintrail{display:none}
+@media (pointer:coarse),(prefers-reduced-motion:reduce){.brush,.paintrail{display:none}}
 /* ---------- tester sign-up ---------- */
 .joined{border-left:4px solid #3FA27A}
 @media (prefers-reduced-motion:reduce){.task.pop,.task.land,.enter .task,.colh .n.bump,.nowtag::before,.bprog .bar i::after{animation:none}.bprog .bar i{transition:none}}
