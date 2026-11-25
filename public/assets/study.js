@@ -10,7 +10,7 @@ const LS = {
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
 const K = { lang: "tangent.study.lang", folder: "tangent.study.folder", board: "tangent.study.board", agenda: "tangent.study.agenda", scale: "tangent.study.scale",
-  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read", drafts: "tangent.study.drafts", onb: "tangent.study.onb", tester: "tangent.study.tester" };
+  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read", drafts: "tangent.study.drafts", onb: "tangent.study.onb", tester: "tangent.study.tester", bview: "tangent.study.bview", bfold: "tangent.study.bfold" };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = n => String(n).padStart(2, "0");
@@ -26,7 +26,7 @@ const S = {
   progress: ["Cómo me fue", "How it went"], test: ["Tu cabeza", "Your brain"], kit: ["Kit de papel", "Paper kit"], ideas: ["Ideas", "Ideas"],
   account: ["Cuenta", "Account"], terms: ["Tus datos", "Your data"],
   heroT1: ["Estudiá en voz alta.", "Study out loud."], heroT2: ["Volvé a lo importante.", "Come back to what matters."],
-  secStudy: ["Estudiar", "Study"], secPlan: ["Organizarte", "Get organised"], secYou: ["Para vos", "For you"], todayT: ["Hoy", "Today"],
+  secStudy: ["Estudiar", "Study"], tabStudy: ["Estudiar", "Study"], tabPlan: ["Plan", "Plan"], subRec: ["Grabar", "Record"], secPlan: ["Organizarte", "Get organised"], secYou: ["Para vos", "For you"], todayT: ["Hoy", "Today"],
   coachT: ["Tu coach", "Your coach"], coachFix: ["Ojo con esto", "Heads up"], coachRight: ["Lo correcto", "What's right"], coachWhy: ["Por qué", "Why"],
   coachFocus: ["Volvamos a tu meta", "Back to your goal"], coachNext: ["Tu próximo paso", "Your next step"],
   onbSkip: ["Saltar", "Skip"], onbBack: ["Atrás", "Back"], onbNext: ["Seguir", "Next"], onbGo: ["Empezar", "Let's go"], onbAgain: ["Ver la intro otra vez", "See the intro again"],
@@ -48,7 +48,7 @@ const S = {
   codeOff: ["Sin cuenta podés probar Study una vez. ¿Tenés un código de tu escuela?", "Without an account you can try Study once. Do you have a school code?"],
   // study
   s1: ["¿De dónde estudiás?", "Where are you studying from?"],
-  s1p: ["Primero escribí tu fuente. Es obligatorio: Tangent explica lo que vos decís, no inventa. La responsabilidad de la fuente es tuya.", "First write your source. It's required: Tangent explains what you say, it doesn't make things up. The source is your responsibility."],
+  s1p: ["Dos cosas y arrancás: qué tema estudiás y de dónde (libro, apunte, página web). Tangent trabaja con lo que vos decís y tu fuente, no inventa.", "Two things and you're off: what topic you're studying and where from (book, notes, website). Tangent works with what you say and your source, it doesn't make things up."],
   srcTitle: ["Libro, manual o apunte (obligatorio)", "Book, textbook or notes (required)"], srcAuthor: ["Autor o editorial (si lo sabés)", "Author or publisher (if you know it)"],
   srcPage: ["Páginas o capítulo", "Pages or chapter"], topic: ["Tema", "Topic"], topicPh: ["Ej.: La célula", "E.g. The cell"],
   howLong: ["¿Cuánto vas a hablar como máximo?", "How long will you talk at most?"], min: ["min", "min"], next: ["Seguir", "Next"], back: ["Volver", "Back"],
@@ -89,7 +89,7 @@ const S = {
   notMagic: ["Tangent resume lo que dijiste. No reemplaza tu libro: revisalo con tu fuente.", "Tangent summarises what you said. It doesn't replace your book: check it against your source."],
   plain: ["Lo que explicaste, ordenado", "What you explained, in order"], keyIdeas: ["Ideas clave", "Key ideas"], images: ["Para acordarte", "To remember it"],
   checkYou: ["Probate", "Test yourself"], review: ["Revisá en tu fuente", "Check in your source"],
-  listen: ["Escuchar", "Listen"], stop: ["Parar", "Stop"], printThis: ["Imprimir / PDF", "Print / PDF"], toFolder: ["Ver carpeta", "Open folder"], newTopic: ["Nuevo tema", "New topic"],
+  listen: ["Escuchar", "Listen"], stop: ["Parar", "Stop"], printThis: ["Imprimir hoja / PDF", "Print sheet / PDF"], toFolder: ["Ver carpeta", "Open folder"], newTopic: ["Nuevo tema", "New topic"],
   saved: ["Guardado en tu carpeta.", "Saved in your folder."],
   draftsT: ["Sin terminar", "Unfinished"], draftsP: ["Lo que grabaste o escribiste queda guardado acá aunque todavía no tenga explicación.", "What you recorded or typed stays here even before it has an explanation."],
   draftKept: ["Tu texto quedó guardado en Carpeta, en «Sin terminar». Podés intentarlo de nuevo cuando quieras.", "Your text was saved in Folder, under “Unfinished”. You can try again whenever you want."],
@@ -252,6 +252,9 @@ const S = {
   bCheer: [["Un paso a la vez.", "Vas bien. Seguí con la de arriba.", "Más de la mitad. ¡Dale!", "Ya casi. Una más."], ["One step at a time.", "Going well. Keep going with the top one.", "More than half. Go!", "Almost there. One more."]],
   bStartT: ["Tu tablero está vacío", "Your board is empty"], bStartP: ["Escribí la primera tarea en «Por hacer», o tocá una idea para empezar:", "Write your first task in “To do”, or tap an idea to start:"],
   bIdeas: [["Leer 10 páginas en voz alta", "Repasar las fórmulas del tema", "Explicar el tema como a un chico de 10", "Armar preguntas para el examen"], ["Read 10 pages aloud", "Review the topic's formulas", "Explain the topic as if to a 10-year-old", "Write questions for the exam"]],
+  bList: ["Lista", "List"], bCols: ["Columnas", "Columns"],
+  bHintTurn: ["Tocá una tarea para moverla o editarla. Tip: girá el celu para ver las columnas.", "Tap a task to move or edit it. Tip: turn your phone to see the columns."],
+  bHintList: ["Tocá una tarea para moverla o editarla. Tocá el nombre de una sección para abrirla o cerrarla.", "Tap a task to move or edit it. Tap a section name to open or close it."],
   bDone: ["Marcar como hecha", "Mark as done"], bUndone: ["Volver a por hacer", "Back to to-do"], bDoneT: ["¡Hecha!", "Done!"],
   bPlace: ["Lugar", "Position"], bLeft: ["Izquierda", "Left"], bRight: ["Derecha", "Right"], bDelCol: ["Borrar columna", "Delete column"],
   bMove: ["Mover a", "Move to"], bDelTask: ["Borrar tarea", "Delete task"], bDeleted: ["Tarea borrada", "Task deleted"],
@@ -261,6 +264,10 @@ const S = {
   rdNote: ["La negrita guía es una ayuda opcional: hay personas a las que les sirve y a otras no. Los estudios todavía no muestran que haga leer más rápido.", "Guide bold is an optional aid: it helps some people and not others. Studies don't yet show it makes reading faster."],
   artHero: ["Pierre-Auguste Renoir, Costa cerca de Wargemont, 1880 · The Met, dominio público", "Pierre-Auguste Renoir, Seacoast near Wargemont, 1880 · The Met, public domain"],
   artGuide: ["Winslow Homer, Puente natural, Bermudas, c. 1901 · The Met, dominio público", "Winslow Homer, Natural Bridge, Bermuda, c. 1901 · The Met, public domain"],
+  naDraft: ["Tenés un estudio sin terminar:", "You have an unfinished study:"], naDue1: ["Te toca repasar hoy:", "Time to review today:"], naDueN: ["Te tocan {n} repasos hoy. Empezá por:", "You have {n} reviews today. Start with:"],
+  naBoard: ["Lo próximo en tu tablero:", "Next on your board:"], naNew: ["o empezá un tema nuevo →", "or start a new topic →"],
+  moreOpt: ["Más detalles (opcional): autor, página, tu meta, qué creías antes", "More details (optional): author, page, your goal, what you believed before"],
+  noVoice: ["¿No podés hablar ahora? Escribilo o sacale una foto a la hoja", "Can't talk right now? Type it or take a photo of the page"],
   rdSkate: ["Chico skater que sigue al mouse (computadora)", "Skater kid that follows the mouse (computer)"],
   rdSample: ["Así se ve un texto de ejemplo con estas opciones.", "This is how a sample text looks with these options."],
   avT: ["Tu personaje", "Your character"], avP: ["Elegí quién sos en Tangent. Nada de fotos: solo tu personaje.", "Choose who you are in Tangent. No photos: just your character."], avColor: ["Color de fondo", "Background colour"], avNick: ["Apodo (opcional)", "Nickname (optional)"], avSaved: ["¡Personaje guardado!", "Character saved!"],
@@ -333,17 +340,32 @@ const squiggle = () => `<svg class="squiggle" viewBox="0 0 120 10" aria-hidden="
 const NAV = [["inicio", "home"], ["guia", "guide"], ["study", "study"], ["carpeta", "folder"], ["mapa", "map"], ["tablero", "board"], ["agenda", "agenda"],
   ["progreso", "progress"], ["test", "test"], ["kit", "kit"], ["ideas", "ideas"], ["cuenta", "account"], ["terminos", "terms"]];
 const TABS = ["inicio", "study", "tablero", "agenda", "mas"];
+// Four places plus Home (2026-11-25): fewer doors for an ADHD brain. Old routes still work as deep links.
+const SECTIONS = [
+  ["inicio", "home", "home", ["inicio"]],
+  ["study", "secStudy", "study", ["study", "carpeta", "mapa"]],
+  ["tablero", "tabPlan", "board", ["tablero", "agenda"]],
+  ["progreso", "progress", "progress", ["progreso"]],
+  ["mas", "more", "more", ["mas", "guia", "cuenta", "kit", "ideas", "test", "terminos"]],
+];
+const secOf = r => SECTIONS.find(x => x[3].includes(r)) || SECTIONS[0];
+const subLabel = r => r === "study" ? t("subRec") : t(navKey(r));
+function subnav(r) {
+  const sec = secOf(r); if (sec[3].length < 2 || sec[0] === "mas") return "";
+  return `<nav class="subnav" aria-label="${esc(t(sec[1]))}">${sec[3].map(x => `<a href="#${x}" class="${x === r ? "on" : ""}">${esc(subLabel(x))}</a>`).join("")}</nav>`;
+}
 let route = "inicio", arg = "";
 const V = {}; // views: name -> {html(), mount?()}
 function render() {
   document.documentElement.lang = L;
   $("#langBtn").textContent = L === "en" ? "ES" : "EN";
   { const me = $("#me"); if (me) me.innerHTML = avatarHTML(myAvatar(), 34); }
-  $("#side").innerHTML = NAV.map(([r, k]) => `<a href="#${r}" class="${r === route ? "on" : ""}">${ic(k)}${esc(t(k))}</a>`).join("");
-  const inMore = !["inicio", "study", "tablero", "agenda"].includes(route);
-  $("#tabs").innerHTML = [...NAV.filter(n => TABS.includes(n[0])), ["mas", "more"]].map(([r, k]) => `<a href="#${r}" class="${r === route || (r === "mas" && inMore) ? "on" : ""}">${ic(k)}${esc(t(k))}</a>`).join("");
+  const cur = secOf(route);
+  $("#side").innerHTML = SECTIONS.map(sec => { const [r, k, icon, kids] = sec, on = sec === cur;
+    return `<a href="#${r}" class="${on ? "on" : ""}">${ic(icon)}${esc(t(k))}</a>${on && kids.length > 1 ? `<div class="subside">${kids.filter(x => x !== "mas").map(x => `<a href="#${x}" class="${x === route ? "on" : ""}">${esc(subLabel(x))}</a>`).join("")}</div>` : ""}`; }).join("");
+  $("#tabs").innerHTML = SECTIONS.map(sec => `<a href="#${sec[0]}" class="${sec === cur ? "on" : ""}">${ic(sec[2])}${esc(t(sec[1] === "secStudy" ? "tabStudy" : sec[1]))}</a>`).join("");
   const v = V[route] || V.inicio;
-  $("#view").innerHTML = v.html();
+  $("#view").innerHTML = subnav(route) + v.html();
   v.mount?.();
   if (readPrefs().bold) boldify($("#view"));
   document.title = `Tangent · ${t((NAV.find(n => n[0] === route) || ["", "home"])[1])}`;
@@ -375,22 +397,17 @@ async function tryCode(code) {
 /* ---------------- home ---------------- */
 const TILES = [["guia", "tGuide"], ["study", "tStudy"], ["carpeta", "tFolder"], ["mapa", "tMap"], ["tablero", "tBoard"], ["agenda", "tAgenda"], ["progreso", "tProgress"], ["test", "tTest"], ["kit", "tKit"], ["ideas", "tIdeas"], ["cuenta", "tAccount"], ["terminos", "tTerms"]];
 const navKey = r => NAV.find(n => n[0] === r)[1];
-const GROUPS = [["secStudy", ["study", "carpeta", "mapa"]], ["secPlan", ["tablero", "agenda", "progreso"]], ["secYou", ["guia", "test", "kit", "ideas", "cuenta", "terminos"]]];
 V.inicio = {
   html: () => `
   <section class="sky">
     <div class="art"><img src="/assets/art-renoir-wargemont.jpg" alt="${esc(t("artHero"))}" width="1440" height="1164" fetchpriority="high"><small class="credit">${esc(t("artHero"))}</small></div>
     <div class="skytxt">
       <h1>${esc(t("heroT1"))} <em>${esc(t("heroT2"))}</em></h1>
-      <p class="lead">${esc(t("heroP"))}</p>
-      <a class="btn" href="#study">${esc(t("start"))}</a>
-      <a class="quiet" href="#guia">${esc(t("guideLink"))} →</a>
+      ${nextHTML()}
     </div>
   </section>
   <p class="small codeline">${OPEN ? `${esc(t("openT"))} ${LS.get(K.tester, null) ? "" : `<a href="#cuenta">${esc(t("joinT"))}</a>`}` : `${esc(LS.get(K.code, "") ? t("codeOn") : t("codeOff"))} ${LS.get(K.code, "") ? "" : `<a href="#cuenta">${esc(t("haveCode"))}</a>`}`}</p>
-  ${drafts().length ? `<a class="card" href="#carpeta" style="display:flex;gap:10px;align-items:center;margin-top:14px;text-decoration:none;color:inherit">✏️ <b class="grow">${esc(t("draftHome"))}</b> →</a>` : ""}
-  ${homeDue()}
-  ${GROUPS.map(([g, rs]) => `<h2 class="sec">${esc(t(g))}</h2><div class="grid g3">${rs.map(r => { const d = TILES.find(x => x[0] === r)[1]; return `<a class="tile" href="#${r}">${ic(navKey(r))}<b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></a>`; }).join("")}</div>`).join("")}`,
+  ${homeDue()}`,
 };
 // Guide written for people with ADHD: why Tangent exists, how to start when you can't, what to do when you drift.
 const GUIDE = {
@@ -436,7 +453,7 @@ V.guia = {
   mount() { $("#onbAgain")?.addEventListener("click", onboard); },
 };
 V.mas = {
-  html: () => `<h1>${esc(t("more"))}</h1><div class="menu">${TILES.filter(([r]) => !["study", "tablero", "agenda"].includes(r)).map(([r, d]) => `<a href="#${r}">${ic(navKey(r))}<div><b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></div></a>`).join("")}
+  html: () => `<h1>${esc(t("more"))}</h1><div class="menu">${TILES.filter(([r]) => SECTIONS[4][3].includes(r)).map(([r, d]) => `<a href="#${r}">${ic(navKey(r))}<div><b>${esc(t(navKey(r)))}</b><span>${esc(t(d))}</span></div></a>`).join("")}
     <a href="/organizer/">${ic("ideas")}<div><b>${esc(t("organizer"))}</b><span>${esc(t("organizerP"))}</span></div></a></div>`,
 };
 
@@ -456,18 +473,20 @@ V.study = {
       <h1>${esc(t("s1"))}</h1>${stepsBar(1)}
       <p class="lead">${esc(t("s1p"))}</p>
       <form id="srcForm">
+        <label class="f" for="sTo">${esc(t("topic"))}</label><input class="t" id="sTo" name="topic" maxlength="120" placeholder="${esc(t("topicPh"))}" value="${esc(st.topic)}">
         <label class="f" for="sT">${esc(t("srcTitle"))}</label><input class="t" id="sT" name="title" required maxlength="160" value="${esc(st.source.title)}">
+        <details class="more" ${st.goal || st.before || st.source.author || st.source.page ? "open" : ""}><summary>${esc(t("moreOpt"))}</summary>
         <div class="two"><div><label class="f" for="sA">${esc(t("srcAuthor"))}</label><input class="t" id="sA" name="author" maxlength="120" value="${esc(st.source.author)}"></div>
         <div><label class="f" for="sP">${esc(t("srcPage"))}</label><input class="t" id="sP" name="page" maxlength="60" value="${esc(st.source.page)}"></div></div>
-        <label class="f" for="sTo">${esc(t("topic"))}</label><input class="t" id="sTo" name="topic" maxlength="120" placeholder="${esc(t("topicPh"))}" value="${esc(st.topic)}">
         ${paid() ? `<label class="f" for="sG">🎯 ${esc(t("goalL"))}</label><input class="t" id="sG" name="goal" maxlength="80" placeholder="${esc(t("goalPh"))}" value="${esc(st.goal)}">
         <label class="f" for="sB">🤔 ${esc(t("beforeL"))}</label><textarea class="t" id="sB" name="before" maxlength="1500" placeholder="${esc(t("beforePh"))}" style="min-height:80px">${esc(st.before)}</textarea>` : ""}
+        </details>
         <label class="f">${esc(t("howLong"))}</label>
         <div class="seg" id="mins">${[5, 10, 15].map(m => `<button type="button" data-m="${m}" class="${st.minutes === m ? "on" : ""}">${m} ${esc(t("min"))}</button>`).join("")}</div>
         <button class="btn" type="submit">${esc(t("next"))}</button>
       </form>
       ${paid() ? "" : lockAll()}
-      <div class="card"><b>${esc(t("why"))}</b><p class="small" style="margin-top:6px">${esc(t("whyP"))}<br>Dunlosky et al. (2013), <i>Psychological Science in the Public Interest</i>. MacLeod et al. (2010), <i>J. Exp. Psychology: Learning, Memory, and Cognition</i>.</p></div>`;
+      <details class="card"><summary><b>${esc(t("why"))}</b></summary><p class="small" style="margin-top:6px">${esc(t("whyP"))}<br>Dunlosky et al. (2013), <i>Psychological Science in the Public Interest</i>. MacLeod et al. (2010), <i>J. Exp. Psychology: Learning, Memory, and Cognition</i>.</p></details>`;
     if (st.step === 2) {
       const on = Boolean(rec), done = st.parts.filter(p => p != null).length;
       return `
@@ -476,7 +495,7 @@ V.study = {
       ${st.goal ? `<div class="small" style="margin-top:6px">🎯 <b>${esc(t("goalL"))}:</b> ${esc(st.goal)}</div>` : ""}
       ${!on && paid() ? blockCard() : ""}
       <p class="lead" style="margin-top:10px">${esc(t("s2p"))}</p>
-      ${on ? "" : `<div class="tip"><span class="hand">${esc(t("tipT"))}</span><ol>${tl("tips", L).map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>`}
+      ${on ? "" : `<details class="tip"><summary class="hand">${esc(t("tipT"))}</summary><ol>${tl("tips", L).map(x => `<li>${esc(x)}</li>`).join("")}</ol></details>`}
       <div class="rec">
         <button class="recbtn ${on ? "on" : ""}" id="recBtn" type="button">${esc(on ? t("tapStop") : t("tapRec"))}</button>
         <div class="clock" id="clock">${on ? "0:00" : `${st.minutes}:00`}</div>
@@ -485,6 +504,7 @@ V.study = {
         <div class="small" id="recInfo">${on ? esc(t("recording")) : done ? `${done} ${esc(t("pieces"))}` : ""}</div>
       </div>
       ${on ? "" : `
+      <details class="more" ${st.imageUrl || (st.transcript && !done) ? "open" : ""}><summary>${esc(t("noVoice"))}</summary>
       <div class="two">
         <div class="card"><b>📷 ${esc(t("orPhoto"))}</b>
           <div class="small" style="margin-top:6px">${esc(t("photoWarn"))}</div>
@@ -493,7 +513,7 @@ V.study = {
           ${st.imageUrl ? `<img src="${st.imageUrl}" alt="" style="width:100%;border-radius:12px;margin-top:10px"><div class="small">${esc(t("photoOk"))}</div><button class="btn small ghost" id="noPhoto" type="button">${esc(t("removePhoto"))}</button>` : ""}
         </div>
         <div class="card"><b>⌨️ ${esc(t("orType"))}</b><textarea class="t" id="typed" maxlength="12000" style="margin-top:10px">${esc(st.transcript)}</textarea></div>
-      </div>
+      </div></details>
       <button class="btn" id="toReview" type="button">${esc(t("next"))}</button>
       <button class="btn ghost" id="back1" type="button">${esc(t("back"))}</button>`}`;
     }
@@ -510,10 +530,10 @@ V.study = {
       <button class="btn ghost" id="back2" type="button" ${st.busy ? "disabled" : ""}>🎙️ ${esc(t("recAgain"))}</button>`;
     const it = st.item;
     if (!it) { st.step = 1; return V.study.html(); }
-    return `${stepsBar(4)}${resultHTML(it)}
+    return `${stepsBar(4)}<button class="btn small ghost printtop" id="printTop" type="button">🖨️ ${esc(t("printThis"))}</button>${resultHTML(it)}
       <div class="row">
-        <button class="btn small" id="speak" type="button">🔊 ${esc(t("listen"))}</button>
-        <button class="btn small ghost" id="printOne" type="button">🖨️ ${esc(t("printThis"))}</button>
+        <button class="btn small" id="printOne" type="button">🖨️ ${esc(t("printThis"))}</button>
+        <button class="btn small ghost" id="speak" type="button">🔊 ${esc(t("listen"))}</button>
         <a class="btn small ghost" href="#carpeta">📁 ${esc(t("toFolder"))}</a>
         <button class="btn small ghost" id="again" type="button">＋ ${esc(t("newTopic"))}</button>
       </div>`;
@@ -548,6 +568,7 @@ V.study = {
     $("#make")?.addEventListener("click", makeSummary);
     $("#speak")?.addEventListener("click", () => speak(st.item));
     $("#printOne")?.addEventListener("click", () => printItems([st.item], "A4", L, false));
+    $("#printTop")?.addEventListener("click", () => printItems([st.item], "A4", L, false));
     $("#again")?.addEventListener("click", () => { Object.assign(st, { draftId: null, step: 1, topic: "", goal: "", before: "", review: null, parts: [], image: null, imageUrl: null, transcript: "", item: null, error: "" }); location.hash = "study"; render(); });
     mountResult();
   },
@@ -602,13 +623,13 @@ function resultHTML(it, view = LS.get("tangent.study.view", L)) {
   return `${due}
     <div class="seg" id="viewSeg" style="max-width:320px;margin:4px 0 10px">${[["es", "ES"], ["en", "EN"], ["both", "ES + EN"]].map(([k, l]) => `<button type="button" data-v="${k}" class="${view === k ? "on" : ""}">${l}</button>`).join("")}</div>
     ${srcLine(it.source)}${it.goal ? `<div class="small">🎯 ${esc(it.goal)}</div>` : ""}
-    ${coachHTML(it)}
+    ${coachHTML(it)}${checkBox}
     <div class="${langs.length > 1 ? "two" : ""}">${langs.map(block).join("")}</div>
     ${r.concepts?.length ? `<b>${esc(t("images"))}</b><div class="concepts" style="margin:8px 0">${r.concepts.map((c, i) => {
       const p = it.photos?.[i];
       return `<div class="concept"><div class="ph">${p ? `<img src="${esc(p.src)}" alt="${esc(p.alt || c.en)}" loading="lazy">` : `<span class="hand" style="font-size:54px;color:var(--blue)">${esc((c[L] || c.es || "?").slice(0, 1).toUpperCase())}</span>`}</div><div class="c">${esc(c[L] || c.es)}<small>${esc(c[L === "en" ? "es" : "en"])}</small></div>${p ? `<div class="credit lic"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.credit)} · ${esc(p.source)}</a></div>` : ""}</div>`;
     }).join("")}</div>` : ""}
-    ${checkBox}${quiz}${mine}${ba}${extras}`;
+    ${quiz}${mine}${ba}${extras}`;
 }
 function mountResult() {
   $("#viewSeg")?.addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (!b) return; LS.set("tangent.study.view", b.dataset.v); render(); });
@@ -687,7 +708,8 @@ function segment() {
   r.mr = mr;
   mr.ondataavailable = e => { if (e.data?.size) chunks.push(e.data); };
   mr.onstop = () => {
-    if (chunks.length) { const blob = new Blob(chunks, { type: mr.mimeType || "audio/webm" }); st.audio[i] = URL.createObjectURL(blob); enqueue(blob, i); }
+    // the voice is only sent to be turned into text; nothing is kept for replay
+    if (chunks.length) enqueue(new Blob(chunks, { type: mr.mimeType || "audio/webm" }), i);
     if (r.stopping) finishRec(r); else segment();
   };
   mr.start();
@@ -784,10 +806,7 @@ async function pickPhoto(file) {
 async function makeSummary() {
   st.transcript = ($("#tr")?.value ?? st.transcript).trim();
   if (!st.transcript && !st.image) return toast(t("needText"));
-  if (st.audio.some(Boolean)) {
-    if ((await sheet(t("audioGone"), "", { ok: t("okGo") })) === null) return;
-    dropAudio();
-  }
+  dropAudio();
   keepDraft();
   st.busy = true; st.error = ""; render();
   let d;
@@ -972,6 +991,26 @@ function startReview(evId) {
   st.review = it.id;
   if (location.hash === `#carpeta/${it.id}`) render(); else location.hash = `carpeta/${it.id}`;
 }
+/* the one thing to do now: unfinished study > reviews due today > the board's "Now" task > start a topic */
+function nextAction() {
+  const d = drafts()[0];
+  if (d) return { lead: t("naDraft"), title: d.topic || d.source?.title || t("noTitle"), btn: t("draftGo"), attr: `data-draft="${esc(d.id)}"` };
+  const today = dayKey(), ids = new Set(folder().map(i => i.id));
+  const due = agenda().filter(e => e.kind === "review" && !e.done && e.date <= today && ids.has(e.item)).sort((a, b) => a.date.localeCompare(b.date));
+  if (due.length) return { lead: due.length > 1 ? t("naDueN").replace("{n}", due.length) : t("naDue1"), title: due[0].title, btn: t("revGo"), attr: `data-rev="${esc(due[0].id)}"` };
+  const k = board().cols[0]?.tasks[0];
+  if (k && board().cols.length > 1) return { lead: t("naBoard"), title: k.text, btn: t("bFocus"), attr: "data-focushome" };
+  return null;
+}
+function nextHTML() {
+  const a = nextAction();
+  if (!a) return `<p class="lead">${esc(t("heroP"))}</p>
+      <a class="btn" href="#study">${esc(t("start"))}</a>
+      <a class="quiet" href="#guia">${esc(t("guideLink"))} →</a>`;
+  return `<div class="nextup"><span class="nowtag" style="--c:var(--blue);position:static">${esc(t("bNow"))}</span><p class="small">${esc(a.lead)}</p><b>${esc(a.title)}</b></div>
+      <button class="btn" type="button" ${a.attr}>${esc(a.btn)} →</button>
+      <a class="quiet" href="#study">${esc(t("naNew"))}</a>`;
+}
 function homeDue() {
   if (!paid()) return "";
   const today = dayKey(), ids = new Set(folder().map(i => i.id));
@@ -986,6 +1025,7 @@ function homeDue() {
 }
 document.addEventListener("click", e => {
   const r = e.target.closest("[data-rev]"); if (r) { e.preventDefault(); return startReview(r.dataset.rev); }
+  if (e.target.closest("[data-focushome]")) { e.preventDefault(); const k = board().cols[0]?.tasks[0]; if (k) { st.topic = k.text.slice(0, 120); st.minutes = 15; } location.hash = "study"; return; }
   const dg = e.target.closest("[data-draft]"); if (dg) { e.preventDefault(); return openDraft(dg.dataset.draft); }
   const p = e.target.closest("[data-printit]");
   if (p) { e.preventDefault(); const it = folder().find(x => x.id === p.dataset.printit); if (it) printItems([it], LS.get("tangent.study.print", { paper: "A4" }).paper, LS.get("tangent.study.view", L), false); else toast(t("topicGone")); }
@@ -1181,6 +1221,11 @@ function board() {
 const saveBoard = b => LS.set(K.board, b);
 const isTouch = () => matchMedia("(pointer: coarse)").matches;
 const bState = { col: null, justDragged: 0 };
+// Phone held upright: a list with foldable sections. Turned sideways (or on a computer): columns.
+const isPhone = () => matchMedia("(max-width: 699px)").matches;
+const listMode = () => { const v = LS.get(K.bview, "auto"); return v === "list" || (v !== "cols" && isPhone() && matchMedia("(orientation: portrait)").matches); };
+const isFolded = (c, ci) => { const f = LS.get(K.bfold, {}); return c.id in f ? f[c.id] : ci >= 2; };
+matchMedia("(orientation: portrait)").addEventListener?.("change", () => { if (route === "tablero") render(); });
 function taskHTML(k, c, last, i = 0, now = false) {
   const late = k.date && k.date < dayKey() && !last;
   const fx = bState.pop === k.id ? " pop" : bState.land === k.id ? " land" : "";
@@ -1196,8 +1241,21 @@ V.tablero = {
     const prog = all ? `<div class="bprog ${pct === 100 ? "full" : ""}"><div class="bprogtx"><b>${esc(t("bProg").replace("{d}", done).replace("{n}", all))}</b><span>${esc(pct === 100 ? t("bAllDone") : cheer[Math.min(3, Math.floor(pct / 26))])}</span></div><div class="bar"><i style="width:${pct}%"></i></div>
       ${nowId ? `<button class="btn small ghost bfocus" type="button" data-focus>⏱ ${esc(t("bFocus"))}</button>` : ""}</div>`
       : `<div class="card bstart"><b>${esc(t("bStartT"))}</b><p class="small">${esc(t("bStartP"))}</p><div class="bideas">${t("bIdeas").map(x => `<button type="button" data-idea="${esc(x)}">＋ ${esc(x)}</button>`).join("")}</div></div>`;
+    const lm = listMode(), bv = LS.get(K.bview, "auto");
+    const viewSeg = isPhone() ? `<div class="seg bview" role="group"><button type="button" data-bview="list" class="${lm ? "on" : ""}">☰ ${esc(t("bList"))}</button><button type="button" data-bview="cols" class="${lm ? "" : "on"}">▥ ${esc(t("bCols"))}</button></div>` : "";
+    if (lm) return `<h1>${esc(t("board"))}</h1>
+      ${prog}${viewSeg}
+      <div class="bhint"><span class="hand">☝️</span><span class="small">${esc(t(bv === "list" ? "bHintList" : "bHintTurn"))}</span></div>
+      <div class="board list" id="board">${b.cols.map((c, ci) => { const fd = isFolded(c, ci); return `
+        <section class="col lcol${fd ? " folded" : ""}" data-col="${c.id}" style="--c:${c.color}">
+          <div class="colh"><button type="button" class="fold" data-fold="${c.id}" aria-expanded="${!fd}"><i class="cdot"></i><h3>${esc(c.name)}</h3><span class="n${bState.bump === c.id ? " bump" : ""}">${c.tasks.length}</span><span class="chev" aria-hidden="true">⌄</span></button><button type="button" class="more" data-colmenu aria-label="${esc(t("bColMenu"))}">⋯</button></div>
+          <div class="tasks" data-col="${c.id}" data-empty="${esc(t("bEmpty"))}">${c.tasks.map((k, i) => taskHTML(k, c, ci === n - 1 && n > 1, i, k.id === nowId && n > 1)).join("")}</div>
+          ${ci === n - 1 && n > 1 ? "" : `<form class="addt" data-col="${c.id}"><input name="t" placeholder="＋ ${esc(t("newTask"))}" maxlength="200" aria-label="${esc(t("newTask"))}" enterkeyhint="done"><button type="submit" aria-label="${esc(t("add"))}">＋</button></form>`}
+        </section>`; }).join("")}</div>
+      <div class="row" style="margin-top:6px"><button class="btn small ghost" type="button" data-addcol>${esc(t("addCol"))}</button></div>
+      <p class="small">${esc(t("syncNote"))}</p>`;
     return `<h1>${esc(t("board"))}</h1>
-      ${prog}
+      ${prog}${viewSeg}
       <div class="bhint"><span class="hand">${isTouch() ? "☝️" : "🖱️"}</span><span class="small">${esc(t(isTouch() ? "bHintT" : "bHintM"))}</span></div>
       <div class="colchips" id="chips">${b.cols.map(c => `<button type="button" data-chip="${c.id}" style="--c:${c.color}">${esc(c.name)} <small>${c.tasks.length}</small></button>`).join("")}<button type="button" class="addc" data-addcol>＋ ${esc(t("bCol"))}</button></div>
       <div class="board" id="board">${b.cols.map((c, ci) => `
@@ -1211,10 +1269,10 @@ V.tablero = {
       <p class="small">${esc(t("syncNote"))}</p>`;
   },
   mount() {
-    const view = $("#view"), bd = $("#board"), b = board();
+    const view = $("#view"), bd = $("#board"), b = board(), lm = bd.classList.contains("list");
     // keep the column you were looking at (phone)
     const start = b.cols.findIndex(c => c.id === bState.col);
-    if (start > 0) bd.scrollLeft = bd.children[start].offsetLeft - 16;
+    if (start > 0 && !lm) bd.scrollLeft = bd.children[start].offsetLeft - 16;
     const sync = () => {
       const cols = [...bd.children]; if (!cols.length) return;
       const x = bd.scrollLeft + 20; let i = cols.findIndex(c => c.offsetLeft + c.offsetWidth - 16 > x); if (i < 0) i = cols.length - 1;
@@ -1223,8 +1281,7 @@ V.tablero = {
       $$("#bdots i").forEach((d, j) => d.classList.toggle("on", j === i));
       $(`#chips [data-chip="${bState.col}"]`)?.scrollIntoView({ block: "nearest", inline: "nearest" });
     };
-    bd.addEventListener("scroll", () => { cancelAnimationFrame(sync.f); sync.f = requestAnimationFrame(sync); }, { passive: true });
-    sync();
+    if (!lm) { bd.addEventListener("scroll", () => { cancelAnimationFrame(sync.f); sync.f = requestAnimationFrame(sync); }, { passive: true }); sync(); }
     bState.pop = bState.land = bState.bump = null;
     view.onclick = e => { if (route === "tablero") boardClick(e); };
     view.ondblclick = null;
@@ -1244,6 +1301,10 @@ async function boardClick(e) {
   if (Date.now() - bState.justDragged < 400) return;
   const chip = e.target.closest("[data-chip]"); if (chip) return scrollToCol(chip.dataset.chip);
   if (e.target.closest("[data-addcol]")) return addCol();
+  const bvb = e.target.closest("[data-bview]");
+  if (bvb) { const want = bvb.dataset.bview, auto = isPhone() && matchMedia("(orientation: portrait)").matches ? "list" : "cols"; LS.set(K.bview, want === auto ? "auto" : want); return render(); }
+  const fb = e.target.closest("[data-fold]");
+  if (fb) { const b = board(), ci = b.cols.findIndex(c => c.id === fb.dataset.fold); if (ci < 0) return; const f = LS.get(K.bfold, {}); f[fb.dataset.fold] = !isFolded(b.cols[ci], ci); LS.set(K.bfold, f); return render(); }
   if (e.target.closest("[data-focus]")) { const k = board().cols[0]?.tasks[0]; if (k) { st.topic = k.text.slice(0, 120); st.minutes = 15; } location.hash = "study"; return; }
   const idea = e.target.closest("[data-idea]");
   if (idea) { const b = board(), id = uid(); if (!b.cols[0]) return; b.cols[0].tasks.push({ id, text: idea.dataset.idea, date: "", color: "" }); saveBoard(b); bState.col = b.cols[0].id; bState.pop = id; return render(); }
