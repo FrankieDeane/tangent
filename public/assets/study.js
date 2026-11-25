@@ -357,7 +357,7 @@ const GROUPS = [["secStudy", ["study", "carpeta", "mapa"]], ["secPlan", ["tabler
 V.inicio = {
   html: () => `
   <section class="sky">
-    <div class="art">${scene("calm", { w: 1200, h: 900, id: "hero" })}</div>
+    <div class="art"><img src="/assets/sky-calm.jpg" alt="" width="1400" height="1138" fetchpriority="high"></div>
     <div class="skytxt">
       <h1>${esc(t("heroT1"))} <em>${esc(t("heroT2"))}</em></h1>
       <p class="lead">${esc(t("heroP"))}</p>
@@ -396,7 +396,7 @@ const GUIDE = {
 V.guia = {
   html() {
     const g = GUIDE[L === "en" ? "en" : "es"];
-    return `<section class="sky slim"><div class="art">${scene("window", { w: 1200, h: 700, id: "guide" })}</div>
+    return `<section class="sky slim"><div class="art"><img src="/assets/sky-window.jpg" alt="" width="1400" height="875" loading="lazy"></div>
       <div class="skytxt"><h1>${esc(g.h)}</h1><p class="lead">${esc(g.lead)}</p></div></section>
     <div class="two">
       <div class="card"><h3>${esc(g.start[0])}</h3><p>${esc(g.start[1])}</p><ol class="pts">${g.start[2].map(x => `<li>${esc(x)}</li>`).join("")}</ol></div>
@@ -797,93 +797,7 @@ async function makeSummary() {
   }
 }
 
-/* ---------------- painted scenes + first-run intro ---------------- */
-// Watercolor scenes drawn in SVG (no image files): sky, sea and window.
-function wcDefs(id, seed) {
-  return `<defs>
-  <filter id="wc${id}" x="-20%" y="-20%" width="140%" height="140%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="4" seed="${seed}" result="t"/>
-    <feDisplacementMap in="SourceGraphic" in2="t" scale="22" xChannelSelector="R" yChannelSelector="G" result="d"/>
-    <feGaussianBlur in="d" stdDeviation="3.5" result="bl"/>
-    <feComposite in="d" in2="bl" operator="arithmetic" k2="1.35" k3="-0.35" result="edge"/>
-    <feTurbulence type="fractalNoise" baseFrequency="0.6" numOctaves="2" seed="${seed + 3}" result="g"/>
-    <feColorMatrix in="g" type="matrix" values="0 0 0 0 0.05  0 0 0 0 0.1  0 0 0 0 0.25  0 0 0 0.22 -0.06" result="gm"/>
-    <feComposite in="gm" in2="d" operator="in" result="grain"/>
-    <feMerge><feMergeNode in="edge"/><feMergeNode in="grain"/></feMerge>
-  </filter>
-  <filter id="fr${id}" x="-10%" y="-10%" width="120%" height="120%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="${seed}" result="t"/>
-    <feDisplacementMap in="SourceGraphic" in2="t" scale="5"/>
-  </filter>
-  <filter id="soft${id}" x="-30%" y="-30%" width="160%" height="160%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="${seed + 7}" result="t"/>
-    <feDisplacementMap in="SourceGraphic" in2="t" scale="26"/>
-    <feGaussianBlur stdDeviation="6"/>
-  </filter>
-  <filter id="paper${id}"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" seed="2"/><feColorMatrix values="0 0 0 0 .3  0 0 0 0 .35  0 0 0 0 .45  0 0 0 .07 0"/><feComposite in2="SourceGraphic" operator="in"/></filter>
-  </defs>`;
-}
-const cloud = (x, y, s, fill, op = 1) => `<g transform="translate(${x} ${y}) scale(${s})" fill="${fill}" opacity="${op}"><ellipse cx="0" cy="0" rx="120" ry="60"/><ellipse cx="-90" cy="20" rx="80" ry="45"/><ellipse cx="95" cy="18" rx="90" ry="48"/><ellipse cx="20" cy="-45" rx="75" ry="55"/><ellipse cx="-40" cy="-25" rx="60" ry="45"/></g>`;
-const birds = (pts, c = "#1B2B4A") => pts.map(([x, y, s]) => `<path d="M${x - 10 * s} ${y} q${5 * s} ${-6 * s} ${10 * s} 0 q${5 * s} ${-6 * s} ${10 * s} 0" fill="none" stroke="${c}" stroke-width="${2.2 * s}" stroke-linecap="round"/>`).join("");
-const boat = (x, y, s, c = "#14213D") => `<g transform="translate(${x} ${y}) scale(${s})" fill="${c}"><path d="M-26 0 L26 0 L18 9 L-20 9 Z"/><rect x="-1.5" y="-30" width="3" height="30"/><path d="M1.5 -28 L18 -4 L1.5 -4 Z" opacity=".9"/><path d="M-1.5 -24 L-14 -4 L-1.5 -4 Z" opacity=".75"/></g>`;
-
-// variant: "calm" (sky over a quiet sea), "storm" (your head before), "window" (focus)
-function scene(variant = "calm", { w = 800, h = 1000, id = "a" } = {}) {
-  const seed = { calm: 11, storm: 23, window: 5 }[variant] || 11;
-  let body = "";
-  if (variant === "storm") {
-    body = `<rect width="${w}" height="${h}" fill="#C9D3DD"/>
-    <g filter="url(#soft${id})">${cloud(w * .3, h * .18, 2.2, "#8A9BB0", .8)}${cloud(w * .75, h * .12, 1.8, "#E9E4DA", .9)}${cloud(w * .55, h * .3, 2.4, "#6E8099", .55)}</g>
-    <g filter="url(#wc${id})">
-      <path d="M-60 ${h * .55} C ${w * .2} ${h * .45}, ${w * .35} ${h * .62}, ${w * .55} ${h * .5} S ${w * .85} ${h * .52}, ${w + 60} ${h * .46} L${w + 60} ${h + 60} L-60 ${h + 60}Z" fill="#2F6E7E"/>
-      <path d="M-60 ${h * .66} C ${w * .25} ${h * .56}, ${w * .4} ${h * .72}, ${w * .6} ${h * .6} S ${w * .9} ${h * .66}, ${w + 60} ${h * .58} L${w + 60} ${h + 60} L-60 ${h + 60}Z" fill="#1D4E63"/>
-      <path d="M-60 ${h * .8} C ${w * .3} ${h * .72}, ${w * .5} ${h * .86}, ${w * .7} ${h * .76} S ${w * .95} ${h * .8}, ${w + 60} ${h * .75} L${w + 60} ${h + 60} L-60 ${h + 60}Z" fill="#0F3346"/>
-      <path d="M${w * .3} ${h * .56} q ${w * .1} -${h * .06} ${w * .22} -${h * .02} q -${w * .08} ${h * .01} -${w * .12} ${h * .05}Z" fill="#F4F1EA" opacity=".9"/>
-      <path d="M${w * .58} ${h * .66} q ${w * .12} -${h * .07} ${w * .25} -${h * .02} q -${w * .1} 0 -${w * .14} ${h * .05}Z" fill="#EEF2F2" opacity=".85"/>
-    </g>
-    <g fill="none" stroke="#F4F1EA" stroke-linecap="round" stroke-width="5" opacity=".85" filter="url(#fr${id})">${[[.05,.7],[.35,.74],[.7,.66],[.15,.86],[.55,.88]].map(([x, y]) => `<path d="M${w * x} ${h * y} q ${w * .06} -${h * .03} ${w * .13} -${h * .005}"/>`).join("")}</g>
-    ${boat(w * .5, h * .58, 2.1, "#5A2E1E")}
-    ${birds([[w * .2, h * .2, 1], [w * .3, h * .15, .8], [w * .72, h * .22, .9], [w * .8, h * .3, .7], [w * .45, h * .1, .7]], "#3A4658")}`;
-  } else if (variant === "window") {
-    body = `<rect width="${w}" height="${h}" fill="#1F4FBF"/>
-    <g filter="url(#wc${id})"><rect x="${w * .02}" y="${h * .02}" width="${w * .96}" height="${h * .96}" fill="#2457C9"/></g>
-    <svg x="${w * .18}" y="${h * .3}" width="${w * .64}" height="${h * .5}" viewBox="0 0 512 500" preserveAspectRatio="xMidYMid slice">
-      <rect width="512" height="500" fill="#A9CDEB"/>
-      <g filter="url(#soft${id})">${cloud(300, 150, 1.1, "#FFFFFF", .95)}${cloud(120, 210, .8, "#F4F8FC", .9)}</g>
-      <g filter="url(#wc${id})">
-        <path d="M-20 400 L110 290 L200 330 L300 230 L420 320 L540 300 L540 500 L-20 500Z" fill="#5B7FC6"/>
-        <path d="M-20 430 C 120 380, 260 420, 540 390 L540 500 L-20 500Z" fill="#7FA77A"/>
-        <path d="M-20 465 C 160 440, 330 470, 540 450 L540 500 L-20 500Z" fill="#B9584A" opacity=".85"/>
-      </g>
-      ${birds([[170, 160, 1.3], [210, 140, 1]], "#2A3550")}
-    </svg>
-    <g filter="url(#fr${id})" fill="#F3EEDF">
-      <rect x="${w * .16}" y="${h * .28}" width="${w * .68}" height="${h * .025}"/>
-      <rect x="${w * .16}" y="${h * .78}" width="${w * .68}" height="${h * .05}"/>
-      <path d="M${w * .18} ${h * .3} L${w * .06} ${h * .24} L${w * .06} ${h * .86} L${w * .18} ${h * .8}Z" fill="#E9E2CF"/>
-      <path d="M${w * .16} ${h * .33} L${w * .08} ${h * .29} L${w * .08} ${h * .54} L${w * .16} ${h * .55}Z M${w * .16} ${h * .58} L${w * .08} ${h * .58} L${w * .08} ${h * .82} L${w * .16} ${h * .77}Z" fill="#B8D3EA"/>
-      <path d="M${w * .82} ${h * .3} L${w * .94} ${h * .24} L${w * .94} ${h * .86} L${w * .82} ${h * .8}Z" fill="#E9E2CF"/>
-      <path d="M${w * .84} ${h * .33} L${w * .92} ${h * .29} L${w * .92} ${h * .54} L${w * .84} ${h * .55}Z M${w * .84} ${h * .58} L${w * .92} ${h * .58} L${w * .92} ${h * .82} L${w * .84} ${h * .77}Z" fill="#B8D3EA"/>
-    </g>
-    <g fill="#F6F0DC" opacity=".9" filter="url(#wc${id})"><circle cx="${w * .66}" cy="${h * .74}" r="9"/><circle cx="${w * .7}" cy="${h * .73}" r="8"/><circle cx="${w * .63}" cy="${h * .75}" r="7"/></g>
-    <path d="M${w * .6} ${h * .79} q ${w * .06} -${h * .07} ${w * .12} 0Z" fill="#6E8E3A" filter="url(#wc${id})"/>`;
-  } else {
-    body = `<linearGradient id="sk${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9FC3DD"/><stop offset=".6" stop-color="#C7DCEA"/><stop offset="1" stop-color="#E7EFF5"/></linearGradient>
-    <rect width="${w}" height="${h}" fill="url(#sk${id})"/>
-    <g filter="url(#soft${id})">${cloud(w * .2, h * .2, 1.9, "#FFFFFF", .95)}${cloud(w * .7, h * .32, 2.3, "#F7FAFD", .95)}${cloud(w * .4, h * .45, 2.6, "#FFFFFF", .9)}</g>
-    <g filter="url(#wc${id})">
-      <path d="M-60 ${h * .5} C ${w * .2} ${h * .44}, ${w * .3} ${h * .58}, ${w * .45} ${h * .52} S ${w * .7} ${h * .44}, ${w + 60} ${h * .55} L${w + 60} ${h + 60} L-60 ${h + 60}Z" fill="#5C93C9" opacity=".75"/>
-      <path d="M-60 ${h * .62} C ${w * .25} ${h * .55}, ${w * .45} ${h * .7}, ${w * .65} ${h * .6} S ${w * .9} ${h * .58}, ${w + 60} ${h * .64} L${w + 60} ${h + 60} L-60 ${h + 60}Z" fill="#2D63A8"/>
-      <path d="M-60 ${h * .74} C ${w * .3} ${h * .68}, ${w * .5} ${h * .8}, ${w * .75} ${h * .72} S ${w * .95} ${h * .74}, ${w + 60} ${h * .72} L${w + 60} ${h + 60} L-60 ${h + 60}Z" fill="#183F7E"/>
-      <rect x="-60" y="${h * .86}" width="${w + 120}" height="${h * .2}" fill="#2B5DA0" opacity=".85"/>
-    </g>
-    <g stroke="#EAF2FA" stroke-linecap="round" opacity=".7" filter="url(#fr${id})">${[[.08,.8,.12],[.3,.83,.08],[.55,.79,.14],[.72,.9,.1],[.15,.93,.09],[.6,.95,.12]].map(([x, y, l]) => `<line x1="${w * x}" y1="${h * y}" x2="${w * (x + l)}" y2="${h * y}" stroke-width="3"/>`).join("")}</g>
-    ${boat(w * .38, h * .88, 1.5)}
-    ${birds([[w * .62, h * .14, 1.3], [w * .7, h * .17, 1], [w * .76, h * .13, .9], [w * .55, h * .2, .7], [w * .82, h * .22, .6]])}`;
-  }
-  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${wcDefs(id, seed)}${body}<rect width="${w}" height="${h}" filter="url(#paper${id})" fill="#fff"/></svg>`;
-}
-
+/* ---------------- first-run intro ---------------- */
 // First visit: three calm screens over Francisco's own photo. Each step zooms a little closer to the flowers: from the noise to one thing.
 function onboard() {
   const slides = tl("onb", L);
