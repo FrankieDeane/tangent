@@ -11,6 +11,10 @@ export function codeOk(code) {
   return Boolean(process.env.STATS_TOKEN) && code === process.env.STATS_TOKEN;
 }
 
+// Test phase: everything is open to everyone (Francisco, 2026-11-25). Set TANGENT_OPEN=0 in Netlify to switch paid access back on.
+export const OPEN = process.env.TANGENT_OPEN !== "0";
+export const isMember = code => OPEN || codeOk(code);
+
 // Without a code: one free study per device (same rule as Tangent: one use without an account).
 const usage = () => getStore({ name: "tangent-usage", consistency: "strong" });
 export const FREE_STUDIES = Number(process.env.TANGENT_FREE_STUDIES || 1);

@@ -3,7 +3,7 @@
 // Checks what the student said against web sources (Gemini + Google Search). It never rewrites their work.
 import { checkStudyText, identify, isBanned, underLimit, countUse, json } from "./_lib/guard.mjs";
 import { studyFactCheck, setBudget } from "./_lib/ai.mjs";
-import { codeOk } from "./_lib/access.mjs";
+import { isMember } from "./_lib/access.mjs";
 
 const s = (v, n) => String(v ?? "").trim().slice(0, n);
 
@@ -12,7 +12,7 @@ export default async (req, context) => {
   let body; try { body = await req.json(); } catch { return json(400, { status: "error" }); }
   const id = identify(req, context, body.deviceId);
   if (await isBanned(id)) return json(403, { status: "banned" });
-  const member = codeOk(body.code);
+  const member = isMember(body.code);
   if (!(await underLimit(id, member ? "check" : "check-free"))) return json(429, { status: "limit" });
   const transcript = s(body.transcript, 8000), source = { title: s(body.source?.title, 160) }, topic = s(body.topic, 120);
   if (!transcript || source.title.length < 2) return json(400, { status: "empty" });

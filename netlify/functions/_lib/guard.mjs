@@ -127,12 +127,13 @@ export async function addStrike(id, category) {
   return strikes;
 }
 
-export async function underLimit(id, kind = "rec") {
+// Per-device daily cap. The IP cap is 4x larger so testers sharing one school or home wifi are not blocked by each other.
+export async function underLimit(id, kind = "rec", mult = 1) {
   const u = usage();
   const d = today();
   const [a, b] = await Promise.all([u.get(`${d}:${kind}:${id.dev}`, { type: "json" }), u.get(`${d}:${kind}:${id.ip}`, { type: "json" })]);
-  const limit = kind === "rec" ? DAILY_LIMIT : DAILY_LIMIT + 10;
-  return Math.max(a?.n || 0, b?.n || 0) < limit;
+  const limit = (kind === "rec" ? DAILY_LIMIT : DAILY_LIMIT + 10) * mult;
+  return (a?.n || 0) < limit && (b?.n || 0) < limit * 4;
 }
 
 export async function countUse(id, kind = "rec") {
