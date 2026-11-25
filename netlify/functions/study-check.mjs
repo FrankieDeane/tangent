@@ -14,12 +14,12 @@ export default async (req, context) => {
   if (await isBanned(id)) return json(403, { status: "banned" });
   const member = isMember(body.code);
   if (!(await underLimit(id, member ? "check" : "check-free"))) return json(429, { status: "limit" });
-  const transcript = s(body.transcript, 8000), source = { title: s(body.source?.title, 160), author: s(body.source?.author, 120) }, topic = s(body.topic, 120), mode = body.mode === "read" ? "read" : "explain";
+  const transcript = s(body.transcript, 8000), source = { title: s(body.source?.title, 160), author: s(body.source?.author, 120) }, topic = s(body.topic, 120), mode = body.mode === "read" ? "read" : "explain", age = ["6-8", "9-12", "13-18", "adult"].includes(body.age) ? body.age : "";
   if (!transcript || source.title.length < 2) return json(400, { status: "empty" });
   if (checkStudyText(transcript)) return json(200, { status: "ok", issues: [], sources: [] });
   setBudget(24000);
   try {
-    const r = await studyFactCheck({ transcript, source, topic, mode });
+    const r = await studyFactCheck({ transcript, source, topic, mode, age });
     const issues = r.issues.slice(0, 4).map(i => ({ said: s(i?.said, 200), fix: { es: s(i?.fix?.es, 300), en: s(i?.fix?.en, 300) } })).filter(i => i.fix.es || i.fix.en);
     if (checkStudyText(issues.map(i => i.fix.es + " " + i.fix.en).join(" "))) return json(200, { status: "ok", issues: [], sources: [] });
     await countUse(id, member ? "check" : "check-free");

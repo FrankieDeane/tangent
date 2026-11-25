@@ -10,7 +10,7 @@ const LS = {
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
 const K = { lang: "tangent.study.lang", folder: "tangent.study.folder", board: "tangent.study.board", agenda: "tangent.study.agenda", scale: "tangent.study.scale",
-  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read", drafts: "tangent.study.drafts", onb: "tangent.study.onb", tester: "tangent.study.tester", bview: "tangent.study.bview", bfold: "tangent.study.bfold", mode: "tangent.study.mode" };
+  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read", drafts: "tangent.study.drafts", onb: "tangent.study.onb", tester: "tangent.study.tester", bview: "tangent.study.bview", bfold: "tangent.study.bfold", mode: "tangent.study.mode", age: "tangent.study.age" };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = n => String(n).padStart(2, "0");
@@ -48,6 +48,8 @@ const S = {
   codeOff: ["Sin cuenta podés probar Study una vez. ¿Tenés un código de tu escuela?", "Without an account you can try Study once. Do you have a school code?"],
   // study
   s1: ["¿De dónde estudiás?", "Where are you studying from?"],
+  ageQ: ["¿Cuántos años tenés? Así te explico a tu medida.", "How old are you? So I can explain at your level."], ageL: ["Edad", "Age"], ageChange: ["cambiar", "change"],
+  age68: ["6 a 8", "6 to 8"], age912: ["9 a 12", "9 to 12"], age1318: ["13 a 18", "13 to 18"], ageAdult: ["Más grande", "Older"],
   modeExplain: ["🗣️ Explico un tema", "🗣️ I explain a topic"], modeRead: ["📖 Leo un cuento o texto", "📖 I read a story or text"],
   s1R: ["¿Qué vas a leer?", "What are you going to read?"],
   s1pR: ["Leé en voz alta un cuento o una página. Después Tangent te cuenta de qué se trata, qué pasó y te hace preguntas fáciles.", "Read a story or a page out loud. Then Tangent tells you what it was about and what happened, and asks easy questions."],
@@ -476,7 +478,8 @@ V.mas = {
 
 /* ---------------- Study ---------------- */
 const SEG_MS = 60000;
-const st = { mode: LS.get(K.mode, "explain"), draftId: null, audio: [], step: 1, source: LS.get(K.source, { title: "", author: "", page: "" }), topic: "", minutes: 5, parts: [], image: null, imageUrl: null, transcript: "", busy: false, item: null, error: "", goal: "", before: "", review: null };
+const AGES = [["6-8", "age68"], ["9-12", "age912"], ["13-18", "age1318"], ["adult", "ageAdult"]];
+const st = { age: LS.get(K.age, ""), ageEdit: false, mode: LS.get(K.mode, "explain"), draftId: null, audio: [], step: 1, source: LS.get(K.source, { title: "", author: "", page: "" }), topic: "", minutes: 5, parts: [], image: null, imageUrl: null, transcript: "", busy: false, item: null, error: "", goal: "", before: "", review: null };
 let rec = null;
 
 function stepsBar(n) { return `<div class="steps">${[1, 2, 3, 4].map(i => `<i class="${i <= n ? "on" : ""}"></i>`).join("")}</div>`; }
@@ -487,6 +490,8 @@ V.study = {
   html() {
     if (arg && st.item?.id !== arg) { const it = folder().find(x => x.id === arg); if (it) { st.item = it; st.step = 4; } }
     if (st.step === 1) return `
+      ${!st.age || st.ageEdit ? `<div class="agebox"><b>${esc(t("ageQ"))}</b><div class="seg ageseg" id="ageSeg" role="radiogroup">${AGES.map(([k, l]) => `<button type="button" role="radio" aria-checked="${st.age === k}" data-age="${k}" class="${st.age === k ? "on" : ""}">${esc(t(l))}</button>`).join("")}</div></div>`
+        : `<div class="small agenow">${esc(t("ageL"))}: <b>${esc(t(AGES.find(a => a[0] === st.age)[1]))}</b> · <button type="button" class="linkbtn" id="ageEdit">${esc(t("ageChange"))}</button></div>`}
       <div class="seg modeseg" id="modeSeg" role="radiogroup">${[["explain", "modeExplain"], ["read", "modeRead"]].map(([k, l]) => `<button type="button" role="radio" aria-checked="${st.mode === k}" data-mode="${k}" class="${st.mode === k ? "on" : ""}">${esc(t(l))}</button>`).join("")}</div>
       <h1>${esc(t(mk("s1", st.mode)))}</h1>${stepsBar(1)}
       <p class="lead">${esc(t(mk("s1p", st.mode)))}</p>
@@ -572,6 +577,14 @@ V.study = {
       if (st.source.title.length < 2) return toast(t("needSource"));
       LS.set(K.source, st.source); st.step = 2; render();
     });
+    const keepForm = () => { const f = $("#srcForm"); if (f) { st.source.title = f.title.value; st.source.author = f.author.value; st.source.page = f.page.value; if (f.topic) st.topic = f.topic.value; } };
+    $("#ageSeg")?.addEventListener("click", e => {
+      const b = e.target.closest("[data-age]"); if (!b) return; keepForm();
+      // first time a young child picks an age: start in reading mode
+      if (!st.age && b.dataset.age === "6-8" && LS.get(K.mode, null) == null) { st.mode = "read"; LS.set(K.mode, "read"); }
+      st.age = b.dataset.age; st.ageEdit = false; LS.set(K.age, st.age); render();
+    });
+    $("#ageEdit")?.addEventListener("click", () => { keepForm(); st.ageEdit = true; render(); });
     $("#modeSeg")?.addEventListener("click", e => {
       const b = e.target.closest("[data-mode]"); if (!b || b.dataset.mode === st.mode) return;
       const f = $("#srcForm"); if (f) { st.source.title = f.title.value; st.source.author = f.author.value; st.source.page = f.page.value; if (f.topic) st.topic = f.topic.value; }
@@ -710,7 +723,7 @@ async function runCheck(it, force = false) {
   if (checking.has(it.id) && !force) return;
   checking.add(it.id);
   patchItem(it.id, { check: { pending: true } }); if (force) render();
-  let d; try { d = await api("/api/study-check", { mode: it.mode, source: it.source, topic: it.topic, transcript: it.transcript }); } catch { d = {}; }
+  let d; try { d = await api("/api/study-check", { age: st.age || undefined, mode: it.mode, source: it.source, topic: it.topic, transcript: it.transcript }); } catch { d = {}; }
   checking.delete(it.id);
   patchItem(it.id, { check: d.status === "ok" ? { issues: d.issues || [], sources: d.sources || [] } : { failed: true } });
   if ((route === "study" || route === "carpeta") && $("#mine")?.dataset.id === it.id) { const keep = $("#mine").value; render(); const m = $("#mine"); if (m) m.value = keep; }
@@ -868,7 +881,7 @@ async function makeSummary() {
   keepDraft();
   st.busy = true; st.error = ""; render();
   let d;
-  try { d = await api("/api/study", { mode: st.mode, source: st.source, topic: st.mode === "read" ? "" : st.topic, goal: st.goal || undefined, before: st.before || undefined, transcript: st.transcript, image: st.image || undefined }); }
+  try { d = await api("/api/study", { age: st.age || undefined, mode: st.mode, source: st.source, topic: st.mode === "read" ? "" : st.topic, goal: st.goal || undefined, before: st.before || undefined, transcript: st.transcript, image: st.image || undefined }); }
   catch { d = { status: "ai_error" }; }
   st.busy = false;
   const kept = st.draftId ? ` <b>${esc(t("draftKept"))}</b>` : "";
