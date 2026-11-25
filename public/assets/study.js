@@ -10,7 +10,7 @@ const LS = {
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
 const K = { lang: "tangent.study.lang", folder: "tangent.study.folder", board: "tangent.study.board", agenda: "tangent.study.agenda", scale: "tangent.study.scale",
-  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read", drafts: "tangent.study.drafts", onb: "tangent.study.onb", tester: "tangent.study.tester", bview: "tangent.study.bview", bfold: "tangent.study.bfold" };
+  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read", drafts: "tangent.study.drafts", onb: "tangent.study.onb", tester: "tangent.study.tester", bview: "tangent.study.bview", bfold: "tangent.study.bfold", mode: "tangent.study.mode" };
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = n => String(n).padStart(2, "0");
@@ -48,6 +48,21 @@ const S = {
   codeOff: ["Sin cuenta podés probar Study una vez. ¿Tenés un código de tu escuela?", "Without an account you can try Study once. Do you have a school code?"],
   // study
   s1: ["¿De dónde estudiás?", "Where are you studying from?"],
+  modeExplain: ["🗣️ Explico un tema", "🗣️ I explain a topic"], modeRead: ["📖 Leo un cuento o texto", "📖 I read a story or text"],
+  s1R: ["¿Qué vas a leer?", "What are you going to read?"],
+  s1pR: ["Leé en voz alta un cuento o una página. Después Tangent te cuenta de qué se trata, qué pasó y te hace preguntas fáciles.", "Read a story or a page out loud. Then Tangent tells you what it was about and what happened, and asks easy questions."],
+  srcTitleR: ["Nombre del cuento o del libro (obligatorio)", "Name of the story or book (required)"], srcAuthorR: ["Autor (si lo sabés, ayuda a encontrar el cuento)", "Author (if you know it, helps find the story)"],
+  s2R: ["Leé en voz alta", "Read out loud"],
+  s2pR: ["Leé tranquilo, a tu ritmo. Si te trabás o repetís, no pasa nada: seguí.", "Read calmly, at your own pace. If you stumble or repeat, that's fine: keep going."],
+  photoR: ["Sacale una foto a la página que vas a leer (opcional)", "Snap a photo of the page you'll read (optional)"],
+  photoRP: ["Así te marco las palabras que leíste distinto.", "Then I can show you the words you read differently."],
+  plainR: ["De qué se trata", "What it is about"], keyIdeasR: ["Qué pasó", "What happened"], checkYouR: ["Para charlar con alguien", "To talk about with someone"],
+  easyOn: ["Lectura fácil", "Easy reading"], sayIt: ["Escuchar esta parte", "Listen to this part"], listenAll: ["Escuchar todo", "Listen to all"],
+  yourText: ["Lo que leíste", "What you read"], yourTextE: ["Lo que dijiste", "What you said"], editText: ["✏️ Corregir el texto", "✏️ Fix the text"],
+  wordsT: ["Palabras nuevas", "New words"], misreadT: ["Palabras para leer de nuevo", "Words to read again"], misreadSaid: ["Leíste", "You read"], misreadRight: ["Dice", "It says"],
+  checkTR: ["Comparado con el cuento en internet", "Compared with the story online"], checkingR: ["Buscando el cuento en internet para comparar…", "Looking up the story online to compare…"],
+  checkOkR: ["Lo que leíste coincide con el cuento (o no lo encontré en internet).", "What you read matches the story (or I couldn't find it online)."],
+  checkWarnR: ["Para comparar palabra por palabra, la próxima vez sacale foto a la página.", "To compare word by word, next time snap a photo of the page."],
   s1p: ["Dos cosas y arrancás: qué tema estudiás y de dónde (libro, apunte, página web). Tangent trabaja con lo que vos decís y tu fuente, no inventa.", "Two things and you're off: what topic you're studying and where from (book, notes, website). Tangent works with what you say and your source, it doesn't make things up."],
   srcTitle: ["Libro, manual o apunte (obligatorio)", "Book, textbook or notes (required)"], srcAuthor: ["Autor o editorial (si lo sabés)", "Author or publisher (if you know it)"],
   srcPage: ["Páginas o capítulo", "Pages or chapter"], topic: ["Tema", "Topic"], topicPh: ["Ej.: La célula", "E.g. The cell"],
@@ -274,6 +289,8 @@ const S = {
 };
 const t = k => { const v = S[k]; return v ? v[L === "en" ? 1 : 0] : k; };
 const tl = (k, lang) => { const v = S[k]; return v ? v[lang === "en" ? 1 : 0] : k; };
+// Reading mode ("Leo un cuento") swaps some labels for their *R version.
+const mk = (k, mode) => (mode === "read" && S[k + "R"] ? k + "R" : k);
 
 /* ---------------- helpers ---------------- */
 function toast(msg, ms = 2600) { const el = $("#toast"); el.textContent = msg; el.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove("on"), ms); }
@@ -459,7 +476,7 @@ V.mas = {
 
 /* ---------------- Study ---------------- */
 const SEG_MS = 60000;
-const st = { draftId: null, audio: [], step: 1, source: LS.get(K.source, { title: "", author: "", page: "" }), topic: "", minutes: 5, parts: [], image: null, imageUrl: null, transcript: "", busy: false, item: null, error: "", goal: "", before: "", review: null };
+const st = { mode: LS.get(K.mode, "explain"), draftId: null, audio: [], step: 1, source: LS.get(K.source, { title: "", author: "", page: "" }), topic: "", minutes: 5, parts: [], image: null, imageUrl: null, transcript: "", busy: false, item: null, error: "", goal: "", before: "", review: null };
 let rec = null;
 
 function stepsBar(n) { return `<div class="steps">${[1, 2, 3, 4].map(i => `<i class="${i <= n ? "on" : ""}"></i>`).join("")}</div>`; }
@@ -470,15 +487,16 @@ V.study = {
   html() {
     if (arg && st.item?.id !== arg) { const it = folder().find(x => x.id === arg); if (it) { st.item = it; st.step = 4; } }
     if (st.step === 1) return `
-      <h1>${esc(t("s1"))}</h1>${stepsBar(1)}
-      <p class="lead">${esc(t("s1p"))}</p>
+      <div class="seg modeseg" id="modeSeg" role="radiogroup">${[["explain", "modeExplain"], ["read", "modeRead"]].map(([k, l]) => `<button type="button" role="radio" aria-checked="${st.mode === k}" data-mode="${k}" class="${st.mode === k ? "on" : ""}">${esc(t(l))}</button>`).join("")}</div>
+      <h1>${esc(t(mk("s1", st.mode)))}</h1>${stepsBar(1)}
+      <p class="lead">${esc(t(mk("s1p", st.mode)))}</p>
       <form id="srcForm">
-        <label class="f" for="sTo">${esc(t("topic"))}</label><input class="t" id="sTo" name="topic" maxlength="120" placeholder="${esc(t("topicPh"))}" value="${esc(st.topic)}">
-        <label class="f" for="sT">${esc(t("srcTitle"))}</label><input class="t" id="sT" name="title" required maxlength="160" value="${esc(st.source.title)}">
+        ${st.mode === "read" ? `<input type="hidden" name="topic" value="">` : `<label class="f" for="sTo">${esc(t("topic"))}</label><input class="t" id="sTo" name="topic" maxlength="120" placeholder="${esc(t("topicPh"))}" value="${esc(st.topic)}">`}
+        <label class="f" for="sT">${esc(t(mk("srcTitle", st.mode)))}</label><input class="t" id="sT" name="title" required maxlength="160" value="${esc(st.source.title)}">
         <details class="more" ${st.goal || st.before || st.source.author || st.source.page ? "open" : ""}><summary>${esc(t("moreOpt"))}</summary>
-        <div class="two"><div><label class="f" for="sA">${esc(t("srcAuthor"))}</label><input class="t" id="sA" name="author" maxlength="120" value="${esc(st.source.author)}"></div>
+        <div class="two"><div><label class="f" for="sA">${esc(t(mk("srcAuthor", st.mode)))}</label><input class="t" id="sA" name="author" maxlength="120" value="${esc(st.source.author)}"></div>
         <div><label class="f" for="sP">${esc(t("srcPage"))}</label><input class="t" id="sP" name="page" maxlength="60" value="${esc(st.source.page)}"></div></div>
-        ${paid() ? `<label class="f" for="sG">🎯 ${esc(t("goalL"))}</label><input class="t" id="sG" name="goal" maxlength="80" placeholder="${esc(t("goalPh"))}" value="${esc(st.goal)}">
+        ${paid() && st.mode !== "read" ? `<label class="f" for="sG">🎯 ${esc(t("goalL"))}</label><input class="t" id="sG" name="goal" maxlength="80" placeholder="${esc(t("goalPh"))}" value="${esc(st.goal)}">
         <label class="f" for="sB">🤔 ${esc(t("beforeL"))}</label><textarea class="t" id="sB" name="before" maxlength="1500" placeholder="${esc(t("beforePh"))}" style="min-height:80px">${esc(st.before)}</textarea>` : ""}
         </details>
         <label class="f">${esc(t("howLong"))}</label>
@@ -490,11 +508,15 @@ V.study = {
     if (st.step === 2) {
       const on = Boolean(rec), done = st.parts.filter(p => p != null).length;
       return `
-      <h1>${esc(t("s2"))}</h1>${stepsBar(2)}
+      <h1>${esc(t(mk("s2", st.mode)))}</h1>${stepsBar(2)}
       ${srcLine(st.source)}
       ${st.goal ? `<div class="small" style="margin-top:6px">🎯 <b>${esc(t("goalL"))}:</b> ${esc(st.goal)}</div>` : ""}
       ${!on && paid() ? blockCard() : ""}
-      <p class="lead" style="margin-top:10px">${esc(t("s2p"))}</p>
+      <p class="lead" style="margin-top:10px">${esc(t(mk("s2p", st.mode)))}</p>
+      ${!on && st.mode === "read" ? `<div class="card readphoto"><b>📷 ${esc(t("photoR"))}</b><div class="small" style="margin-top:4px">${esc(t("photoRP"))} ${esc(t("photoWarn"))}</div>
+        <input type="file" id="photo" accept="image/*" capture="environment" class="vh">
+        <label for="photo" class="btn small ghost" style="margin-top:10px;cursor:pointer">📷 ${esc(t(st.imageUrl ? "photoAgain" : "photoTake"))}</label>
+        ${st.imageUrl ? `<img src="${st.imageUrl}" alt="" style="max-width:220px;width:100%;border-radius:12px;margin-top:10px;display:block"><div class="small">${esc(t("photoOk"))}</div><button class="btn small ghost" id="noPhoto" type="button">${esc(t("removePhoto"))}</button>` : ""}</div>` : ""}
       ${on ? "" : `<details class="tip"><summary class="hand">${esc(t("tipT"))}</summary><ol>${tl("tips", L).map(x => `<li>${esc(x)}</li>`).join("")}</ol></details>`}
       <div class="rec">
         <button class="recbtn ${on ? "on" : ""}" id="recBtn" type="button">${esc(on ? t("tapStop") : t("tapRec"))}</button>
@@ -504,14 +526,14 @@ V.study = {
         <div class="small" id="recInfo">${on ? esc(t("recording")) : done ? `${done} ${esc(t("pieces"))}` : ""}</div>
       </div>
       ${on ? "" : `
-      <details class="more" ${st.imageUrl || (st.transcript && !done) ? "open" : ""}><summary>${esc(t("noVoice"))}</summary>
+      <details class="more" ${(st.imageUrl && st.mode !== "read") || (st.transcript && !done) ? "open" : ""}><summary>${esc(t("noVoice"))}</summary>
       <div class="two">
-        <div class="card"><b>📷 ${esc(t("orPhoto"))}</b>
+        ${st.mode === "read" ? "" : `<div class="card"><b>📷 ${esc(t("orPhoto"))}</b>
           <div class="small" style="margin-top:6px">${esc(t("photoWarn"))}</div>
           <input type="file" id="photo" accept="image/*" capture="environment" class="vh">
           <label for="photo" class="btn small ghost" style="margin-top:10px;cursor:pointer">📷 ${esc(t(st.imageUrl ? "photoAgain" : "photoTake"))}</label>
           ${st.imageUrl ? `<img src="${st.imageUrl}" alt="" style="width:100%;border-radius:12px;margin-top:10px"><div class="small">${esc(t("photoOk"))}</div><button class="btn small ghost" id="noPhoto" type="button">${esc(t("removePhoto"))}</button>` : ""}
-        </div>
+        </div>`}
         <div class="card"><b>⌨️ ${esc(t("orType"))}</b><textarea class="t" id="typed" maxlength="12000" style="margin-top:10px">${esc(st.transcript)}</textarea></div>
       </div></details>
       <button class="btn" id="toReview" type="button">${esc(t("next"))}</button>
@@ -523,14 +545,18 @@ V.study = {
       <p class="lead" style="margin-top:10px">${esc(t("s3p"))}</p>
       ${st.imageUrl ? `<img src="${st.imageUrl}" alt="" style="max-width:220px;border-radius:12px">` : ""}
       ${st.audio.some(Boolean) ? `<div class="card"><b>🎧 ${esc(t("listenT"))}</b>${st.audio.map((u, i) => u ? `<div style="margin-top:8px"><div class="small">${esc(t("part"))} ${i + 1}</div><audio controls preload="metadata" src="${u}" style="width:100%"></audio></div>` : "").join("")}<p class="small" style="margin-top:8px">${esc(t("audioGone"))}</p></div>` : ""}
-      <textarea class="t" id="tr" maxlength="12000" style="min-height:200px">${esc(st.transcript)}</textarea>
+      ${easyToggleHTML()}
+      ${readPrefs().bold || st.mode === "read" ? `<div class="card trview" id="trView">${sayBtnHTML(st.transcript)}<p>${esc(st.transcript)}</p></div>
+      <button class="btn small ghost" id="trShow" type="button">${esc(t("editText"))}</button>
+      <div id="trEdit" hidden><textarea class="t" id="tr" maxlength="12000" style="min-height:200px">${esc(st.transcript)}</textarea></div>`
+      : `<textarea class="t" id="tr" maxlength="12000" style="min-height:200px">${esc(st.transcript)}</textarea>`}
       ${st.error ? `<div class="warn" style="margin-top:10px">${st.error}</div>` : ""}
       ${!st.error && (st.transcript.match(/\[\?\]/g) || []).length >= 3 ? `<div class="warn" style="margin-top:10px">${esc(t("manyQ"))}</div>` : ""}
       <button class="btn" id="make" type="button" ${st.busy ? "disabled" : ""}>${esc(st.busy ? t("making") : t("make"))}</button>
       <button class="btn ghost" id="back2" type="button" ${st.busy ? "disabled" : ""}>🎙️ ${esc(t("recAgain"))}</button>`;
     const it = st.item;
     if (!it) { st.step = 1; return V.study.html(); }
-    return `${stepsBar(4)}<button class="btn small ghost printtop" id="printTop" type="button">🖨️ ${esc(t("printThis"))}</button>${resultHTML(it)}
+    return `${stepsBar(4)}<div class="resbar">${"speechSynthesis" in window ? `<button class="btn small" id="speakTop" type="button">🔊 ${esc(t("listenAll"))}</button>` : ""}${easyToggleHTML()}<button class="btn small ghost" id="printTop" type="button">🖨️ ${esc(t("printThis"))}</button></div>${resultHTML(it)}
       <div class="row">
         <button class="btn small" id="printOne" type="button">🖨️ ${esc(t("printThis"))}</button>
         <button class="btn small ghost" id="speak" type="button">🔊 ${esc(t("listen"))}</button>
@@ -545,6 +571,11 @@ V.study = {
       st.source = { title: f.title.trim(), author: f.author.trim(), page: f.page.trim() }; st.topic = f.topic.trim(); st.goal = (f.goal || "").trim(); st.before = (f.before || "").trim();
       if (st.source.title.length < 2) return toast(t("needSource"));
       LS.set(K.source, st.source); st.step = 2; render();
+    });
+    $("#modeSeg")?.addEventListener("click", e => {
+      const b = e.target.closest("[data-mode]"); if (!b || b.dataset.mode === st.mode) return;
+      const f = $("#srcForm"); if (f) { st.source.title = f.title.value; st.source.author = f.author.value; st.source.page = f.page.value; if (f.topic) st.topic = f.topic.value; }
+      st.mode = b.dataset.mode; LS.set(K.mode, st.mode); render();
     });
     $("#mins")?.addEventListener("click", e => { const b = e.target.closest("[data-m]"); if (!b) return; st.minutes = Number(b.dataset.m); $$("#mins button").forEach(x => x.classList.toggle("on", x === b)); });
     $("#recBtn")?.addEventListener("click", () => (rec ? recStop() : recStart()));
@@ -566,10 +597,13 @@ V.study = {
     $("#back2")?.addEventListener("click", () => { dropAudio(); st.step = 2; render(); });
     $("#tr")?.addEventListener("input", e => { st.transcript = e.target.value; clearTimeout(st.dt); st.dt = setTimeout(keepDraft, 800); });
     $("#make")?.addEventListener("click", makeSummary);
-    $("#speak")?.addEventListener("click", () => speak(st.item));
+    $("#speak")?.addEventListener("click", e => speak(st.item, e.currentTarget));
+    $("#speakTop")?.addEventListener("click", e => speak(st.item, e.currentTarget));
+    $("#easyTog")?.addEventListener("click", easyToggle);
+    $("#trShow")?.addEventListener("click", () => { $("#trEdit").hidden = false; $("#trShow").hidden = true; $("#trView").hidden = true; $("#tr").focus(); });
     $("#printOne")?.addEventListener("click", () => printItems([st.item], "A4", L, false));
     $("#printTop")?.addEventListener("click", () => printItems([st.item], "A4", L, false));
-    $("#again")?.addEventListener("click", () => { Object.assign(st, { draftId: null, step: 1, topic: "", goal: "", before: "", review: null, parts: [], image: null, imageUrl: null, transcript: "", item: null, error: "" }); location.hash = "study"; render(); });
+    $("#again")?.addEventListener("click", () => { Object.assign(st, { draftId: null, step: 1, topic: "", goal: "", before: "", review: null, parts: [], image: null, imageUrl: null, transcript: "", item: null, error: "" }); arg = ""; history.replaceState(null, "", "#study"); render(); scrollTo(0, 0); });
     mountResult();
   },
 };
@@ -581,7 +615,7 @@ function coachHTML(it) {
   const fixes = (c.fixes || []).filter(f => x(f.right));
   if (!x(c.hello) && !fixes.length && !x(c.focus) && !x(c.next)) return "";
   return `<section class="coach">
-    <div class="coachhd"><span class="coachav" aria-hidden="true">${ic("guide")}</span><div><b>${esc(t("coachT"))}</b>${x(c.hello) ? `<p>${esc(x(c.hello))}</p>` : ""}</div></div>
+    <div class="coachhd"><span class="coachav" aria-hidden="true">${ic("guide")}</span><div><b>${esc(t("coachT"))}</b>${x(c.hello) ? `<p>${sayBtnHTML([x(c.hello), x(c.next)].filter(Boolean).join(" "))} ${esc(x(c.hello))}</p>` : ""}</div></div>
     ${fixes.map(f => `<div class="fix"><div class="small"><b>${esc(t("coachFix"))}:</b> «${esc(f.said)}»</div><p><b>${esc(t("coachRight"))}:</b> ${esc(x(f.right))}</p>${x(f.why) ? `<p class="small"><b>${esc(t("coachWhy"))}:</b> ${esc(x(f.why))}</p>` : ""}</div>`).join("")}
     ${x(c.focus) ? `<div class="focusback"><b>${esc(t("coachFocus"))}</b><p>${esc(x(c.focus))}</p></div>` : ""}
     ${x(c.next) ? `<div class="nextstep"><span>${esc(t("coachNext"))}</span><b>${esc(x(c.next))}</b></div>` : ""}
@@ -592,24 +626,27 @@ function resultHTML(it, view = LS.get("tangent.study.view", L)) {
   const block = lang => `
     <div class="card">
       <h2 style="margin-top:0">${esc(r.title[lang] || r.title.es || r.title.en)}</h2>
-      <b>${esc(tl("plain", lang))}</b><p style="margin-top:6px">${esc(r.plain[lang])}</p>
-      ${r.points[lang]?.length ? `<b>${esc(tl("keyIdeas", lang))}</b><ul class="pts">${r.points[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
-      ${r.check[lang]?.length ? `<p style="margin-top:10px"><b>${esc(tl("checkYou", lang))}</b></p><ul class="pts">${r.check[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
+      <b>${esc(tl(mk("plain", it.mode), lang))}</b> ${sayBtnHTML(r.plain[lang], lang)}<p style="margin-top:6px">${esc(r.plain[lang])}</p>
+      ${r.points[lang]?.length ? `<b>${esc(tl(mk("keyIdeas", it.mode), lang))}</b> ${sayBtnHTML(r.points[lang].join(". "), lang)}<ul class="pts">${r.points[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
+      ${r.words?.length ? `<p style="margin-top:10px"><b>📚 ${esc(tl("wordsT", lang))}</b></p><ul class="pts words">${r.words.map(w => `<li>${sayBtnHTML(`${w.word[lang] || w.word.es}: ${w.meaning[lang] || w.meaning.es}`, lang)} <b>${esc(w.word[lang] || w.word.es)}</b>: ${esc(w.meaning[lang] || w.meaning.es)}</li>`).join("")}</ul>` : ""}
+      ${r.check[lang]?.length ? `<p style="margin-top:10px"><b>${esc(tl(mk("checkYou", it.mode), lang))}</b> ${sayBtnHTML(r.check[lang].join(" "), lang)}</p><ul class="pts">${r.check[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
       ${r.review[lang] ? `<div class="warn" style="margin-top:10px"><b>${esc(tl("review", lang))}:</b> ${esc(r.review[lang])}</div>` : ""}
       ${r.mixed?.[lang]?.length ? `<div class="warn" style="margin-top:10px;background:#FFE9E3"><b>🔀 ${esc(tl("mixedT", lang))}:</b><ul class="pts">${r.mixed[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>` : ""}
       ${r.goBack?.[lang]?.length ? `<div class="tip" style="margin-top:10px"><span class="hand">📖 ${esc(tl("goBackT", lang))}</span><ul class="pts">${r.goBack[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul></div>` : ""}
     </div>`;
   const ck = it.check;
-  const checkBox = !it.transcript ? "" : `<div class="card" id="checkBox"><b>🔎 ${esc(t("checkT"))}</b>
-    ${!ck || ck.pending ? `<p class="small" style="margin-top:6px">${esc(t("checking"))}</p>`
+  const m = it.mode;
+  const misread = r.misread?.length ? `<div class="card misread"><b>📖 ${esc(t("misreadT"))}</b><ul class="pts" style="margin-top:6px">${r.misread.map(x => `<li><span class="small">${esc(t("misreadSaid"))}: «${esc(x.said)}»</span> → <b>${esc(t("misreadRight"))}: «${esc(x.right)}»</b></li>`).join("")}</ul></div>` : "";
+  const checkBox = !it.transcript ? "" : `<div class="card" id="checkBox"><b>🔎 ${esc(t(mk("checkT", m)))}</b>
+    ${!ck || ck.pending ? `<p class="small" style="margin-top:6px">${esc(t(mk("checking", m)))}</p>`
       : ck.failed ? `<p class="small" style="margin-top:6px">${esc(t("checkFail"))} <button class="btn small ghost" id="reCheck" type="button">${esc(t("retry"))}</button></p>`
       : ck.issues.length ? `<ul class="pts" style="margin-top:6px">${ck.issues.map(i => `<li><span class="small">${esc(t("checkSaid"))}: «${esc(i.said)}»</span><br><b>${esc(t("checkFix"))}:</b> ${esc(i.fix[L] || i.fix.es)}</li>`).join("")}</ul>`
-      : `<p class="small ok" style="margin-top:6px;padding:8px;border-radius:10px">✅ ${esc(t("checkOk"))}</p>`}
+      : `<p class="small ok" style="margin-top:6px;padding:8px;border-radius:10px">✅ ${esc(t(mk("checkOk", m)))}</p>`}
     ${ck?.sources?.length ? `<p class="small lic">${esc(t("sources"))}: ${ck.sources.map(x => `<a href="${esc(x.uri)}" target="_blank" rel="noopener">${esc(x.title || "web")}</a>`).join(" · ")}</p>` : ""}
-    <p class="small">${esc(t("checkWarn"))}</p></div>`;
+    <p class="small">${esc(t(m === "read" && r.misread?.length ? "checkWarn" : mk("checkWarn", m)))}</p></div>`;
   const qz = r.quiz || [], ans = it.quizAns || [];
   const quiz = !qz.length ? "" : `<details class="card" id="quiz" ${ans.length || st.review === it.id ? "open" : ""}><summary style="cursor:pointer"><b>🧩 ${esc(t("quizT"))}</b></summary><p class="small" style="margin-top:6px">${esc(t("quizP"))}</p>
-    ${qz.map((q, qi) => { const a = ans[qi]; return `<div class="q"><p>${qi + 1}. ${esc(q.q[L] || q.q.es)}</p><div class="opts">${(q.options[L]?.length === 3 ? q.options[L] : q.options.es).map((o, oi) => {
+    ${qz.map((q, qi) => { const a = ans[qi]; return `<div class="q"><p>${sayBtnHTML(`${q.q[L] || q.q.es} ${(q.options[L]?.length === 3 ? q.options[L] : q.options.es).join(", ")}`)} ${qi + 1}. ${esc(q.q[L] || q.q.es)}</p><div class="opts">${(q.options[L]?.length === 3 ? q.options[L] : q.options.es).map((o, oi) => {
       const cls = a == null ? "" : oi === q.answer ? "right" : oi === a ? "wrong" : "";
       return `<button type="button" data-qq="${qi}" data-qo="${oi}" class="${cls}" ${a != null ? "disabled" : ""}>${esc(o)}</button>`; }).join("")}</div>
       ${a != null ? `<div class="small" style="margin-top:6px">${a === q.answer ? "✅ " + esc(t("quizRight")) : "↩️ " + esc(t("quizWrong"))}</div>` : ""}</div>`; }).join("")}
@@ -618,17 +655,20 @@ function resultHTML(it, view = LS.get("tangent.study.view", L)) {
   const mine = `<div class="iri"><span class="hand" style="font-size:28px">✍️ ${esc(t("mineT"))}</span><p class="small" style="margin:4px 0 8px">${esc(t("mineP"))}</p>
     <textarea class="t" id="mine" maxlength="6000" data-id="${it.id}">${esc(it.mine || "")}</textarea><div class="small" id="mineSaved" style="min-height:16px"></div></div>`;
   const due = st.review === it.id ? `<div class="tip"><span class="hand">🔁 ${esc(t("revNow"))}</span><ol class="pts"><li>${esc(t("rev1"))}</li><li>${esc(t("rev2"))}</li><li>${esc(t("rev3"))}</li></ol></div>` : "";
-  const extras = paid() ? `${planBox(it)}${simpleBox(it)}` : lockAll();
+  // Reading mode stays short for young readers: no agenda or "explain it to an 8-year-old" boxes.
+  const extras = it.mode === "read" ? "" : paid() ? `${planBox(it)}${simpleBox(it)}` : lockAll();
   const ba = it.before ? `<div class="card"><b>🤔 ${esc(t("baT"))}</b><div class="two" style="margin-top:6px"><div><div class="small"><b>${esc(t("baBefore"))}</b></div><p>${esc(it.before)}</p></div><div><div class="small"><b>${esc(t("baAfter"))}</b></div><p>${it.mine ? esc(it.mine) : `<span class="small">${esc(t("baEmpty"))}</span>`}</p></div></div></div>` : "";
   return `${due}
     <div class="seg" id="viewSeg" style="max-width:320px;margin:4px 0 10px">${[["es", "ES"], ["en", "EN"], ["both", "ES + EN"]].map(([k, l]) => `<button type="button" data-v="${k}" class="${view === k ? "on" : ""}">${l}</button>`).join("")}</div>
     ${srcLine(it.source)}${it.goal ? `<div class="small">🎯 ${esc(it.goal)}</div>` : ""}
-    ${coachHTML(it)}${checkBox}
-    <div class="${langs.length > 1 ? "two" : ""}">${langs.map(block).join("")}</div>
+    ${it.mode === "read" ? `${coachHTML(it)}
+    <div class="${langs.length > 1 ? "two" : ""}">${langs.map(block).join("")}</div>${misread}${checkBox}` : `${coachHTML(it)}${checkBox}
+    <div class="${langs.length > 1 ? "two" : ""}">${langs.map(block).join("")}</div>`}
     ${r.concepts?.length ? `<b>${esc(t("images"))}</b><div class="concepts" style="margin:8px 0">${r.concepts.map((c, i) => {
       const p = it.photos?.[i];
       return `<div class="concept"><div class="ph">${p ? `<img src="${esc(p.src)}" alt="${esc(p.alt || c.en)}" loading="lazy">` : `<span class="hand" style="font-size:54px;color:var(--blue)">${esc((c[L] || c.es || "?").slice(0, 1).toUpperCase())}</span>`}</div><div class="c">${esc(c[L] || c.es)}<small>${esc(c[L === "en" ? "es" : "en"])}</small></div>${p ? `<div class="credit lic"><a href="${esc(p.url)}" target="_blank" rel="noopener">${esc(p.credit)} · ${esc(p.source)}</a></div>` : ""}</div>`;
     }).join("")}</div>` : ""}
+    ${it.transcript ? `<details class="card trview"><summary><b>📝 ${esc(t(it.mode === "read" ? "yourText" : "yourTextE"))}</b></summary>${sayBtnHTML(it.transcript)}<p>${esc(it.transcript)}</p></details>` : ""}
     ${quiz}${mine}${ba}${extras}`;
 }
 function mountResult() {
@@ -670,19 +710,37 @@ async function runCheck(it, force = false) {
   if (checking.has(it.id) && !force) return;
   checking.add(it.id);
   patchItem(it.id, { check: { pending: true } }); if (force) render();
-  let d; try { d = await api("/api/study-check", { source: it.source, topic: it.topic, transcript: it.transcript }); } catch { d = {}; }
+  let d; try { d = await api("/api/study-check", { mode: it.mode, source: it.source, topic: it.topic, transcript: it.transcript }); } catch { d = {}; }
   checking.delete(it.id);
   patchItem(it.id, { check: d.status === "ok" ? { issues: d.issues || [], sources: d.sources || [] } : { failed: true } });
   if ((route === "study" || route === "carpeta") && $("#mine")?.dataset.id === it.id) { const keep = $("#mine").value; render(); const m = $("#mine"); if (m) m.value = keep; }
 }
-function speak(it) {
-  if (!("speechSynthesis" in window)) return;
-  if (speechSynthesis.speaking) { speechSynthesis.cancel(); return; }
-  const view = LS.get("tangent.study.view", L), lang = view === "both" ? L : view, r = it.result;
-  const u = new SpeechSynthesisUtterance([r.title[lang], r.plain[lang], ...(r.points[lang] || [])].filter(Boolean).join(". "));
-  u.lang = lang === "en" ? "en-US" : "es-AR"; u.rate = 0.95;
+// Read aloud: the whole result, or one part (🔊 next to each block). Tap again to stop.
+let sayBtn = null;
+function sayText(text, lang, btn) {
+  if (!("speechSynthesis" in window) || !text) return;
+  const again = sayBtn && sayBtn === btn && speechSynthesis.speaking;
+  speechSynthesis.cancel(); sayBtn?.classList.remove("on"); sayBtn = null;
+  if (again) return;
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = lang === "en" ? "en-US" : "es-AR"; u.rate = st.item?.mode === "read" ? 0.85 : 0.95;
   const v = speechSynthesis.getVoices().find(x => x.lang.toLowerCase().startsWith(lang)); if (v) u.voice = v;
+  if (btn) { sayBtn = btn; btn.classList.add("on"); u.onend = u.onerror = () => { btn.classList.remove("on"); if (sayBtn === btn) sayBtn = null; }; }
   speechSynthesis.speak(u);
+}
+function speak(it, btn) {
+  const view = LS.get("tangent.study.view", L), lang = view === "both" ? L : view, r = it.result;
+  sayText([r.title[lang], r.plain[lang], ...(r.points[lang] || [])].filter(Boolean).join(". "), lang, btn);
+}
+const sayBtnHTML = (text, lang = L) => !text || !("speechSynthesis" in window) ? "" : `<button type="button" class="say" data-say="${esc(text)}" data-lang="${lang}" aria-label="${esc(t("sayIt"))}" title="${esc(t("sayIt"))}">🔊</button>`;
+document.addEventListener("click", e => { const b = e.target.closest("[data-say]"); if (b) { e.preventDefault(); sayText(b.dataset.say, b.dataset.lang, b); } });
+window.addEventListener("hashchange", () => { if ("speechSynthesis" in window) speechSynthesis.cancel(); });
+// One tap "Lectura fácil": guide bold + easy font + more space. The Aa sheet still has the fine-grained options.
+function easyToggleHTML() { const p = readPrefs(), on = p.bold && p.font; return `<button type="button" class="btn small ghost easytog ${on ? "on" : ""}" id="easyTog" aria-pressed="${Boolean(on)}">Aa ${esc(t("easyOn"))}${on ? " ✓" : ""}</button>`; }
+function easyToggle() {
+  const p = readPrefs(), on = p.bold && p.font;
+  LS.set(K.read, on ? { ...p, font: "", space: false, bold: false } : { ...p, font: p.font || "lexend", space: true, bold: true });
+  applyRead(); render();
 }
 
 /* recording in ~60 s pieces */
@@ -810,14 +868,14 @@ async function makeSummary() {
   keepDraft();
   st.busy = true; st.error = ""; render();
   let d;
-  try { d = await api("/api/study", { source: st.source, topic: st.topic, goal: st.goal || undefined, before: st.before || undefined, transcript: st.transcript, image: st.image || undefined }); }
+  try { d = await api("/api/study", { mode: st.mode, source: st.source, topic: st.mode === "read" ? "" : st.topic, goal: st.goal || undefined, before: st.before || undefined, transcript: st.transcript, image: st.image || undefined }); }
   catch { d = { status: "ai_error" }; }
   st.busy = false;
   const kept = st.draftId ? ` <b>${esc(t("draftKept"))}</b>` : "";
   if (d.status === "unclear") { st.error = esc(t("unclear")) + kept; return render(); }
   const msg = { paywall: `${esc(t("paywall"))} <a href="#cuenta">${esc(t("seePlans"))}</a>`, blocked: esc(t("blocked")), support: esc(t("support")), language: esc(t("langOnly")), no_source: esc(t("needSource")) }[d.status];
   if (d.status !== "ok") { st.error = (msg || esc(t("errAI"))) + kept; return render(); }
-  const item = { id: uid(), at: new Date().toISOString(), source: { ...st.source }, topic: st.topic, transcript: st.transcript, result: d.result, photos: [], goal: st.goal, before: st.before };
+  const item = { id: uid(), at: new Date().toISOString(), mode: st.mode, source: { ...st.source }, topic: st.mode === "read" ? "" : st.topic, transcript: st.transcript, result: d.result, photos: [], goal: st.goal, before: st.before };
   saveFolder([item, ...folder()]);
   if (st.draftId) { saveDrafts(drafts().filter(x => x.id !== st.draftId)); st.draftId = null; }
   if (paid()) { addSpaced(item); setTimeout(() => toast(t("spacedOn"), 3500), 2700); }
@@ -1122,14 +1180,14 @@ const saveDrafts = v => LS.set(K.drafts, v.slice(0, 30));
 function keepDraft() {
   const text = String(st.transcript || "").trim();
   if (!text) return;
-  const d = { id: st.draftId || uid(), at: new Date().toISOString(), source: { ...st.source }, topic: st.topic, goal: st.goal, before: st.before, transcript: text };
+  const d = { id: st.draftId || uid(), at: new Date().toISOString(), mode: st.mode, source: { ...st.source }, topic: st.topic, goal: st.goal, before: st.before, transcript: text };
   st.draftId = d.id;
   saveDrafts([d, ...drafts().filter(x => x.id !== d.id)]);
 }
 function openDraft(id) {
   const d = drafts().find(x => x.id === id); if (!d) return;
   dropAudio();
-  Object.assign(st, { draftId: d.id, step: 3, source: { title: "", author: "", page: "", ...d.source }, topic: d.topic || "", goal: d.goal || "", before: d.before || "", transcript: d.transcript, image: null, imageUrl: null, item: null, error: "", busy: false });
+  Object.assign(st, { mode: d.mode === "read" ? "read" : "explain", draftId: d.id, step: 3, source: { title: "", author: "", page: "", ...d.source }, topic: d.topic || "", goal: d.goal || "", before: d.before || "", transcript: d.transcript, image: null, imageUrl: null, item: null, error: "", busy: false });
   if (location.hash === "#study") render(); else location.hash = "study";
 }
 const draftsHTML = () => { const ds = drafts(); return !ds.length ? "" : `<div class="card"><b>✏️ ${esc(t("draftsT"))}</b><p class="small" style="margin:4px 0 0">${esc(t("draftsP"))}</p>
@@ -1181,13 +1239,15 @@ function printItems(items, paper, view, withText) {
     return langs.map(lang => `<section class="pg">${printHdr()}
       <h1>${esc(r.title[lang])}</h1>
       <div class="src"><b>${esc(tl("basedOn", lang))}:</b> «${esc(it.source.title)}»${it.source.author ? `, ${esc(it.source.author)}` : ""}${it.source.page ? ` (${esc(it.source.page)})` : ""}. ${esc(tl("notMagic", lang))}</div>
-      <h2>${esc(tl("plain", lang))}</h2><p>${esc(r.plain[lang])}</p>
-      ${r.points[lang]?.length ? `<h2>${esc(tl("keyIdeas", lang))}</h2><ul>${r.points[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
+      <h2>${esc(tl(mk("plain", it.mode), lang))}</h2><p>${esc(r.plain[lang])}</p>
+      ${r.points[lang]?.length ? `<h2>${esc(tl(mk("keyIdeas", it.mode), lang))}</h2><ul>${r.points[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
       ${it.photos?.some(Boolean) ? `<div class="imgs">${r.concepts.map((c, i) => it.photos[i] ? `<figure><img src="${esc(it.photos[i].src)}" alt=""><figcaption><b>${esc(c[lang])}</b><br>${esc(it.photos[i].credit)} · ${esc(it.photos[i].source)}</figcaption></figure>` : "").join("")}</div>` : ""}
-      ${r.check[lang]?.length ? `<h2>${esc(tl("checkYou", lang))}</h2><ol>${r.check[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ol>` : ""}
+      ${r.words?.length ? `<h2>${esc(tl("wordsT", lang))}</h2><ul>${r.words.map(w => `<li><b>${esc(w.word[lang] || w.word.es)}</b>: ${esc(w.meaning[lang] || w.meaning.es)}</li>`).join("")}</ul>` : ""}
+      ${r.misread?.length ? `<h2>${esc(tl("misreadT", lang))}</h2><ul>${r.misread.map(x => `<li>«${esc(x.said)}» → «${esc(x.right)}»</li>`).join("")}</ul>` : ""}
+      ${r.check[lang]?.length ? `<h2>${esc(tl(mk("checkYou", it.mode), lang))}</h2><ol>${r.check[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ol>` : ""}
       ${r.review[lang] ? `<p><b>${esc(tl("review", lang))}:</b> ${esc(r.review[lang])}</p>` : ""}
       ${r.goBack?.[lang]?.length ? `<h2>${esc(tl("goBackT", lang))}</h2><ul>${r.goBack[lang].map(p => `<li>${esc(p)}</li>`).join("")}</ul>` : ""}
-      ${it.check?.issues?.length ? `<h2>${esc(tl("checkT", lang))}</h2><ul>${it.check.issues.map(i => `<li>«${esc(i.said)}» → ${esc(i.fix[lang] || i.fix.es)}</li>`).join("")}</ul>` : ""}
+      ${it.check?.issues?.length ? `<h2>${esc(tl(mk("checkT", it.mode), lang))}</h2><ul>${it.check.issues.map(i => `<li>«${esc(i.said)}» → ${esc(i.fix[lang] || i.fix.es)}</li>`).join("")}</ul>` : ""}
       ${it.before ? `<h2>${esc(tl("baBefore", lang))}</h2><p>${esc(it.before)}</p>` : ""}
       ${it.mine ? `<h2>${esc(tl("mineTitle", lang))}</h2><p>${esc(it.mine)}</p>` : ""}
       ${agenda().some(e => e.item === it.id) ? `<h2>${esc(tl("planT2", lang))}</h2><ul>${agenda().filter(e => e.item === it.id).sort((a, b) => a.date.localeCompare(b.date)).map(e => `<li>${esc(new Date(e.date + "T12:00").toLocaleDateString(lang === "en" ? "en-US" : "es-AR", { weekday: "short", day: "numeric", month: "short" }))} · ${esc(e.title)}</li>`).join("")}</ul>` : ""}

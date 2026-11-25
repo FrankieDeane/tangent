@@ -1,4 +1,4 @@
-// POST /api/study { deviceId, code?, source: {title, author?, page?}, topic?, transcript?, image?: base64 JPEG }
+// POST /api/study { deviceId, code?, mode?: "read", source: {title, author?, page?}, topic?, transcript?, image?: base64 JPEG }
 // -> { status: "ok", result: { title, plain, points, concepts, check, review } } with every text in es and en.
 // Rule: no source, no summary. The app explains what the student said; the source is the student's responsibility.
 import { checkStudyText, identify, isBanned, underLimit, countUse, json } from "./_lib/guard.mjs";
@@ -21,6 +21,7 @@ export default async (req, context) => {
 
   const source = { title: s(body.source?.title, 160), author: s(body.source?.author, 120), page: s(body.source?.page, 60) };
   if (source.title.length < 2) return json(400, { status: "no_source" });
+  const mode = body.mode === "read" ? "read" : "explain";
   const topic = s(body.topic, 120), goal = s(body.goal, 120), before = s(body.before, 1500);
   const transcript = s(body.transcript, 12000);
   const image = typeof body.image === "string" ? body.image : "";
@@ -30,13 +31,13 @@ export default async (req, context) => {
   const said = checkStudyText([source.title, topic, goal, before, transcript].join(" \n "));
   if (said) return json(200, { status: said.category === "selfharm" ? "support" : "blocked" });
 
-  // Too many inaudible parts: ask to record again instead of guessing.
+  // Too many inaudible parts: ask to record again instead of guessing (beginner readers get more room).
   const words = transcript.split(/\s+/).filter(Boolean).length, unknown = (transcript.match(/\[\?\]/g) || []).length;
-  if (!image && words && unknown / words > 0.15) return json(200, { status: "unclear", transcript });
+  if (!image && words && unknown / words > (mode === "read" ? 0.3 : 0.15)) return json(200, { status: "unclear", transcript });
 
   setBudget(24000);
   let r;
-  try { r = await studyExplain({ transcript, source, topic, goal, before, image }); }
+  try { r = await studyExplain({ transcript, source, topic, goal, before, image, mode }); }
   catch (e) {
     if (e instanceof Blocked) return json(200, { status: "blocked" });
     console.error("study failed:", e.message);
@@ -57,15 +58,17 @@ export default async (req, context) => {
       fixes: (Array.isArray(r.coach?.fixes) ? r.coach.fixes : []).slice(0, 4).map(f => ({ said: s(f?.said, 160), right: pair(f?.right, 260), why: pair(f?.why, 200) })).filter(f => f.right.es || f.right.en),
       focus: pair(r.coach?.focus, 260), next: pair(r.coach?.next, 160),
     },
+    words: (Array.isArray(r.words) ? r.words : []).slice(0, 4).map(w => ({ word: pair(w?.word, 40), meaning: pair(w?.meaning, 160) })).filter(w => w.word.es || w.word.en),
+    misread: (Array.isArray(r.misread) && image ? r.misread : []).slice(0, 5).map(m => ({ said: s(m?.said, 80), right: s(m?.right, 80) })).filter(m => m.right && m.said !== m.right),
     concepts: (Array.isArray(r.concepts) ? r.concepts : []).slice(0, 3).map(c => ({ es: s(c?.es, 40), en: s(c?.en, 40), photo: s(c?.photo, 50) })).filter(c => c.es || c.en),
   };
   if (!result.plain.es && !result.plain.en) return json(502, { status: "ai_error" });
-  const out = [result.title.es, result.title.en, result.plain.es, result.plain.en, ...result.points.es, ...result.points.en, result.coach.hello.es, result.coach.hello.en, result.coach.focus.es, result.coach.focus.en, result.coach.next.es, result.coach.next.en, ...result.coach.fixes.flatMap(f => [f.right.es, f.right.en, f.why.es, f.why.en])].join(" \n ");
+  const out = [result.title.es, result.title.en, result.plain.es, result.plain.en, ...result.points.es, ...result.points.en, result.coach.hello.es, result.coach.hello.en, result.coach.focus.es, result.coach.focus.en, result.coach.next.es, result.coach.next.en, ...result.coach.fixes.flatMap(f => [f.right.es, f.right.en, f.why.es, f.why.en]), ...result.words.flatMap(w => [w.word.es, w.word.en, w.meaning.es, w.meaning.en])].join(" \n ");
   if (checkStudyText(out)) return json(200, { status: "ai_error" });
 
   await countUse(id, "study");
   if (!member) await useFree(id);
-  return json(200, { status: "ok", result, transcript, provider: r.provider });
+  return json(200, { status: "ok", result, mode, transcript, provider: r.provider });
 };
 
 export const config = { path: "/api/study" };

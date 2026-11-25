@@ -644,3 +644,22 @@ details.more>summary::-webkit-details-marker,details.tip>summary::-webkit-detail
 details.tip>summary{cursor:pointer;list-style:none}
 details.card>summary{cursor:pointer}
 .printtop{float:right;margin:0 0 6px 8px}
+/* reading mode: "Leo un cuento o texto" */
+.modeseg{max-width:480px;margin:0 0 14px}
+.modeseg button{white-space:normal;line-height:1.25;color:var(--ink)}
+.modeseg button.on{color:#fff}
+.readphoto{margin-top:10px}
+.words li b{color:var(--blue)}
+.misread{border-left:4px solid var(--blue)}
+/* read aloud per part + one-tap easy reading */
+.resbar{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.resbar .btn{margin:0}
+.say{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;border:1px solid var(--line,#d9dde6);background:#fff;font-size:16px;line-height:1;padding:0;vertical-align:middle;cursor:pointer;flex-shrink:0}
+.say:hover{border-color:var(--blue)}
+.say.on{background:var(--blue);border-color:var(--blue);animation:sayPulse 1.2s ease-in-out infinite}
+@keyframes sayPulse{50%{box-shadow:0 0 0 6px rgba(31,79,191,.15)}}
+.easytog.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.trview p{font-size:18px;line-height:1.7;margin:8px 0 0;white-space:pre-wrap}
+.trview .say{float:right;margin-left:8px}
+.q p .say{margin-right:4px}
+@media (prefers-reduced-motion: reduce){.say.on{animation:none}}
