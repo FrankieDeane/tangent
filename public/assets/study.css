@@ -671,3 +671,8 @@ details.card>summary{cursor:pointer}
 .ageseg button.on{color:#fff}
 .agenow{margin:0 0 10px}
 .linkbtn{background:none;border:0;padding:0;color:var(--blue);text-decoration:underline;font:inherit;cursor:pointer}
+/* keep your work: copy / restore / people on one device */
+.keep.due{border-left:4px solid var(--blue)}
+.keep .row{gap:8px;flex-wrap:wrap}
+.keep .row .btn{margin:0}
+.people summary{margin-top:10px}

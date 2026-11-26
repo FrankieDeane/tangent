@@ -9,8 +9,14 @@ const LS = {
   set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
-const K = { lang: "tangent.study.lang", folder: "tangent.study.folder", board: "tangent.study.board", agenda: "tangent.study.agenda", scale: "tangent.study.scale",
-  profile: "tangent.study.profile", cookies: "tangent.study.cookies", code: "tangent.access", source: "tangent.study.source", test: "tangent.study.test", tags: "tangent.study.tags", signup: "tangent.study.signup", avatar: "tangent.study.avatar", read: "tangent.study.read", drafts: "tangent.study.drafts", onb: "tangent.study.onb", tester: "tangent.study.tester", bview: "tangent.study.bview", bfold: "tangent.study.bfold", mode: "tangent.study.mode", age: "tangent.study.age" };
+// People on this device (e.g. a parent and a child on one phone): each person's work lives under its own keys.
+// The first person keeps the original keys, so nothing saved before has to move.
+const PEOPLE = "tangent.study.people", ME = (() => { const m = LS.get("tangent.study.me", ""); return /^[a-z0-9]{4,12}$/.test(m) && LS.get(PEOPLE, []).some(p => p.id === m) ? m : ""; })();
+const P = k => (ME ? `${k}@${ME}` : k);
+const K = { lang: "tangent.study.lang", folder: P("tangent.study.folder"), board: P("tangent.study.board"), agenda: P("tangent.study.agenda"), scale: P("tangent.study.scale"),
+  profile: P("tangent.study.profile"), cookies: "tangent.study.cookies", code: "tangent.access", source: P("tangent.study.source"), test: P("tangent.study.test"), tags: P("tangent.study.tags"), signup: "tangent.study.signup", avatar: P("tangent.study.avatar"), read: P("tangent.study.read"), drafts: P("tangent.study.drafts"), onb: "tangent.study.onb", tester: "tangent.study.tester", bview: P("tangent.study.bview"), bfold: P("tangent.study.bfold"), mode: P("tangent.study.mode"), age: P("tangent.study.age"), backupAt: P("tangent.study.backupAt") };
+// Per-person keys that are not in K
+const KV = P("tangent.study.view"), KPRINT = P("tangent.study.print");
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const uid = () => Math.random().toString(36).slice(2, 10);
 const pad = n => String(n).padStart(2, "0");
@@ -61,6 +67,16 @@ const S = {
   plainR: ["De qué se trata", "What it is about"], keyIdeasR: ["Qué pasó", "What happened"], checkYouR: ["Para charlar con alguien", "To talk about with someone"],
   easyOn: ["Lectura fácil", "Easy reading"], sayIt: ["Escuchar esta parte", "Listen to this part"], listenAll: ["Escuchar todo", "Listen to all"],
   yourText: ["Lo que leíste", "What you read"], yourTextE: ["Lo que dijiste", "What you said"], editText: ["✏️ Corregir el texto", "✏️ Fix the text"],
+  keepT: ["Tu trabajo se guarda en este aparato", "Your work is saved on this device"],
+  keepP: ["Está en este navegador, no en internet. Si borrás los datos del navegador o cambiás de celular, se pierde. Guardá una copia cada tanto.", "It lives in this browser, not online. If you clear browser data or switch phones, it's gone. Save a copy now and then."],
+  keepLast: ["Última copia", "Last copy"], keepNever: ["todavía ninguna", "none yet"], keepCount: ["resúmenes guardados", "summaries saved"],
+  keepCountL: ["Resúmenes guardados", "Summaries saved"],
+  keepSave: ["Guardar copia", "Save a copy"], keepLoad: ["Recuperar copia", "Restore a copy"],
+  keepDone: ["Listo: copia descargada. Guardala en Drive, mail o donde quieras.", "Done: copy downloaded. Keep it in Drive, email or wherever you like."],
+  keepBad: ["Ese archivo no es una copia de Tangent.", "That file isn't a Tangent copy."], keepGot: ["Recuperé", "Restored"],
+  keepOld: ["Hace más de una semana que no guardás una copia.", "It's been over a week since your last copy."],
+  peopleT: ["¿Quién estudia?", "Who is studying?"], peopleP: ["Si comparten este aparato, cada persona tiene su propia carpeta, separada.", "If you share this device, each person gets their own separate folder."],
+  peopleAdd: ["Agregar", "Add"], peopleName: ["Nombre o apodo", "Name or nickname"], peopleMe: ["Yo", "Me"], peopleNow: ["Estudia", "Studying"], peopleSwitch: ["cambiar", "switch"],
   wordsT: ["Palabras nuevas", "New words"], misreadT: ["Palabras para leer de nuevo", "Words to read again"], misreadSaid: ["Leíste", "You read"], misreadRight: ["Dice", "It says"],
   checkTR: ["Comparado con el cuento en internet", "Compared with the story online"], checkingR: ["Buscando el cuento en internet para comparar…", "Looking up the story online to compare…"],
   checkOkR: ["Lo que leíste coincide con el cuento (o no lo encontré en internet).", "What you read matches the story (or I couldn't find it online)."],
@@ -320,6 +336,56 @@ function sheet(title, html, { ok = t("save"), danger = false } = {}) {
 const confirmIt = msg => sheet(msg, "", { ok: t("del"), danger: true }).then(v => v !== null);
 const COLORS = ["#2B44E8", "#7C5CFF", "#3FA7FF", "#16A34A", "#F59E0B", "#E2363B", "#EC4899", "#6B7280"];
 const dots = (name, cur) => `<div class="dots"><input type="hidden" name="${name}" value="${esc(cur || "")}">${COLORS.map(c => `<button type="button" data-pick="${c}" class="${c === cur ? "on" : ""}" style="background:${c}" aria-label="${c}"></button>`).join("")}</div>`;
+/* ---------------- keep your work: copies and people on one device ---------------- */
+const people = () => [{ id: "", name: t("peopleMe") }, ...LS.get(PEOPLE, [])];
+const meName = () => (people().find(p => p.id === ME) || people()[0]).name;
+function switchPerson(id) { LS.set("tangent.study.me", id); location.hash = "carpeta"; location.reload(); }
+const PERSON_KEYS = ["folder", "board", "agenda", "scale", "profile", "source", "test", "tags", "avatar", "read", "drafts", "bview", "bfold", "mode", "age"];
+function saveCopy() {
+  const data = { app: "tangent-study", v: 1, at: new Date().toISOString(), person: meName() };
+  for (const n of PERSON_KEYS) data[n] = LS.get(K[n], null);
+  const d = new Date(), who = meName().toLowerCase().normalize("NFD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 20) || "yo";
+  download(`tangent-copia-${who}-${dayKey(d)}.json`, JSON.stringify(data), "application/json");
+  LS.set(K.backupAt, d.toISOString()); toast(t("keepDone"), 4500);
+  if (route === "carpeta") render();
+}
+async function loadCopy(file) {
+  let data; try { data = JSON.parse(await file.text()); } catch { return toast(t("keepBad")); }
+  if (!data || typeof data !== "object" || (data.app !== "tangent-study" && !Array.isArray(data.folder))) return toast(t("keepBad"));
+  const byId = (a, b) => { const m = new Map(); [...(Array.isArray(b) ? b : []), ...(Array.isArray(a) ? a : [])].forEach(x => x && x.id && m.set(x.id, x)); return [...m.values()]; };
+  const mine = folder(), add = Array.isArray(data.folder) ? data.folder.filter(x => x?.id && x?.result?.title && !mine.some(y => y.id === x.id)) : [];
+  saveFolder(byId(mine, data.folder).filter(x => x?.result?.title).sort((a, b) => String(b.at).localeCompare(String(a.at))));
+  if (Array.isArray(data.drafts)) saveDrafts(byId(drafts(), data.drafts));
+  if (Array.isArray(data.agenda)) LS.set(K.agenda, byId(LS.get(K.agenda, []), data.agenda));
+  for (const n of ["board", "scale", "profile", "source", "test", "tags", "avatar", "read", "mode", "age"]) if (data[n] != null && LS.get(K[n], null) == null) LS.set(K[n], data[n]);
+  try { navigator.storage?.persist?.(); } catch {}
+  toast(`${t("keepGot")}: ${add.length} ${t("keepCount")}`, 4500); applyRead(); render();
+}
+function keepHTML() {
+  const n = folder().length, last = LS.get(K.backupAt, ""), old = n > 0 && (!last || Date.now() - Date.parse(last) > 7 * 864e5);
+  const ps = people();
+  return `<div class="card keep ${old ? "due" : ""}"><b>💾 ${esc(t("keepT"))}</b>
+    <p class="small" style="margin:4px 0 6px">${esc(t("keepP"))}</p>
+    <div class="small">${esc(t("keepCountL"))}: <b>${n}</b> · ${esc(t("keepLast"))}: <b>${last ? esc(new Date(last).toLocaleDateString(L === "en" ? "en-US" : "es-AR", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })) : esc(t("keepNever"))}</b></div>
+    ${old ? `<div class="small" style="margin-top:4px;color:var(--blue)"><b>${esc(t("keepOld"))}</b></div>` : ""}
+    <div class="row" style="margin-top:8px"><button class="btn small" id="keepSave" type="button">⬇ ${esc(t("keepSave"))}</button>
+    <input type="file" id="keepFile" accept="application/json,.json" class="vh"><label for="keepFile" class="btn small ghost" style="cursor:pointer">⬆ ${esc(t("keepLoad"))}</label></div>
+    <details class="more people" ${ps.length > 1 ? "open" : ""}><summary>👥 ${esc(t("peopleT"))}</summary>
+      <p class="small" style="margin:6px 0">${esc(t("peopleP"))}</p>
+      <div class="row">${ps.map(p => `<button type="button" class="btn small ${p.id === ME ? "" : "ghost"}" data-person="${esc(p.id)}" ${p.id === ME ? 'aria-current="true"' : ""}>${p.id === ME ? "✓ " : ""}${esc(p.name)}</button>`).join("")}</div>
+      ${ps.length < 9 ? `<form id="personAdd" class="row" style="margin-top:8px;flex-wrap:nowrap"><input class="t" name="name" maxlength="24" placeholder="${esc(t("peopleName"))}" aria-label="${esc(t("peopleName"))}"><button class="btn small" type="submit" style="margin:0">＋ ${esc(t("peopleAdd"))}</button></form>` : ""}
+    </details></div>`;
+}
+function mountKeep() {
+  $("#keepSave")?.addEventListener("click", saveCopy);
+  $("#keepFile")?.addEventListener("change", e => { const f = e.target.files?.[0]; if (f) loadCopy(f); e.target.value = ""; });
+  $$("[data-person]").forEach(b => b.addEventListener("click", () => { if (b.dataset.person !== ME) switchPerson(b.dataset.person); }));
+  $("#personAdd")?.addEventListener("submit", e => {
+    e.preventDefault(); const name = String(new FormData(e.target).get("name") || "").trim().slice(0, 24); if (!name) return;
+    const id = uid(); LS.set(PEOPLE, [...LS.get(PEOPLE, []), { id, name }].slice(0, 8)); switchPerson(id);
+  });
+}
+const personChip = () => people().length > 1 ? `<div class="small agenow">👤 ${esc(t("peopleNow"))}: <b>${esc(meName())}</b> · <a href="#carpeta">${esc(t("peopleSwitch"))}</a></div>` : "";
 function download(name, text, type) { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], { type })); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500); }
 const fmtDate = (iso, opts = { weekday: "short", day: "numeric", month: "short" }) => { if (!iso) return ""; const [y, m, d] = iso.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString(L === "en" ? "en-US" : "es-AR", opts); };
 
@@ -490,6 +556,7 @@ V.study = {
   html() {
     if (arg && st.item?.id !== arg) { const it = folder().find(x => x.id === arg); if (it) { st.item = it; st.step = 4; } }
     if (st.step === 1) return `
+      ${personChip()}
       ${!st.age || st.ageEdit ? `<div class="agebox"><b>${esc(t("ageQ"))}</b><div class="seg ageseg" id="ageSeg" role="radiogroup">${AGES.map(([k, l]) => `<button type="button" role="radio" aria-checked="${st.age === k}" data-age="${k}" class="${st.age === k ? "on" : ""}">${esc(t(l))}</button>`).join("")}</div></div>`
         : `<div class="small agenow">${esc(t("ageL"))}: <b>${esc(t(AGES.find(a => a[0] === st.age)[1]))}</b> · <button type="button" class="linkbtn" id="ageEdit">${esc(t("ageChange"))}</button></div>`}
       <div class="seg modeseg" id="modeSeg" role="radiogroup">${[["explain", "modeExplain"], ["read", "modeRead"]].map(([k, l]) => `<button type="button" role="radio" aria-checked="${st.mode === k}" data-mode="${k}" class="${st.mode === k ? "on" : ""}">${esc(t(l))}</button>`).join("")}</div>
@@ -634,7 +701,7 @@ function coachHTML(it) {
     ${x(c.next) ? `<div class="nextstep"><span>${esc(t("coachNext"))}</span><b>${esc(x(c.next))}</b></div>` : ""}
   </section>`;
 }
-function resultHTML(it, view = LS.get("tangent.study.view", L)) {
+function resultHTML(it, view = LS.get(KV, L)) {
   const r = it.result, langs = view === "both" ? [L, L === "en" ? "es" : "en"] : [view];
   const block = lang => `
     <div class="card">
@@ -685,7 +752,7 @@ function resultHTML(it, view = LS.get("tangent.study.view", L)) {
     ${quiz}${mine}${ba}${extras}`;
 }
 function mountResult() {
-  $("#viewSeg")?.addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (!b) return; LS.set("tangent.study.view", b.dataset.v); render(); });
+  $("#viewSeg")?.addEventListener("click", e => { const b = e.target.closest("[data-v]"); if (!b) return; LS.set(KV, b.dataset.v); render(); });
   const m = $("#mine");
   m?.addEventListener("input", () => { clearTimeout(m.t); m.t = setTimeout(() => { patchItem(m.dataset.id, { mine: m.value }); const el = $("#mineSaved"); if (el) el.textContent = "✓ " + t("mineSaved"); }, 500); });
   $("#quiz")?.addEventListener("click", e => {
@@ -742,7 +809,7 @@ function sayText(text, lang, btn) {
   speechSynthesis.speak(u);
 }
 function speak(it, btn) {
-  const view = LS.get("tangent.study.view", L), lang = view === "both" ? L : view, r = it.result;
+  const view = LS.get(KV, L), lang = view === "both" ? L : view, r = it.result;
   sayText([r.title[lang], r.plain[lang], ...(r.points[lang] || [])].filter(Boolean).join(". "), lang, btn);
 }
 const sayBtnHTML = (text, lang = L) => !text || !("speechSynthesis" in window) ? "" : `<button type="button" class="say" data-say="${esc(text)}" data-lang="${lang}" aria-label="${esc(t("sayIt"))}" title="${esc(t("sayIt"))}">🔊</button>`;
@@ -890,6 +957,7 @@ async function makeSummary() {
   if (d.status !== "ok") { st.error = (msg || esc(t("errAI"))) + kept; return render(); }
   const item = { id: uid(), at: new Date().toISOString(), mode: st.mode, source: { ...st.source }, topic: st.mode === "read" ? "" : st.topic, transcript: st.transcript, result: d.result, photos: [], goal: st.goal, before: st.before };
   saveFolder([item, ...folder()]);
+  try { navigator.storage?.persist?.(); } catch {}
   if (st.draftId) { saveDrafts(drafts().filter(x => x.id !== st.draftId)); st.draftId = null; }
   if (paid()) { addSpaced(item); setTimeout(() => toast(t("spacedOn"), 3500), 2700); }
   st.goal = ""; st.before = "";
@@ -1099,7 +1167,7 @@ document.addEventListener("click", e => {
   if (e.target.closest("[data-focushome]")) { e.preventDefault(); const k = board().cols[0]?.tasks[0]; if (k) { st.topic = k.text.slice(0, 120); st.minutes = 15; } location.hash = "study"; return; }
   const dg = e.target.closest("[data-draft]"); if (dg) { e.preventDefault(); return openDraft(dg.dataset.draft); }
   const p = e.target.closest("[data-printit]");
-  if (p) { e.preventDefault(); const it = folder().find(x => x.id === p.dataset.printit); if (it) printItems([it], LS.get("tangent.study.print", { paper: "A4" }).paper, LS.get("tangent.study.view", L), false); else toast(t("topicGone")); }
+  if (p) { e.preventDefault(); const it = folder().find(x => x.id === p.dataset.printit); if (it) printItems([it], LS.get(KPRINT, { paper: "A4" }).paper, LS.get(KV, L), false); else toast(t("topicGone")); }
 });
 /* reading block timer */
 const blk = { end: 0, mins: 15, iv: null, done: false };
@@ -1210,8 +1278,9 @@ V.carpeta = {
   html() {
     const items = folder();
     if (arg) { const it = items.find(x => x.id === arg); if (it) return `<a href="#carpeta">← ${esc(t("folder"))}</a>${resultHTML(it)}<div class="row"><button class="btn small" id="printOne" type="button">🖨️ ${esc(t("printThis"))}</button></div>`; }
-    const pf = LS.get("tangent.study.print", { paper: "A4", lang: L, text: false });
+    const pf = LS.get(KPRINT, { paper: "A4", lang: L, text: false });
     return `<h1>${esc(t("folder"))}</h1><p class="lead">${esc(t("folderP"))}</p>
+      ${keepHTML()}
       ${draftsHTML()}
       ${items.length ? `
       <div class="card two">
@@ -1226,9 +1295,9 @@ V.carpeta = {
       : drafts().length ? "" : `<div class="card">${esc(t("empty"))} <a href="#study">${esc(t("start"))}</a></div>`}`;
   },
   mount() {
-    mountResult();
-    $("#printOne")?.addEventListener("click", () => { const it = folder().find(x => x.id === arg); if (it) printItems([it], "A4", LS.get("tangent.study.view", L), false); });
-    const savePf = () => LS.set("tangent.study.print", { paper: $("#paper").value, lang: $("#plang").value, text: $("#ptext").checked });
+    mountResult(); mountKeep();
+    $("#printOne")?.addEventListener("click", () => { const it = folder().find(x => x.id === arg); if (it) printItems([it], "A4", LS.get(KV, L), false); });
+    const savePf = () => LS.set(KPRINT, { paper: $("#paper").value, lang: $("#plang").value, text: $("#ptext").checked });
     ["#paper", "#plang", "#ptext"].forEach(s => $(s)?.addEventListener("change", savePf));
     $("#pdf")?.addEventListener("click", () => {
       const ids = $$(".pick").filter(c => c.checked).map(c => c.value);
@@ -1615,7 +1684,7 @@ V.agenda = {
       const weeks = [...Array(6)].map((_, w) => days.slice(w * 7, w * 7 + 7)).filter(w => w.some(d => d.getMonth() === m));
       printHTML(`<section class="pg">${printHdr()}<h1>${esc(monthTitle(y, m, loc))}</h1>
         <table><tr>${wds.map(w => `<th>${esc(w)}</th>`).join("")}</tr>${weeks.map(w => `<tr>${w.map(d => `<td style="height:78pt;width:14.2%;${d.getMonth() !== m ? "color:#aaa" : ""}"><b>${d.getDate()}</b><br>${evs.filter(e => e.date === dayKey(d)).map(e => `<span style="font-size:8pt;color:${tagOf(e).color}">■</span> <span style="font-size:8pt">${esc(e.title)}</span>`).join("<br>")}</td>`).join("")}</tr>`).join("")}</table>
-        <p class="foot">${tags().map(g => `<span style="color:${g.color}">■</span> ${esc(tagName(g))}`).join(" &nbsp; ")}</p></section>`, LS.get("tangent.study.print", { paper: "A4" }).paper);
+        <p class="foot">${tags().map(g => `<span style="color:${g.color}">■</span> ${esc(tagName(g))}`).join(" &nbsp; ")}</p></section>`, LS.get(KPRINT, { paper: "A4" }).paper);
     });
   },
 };
@@ -1689,7 +1758,7 @@ V.test = {
 };
 
 /* ---------------- paper kit ---------------- */
-function printKit(which, paper = LS.get("tangent.study.print", { paper: "A4" }).paper) {
+function printKit(which, paper = LS.get(KPRINT, { paper: "A4" }).paper) {
   const lines = n => `<div class="lines">${"<div></div>".repeat(n)}</div>`;
   const en = L === "en";
   const pages = {
@@ -1882,10 +1951,9 @@ V.terminos = {
   mount() {
     $("#cm").addEventListener("change", e => LS.set(K.cookies, { measure: e.target.checked }));
     $("#export").addEventListener("click", () => {
-      const data = {}; for (const [n, k] of Object.entries(K)) if (n !== "code") data[n] = LS.get(k, null);
-      download("tangent-mis-datos.json", JSON.stringify(data, null, 2), "application/json");
+      saveCopy();
     });
-    $("#wipe").addEventListener("click", async () => { if (await confirmIt(t("wipeSure"))) { Object.values(K).forEach(k => LS.del(k)); LS.del("tangent.study.view"); LS.del("tangent.study.print"); st.source = { title: "", author: "", page: "" }; st.item = null; toast(t("wiped")); render(); } });
+    $("#wipe").addEventListener("click", async () => { if (await confirmIt(t("wipeSure"))) { Object.values(K).forEach(k => LS.del(k)); LS.del(KV); LS.del(KPRINT); st.source = { title: "", author: "", page: "" }; st.item = null; toast(t("wiped")); render(); } });
   },
 };
 
